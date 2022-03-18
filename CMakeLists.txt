@@ -17,5 +17,4 @@ file(GLOB_RECURSE SRC_FILES
         "src/engine/*.h"
         "src/engine/*.hpp"
         )
-#add_executable(TFG src/main.cpp ${SRC_FILES} ${IMGUI} ${IMGUI_BACKEND})
-add_executable(TFG src/main.cpp ${SRC_FILES})
+add_executable(TFG src/main.cpp ${SRC_FILES} ${IMGUI} ${IMGUI_BACKEND})
