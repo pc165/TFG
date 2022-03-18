@@ -22,6 +22,8 @@ private:
 public:
     ~Shader();
 
+    Shader();
+
     Shader(const char *vertexFilePath, const char *fragmentFilePath);
 
     Shader(const char *shaderPath);

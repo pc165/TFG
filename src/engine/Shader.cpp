@@ -1,5 +1,23 @@
 #include "Shader.h"
 
+Shader::Shader() {
+    fragmentShaderCode_ =
+            "#version 330 core\n"
+            "out vec4 color;\n"
+            "void main(){\n"
+            "color = vec4(1.0, 0.0, 0.0, 0.0);\n"
+            "}\n";
+    vertexShaderCode_ =
+            "#version 330 core\n"
+            "layout(location = 0) in vec3 vertexPosition_modelspace;\n"
+            "void main(){\n"
+            "gl_Position.xyz = vertexPosition_modelspace;\n"
+            "gl_Position.w = 1.0;\n"
+            "}\n";
+    compile();
+    link();
+}
+
 Shader::Shader(const char *vertexFilePath, const char *fragmentFilePath) {
     fragmentShaderCode_ = readFile(fragmentFilePath);
     vertexShaderCode_ = readFile(vertexFilePath);
