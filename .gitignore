@@ -935,3 +935,4 @@ cython_debug/
 
 /paper/build/
 /.idea/
+/CMakeFiles/
