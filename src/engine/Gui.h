@@ -7,14 +7,15 @@
 class Gui : Layer {
 private:
     GLFWwindow *window_;
+    int display_w, display_h;
 public:
     Gui();
 
     ~Gui() override;
 
-    void begin() const;
+    void begin();
 
-    void end() const;
+    void end();
 
     void onAttach() override;
 

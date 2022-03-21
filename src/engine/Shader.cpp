@@ -19,9 +19,9 @@ Shader::Shader() : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), ve
             "gl_Position.xyz = vertexPosition_modelspace;\n"
             "gl_Position.w = 1.0;\n"
             "}\n";
+    LOG_DEBUG("Default shader");
     compile();
     link();
-    std::cout << this;
 }
 
 Shader::Shader(std::string &vertexFilePath, std::string &fragmentFilePath)

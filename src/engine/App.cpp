@@ -1,7 +1,14 @@
+#include <spdlog/sinks/stdout_sinks.h>
 #include <algorithm>
 #include "App.h"
 #include "utils.h"
+#include "Buffer.h"
+#include "Shader.h"
 
+void initLogger() {
+    spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%s:%#:%!] %v");
+    spdlog::set_level(spdlog::level::debug);
+}
 
 App *App::instance_ = nullptr;
 
@@ -9,9 +16,12 @@ App::App(const std::string &title, uint32_t witdh, uint32_t heigth) : window_(nu
                                                                       layers_(),
                                                                       lastFrameTime(0.0),
                                                                       shouldClose(false),
+                                                                      enableGui(false),
                                                                       guiLayer() {
+
+    initLogger();
     instance_ = this;
-    LOG_INFO("App created {}.", fmt::ptr(instance_));
+    LOG_INFO("created {}", fmt::ptr(instance_));
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         LOG_CRITICAL("Failed to initialize GLFW");
@@ -20,7 +30,7 @@ App::App(const std::string &title, uint32_t witdh, uint32_t heigth) : window_(nu
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    window_ = glfwCreateWindow((int32_t) witdh, (int32_t) heigth, title.c_str(), nullptr, nullptr);
+    window_ = glfwCreateWindow(witdh, heigth, title.c_str(), nullptr, nullptr);
 
     LOG_DEBUG("Window created {}", fmt::ptr(window_));
 
@@ -59,7 +69,9 @@ void App::pushLayer(Layer *layer) {
 }
 
 void App::run() {
-    guiLayer.onAttach();
+    if (enableGui)
+        guiLayer.onAttach();
+
     while (!shouldClose) {
         for (auto &layer: layers_) {
             double timeSeconds = glfwGetTime();
@@ -70,17 +82,20 @@ void App::run() {
 
         // TODO Call glDraw
 
-        guiLayer.begin();
-        for (auto &layer: layers_) {
-            (*layer).onGuiRender();
+        if (enableGui) {
+            guiLayer.begin();
+            for (auto &layer: layers_) {
+                (*layer).onGuiRender();
+            }
+            guiLayer.end();
         }
-        guiLayer.end();
 
         glfwPollEvents();
         glfwSwapBuffers(window_);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-    guiLayer.onDetach();
+    if (enableGui)
+        guiLayer.onDetach();
 }
 
 bool App::isShouldClose() const {

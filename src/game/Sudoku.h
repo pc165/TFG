@@ -1,13 +1,17 @@
 #ifndef TFG_SUDOKU_H
 #define TFG_SUDOKU_H
 
+#include <ctype.h>
+#include "../engine/IncludeLibraries.h"
 #include "../engine/Layer.h"
+#include "../engine/Shader.h"
+#include "../engine/Buffer.h"
 
 class Sudoku : Layer {
 public:
     Sudoku();
 
-    ~Sudoku() override;
+    ~Sudoku() = default;
 
     void onAttach() override;
 
@@ -21,6 +25,10 @@ public:
 
 private:
     bool showDemoWindow;
+    Shader defaultShader;
+    VertexBuffer vb;
+    IndexBuffer<uint32_t> ib;
+    GLuint VertexArrayID;
 };
 
 

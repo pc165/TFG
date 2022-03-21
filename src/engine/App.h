@@ -21,12 +21,13 @@ public:
     void removeLayer(Layer const *layer);
 
 private:
-    std::vector<Layer *> layers_;
+    static App *instance_;
     GLFWwindow *window_;
     Gui guiLayer;
+    std::vector<Layer *> layers_;
     double lastFrameTime;
     bool shouldClose;
-    static App *instance_;
+    bool enableGui;
 
 public:
     bool isShouldClose() const;

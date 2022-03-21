@@ -6,20 +6,20 @@ Gui::Gui() : window_(nullptr), Layer("GUI") {}
 
 Gui::~Gui() = default;
 
-void Gui::begin() const {
+void Gui::begin() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void Gui::end() const {
+void Gui::end() {
     ImGui::Render();
-    int width, height;
-    glfwGetFramebufferSize(window_, &width, &height);
-    glViewport(0, 0, width, height);
-
+    glfwGetFramebufferSize(window_, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         GLFWwindow *backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
@@ -28,11 +28,11 @@ void Gui::end() const {
 }
 
 void Gui::onAttach() {
-    LOG_INFO("GUI OnAttach called");
+    LOG_INFO("OnAttach called");
 
     window_ = App::getInstance().getWindow();
 
-    LOG_DEBUG("GUI window {}", fmt::ptr(window_));
+    LOG_DEBUG("Window {}", fmt::ptr(window_));
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -45,7 +45,7 @@ void Gui::onAttach() {
     io.LogFilename = nullptr;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-
+    io.ConfigViewportsNoAutoMerge = true;
 
     ImGui_ImplGlfw_InitForOpenGL(window_, true);
     ImGui_ImplOpenGL3_Init();
