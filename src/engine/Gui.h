@@ -1,20 +1,24 @@
 #ifndef TFG_GUI_H
 #define TFG_GUI_H
 
-#include <GLFW/glfw3.h>
-#include "../lib/imgui/imgui.h"
-#include "../lib/imgui/backends/imgui_impl_glfw.h"
-#include "../lib/imgui/backends/imgui_impl_opengl3.h"
+#include "IncludeLibraries.h"
+#include "Layer.h"
 
-class Gui {
+class Gui : Layer {
 private:
     GLFWwindow *window_;
 public:
-    explicit Gui(GLFWwindow *window);
-    ~Gui();
-    void newFrame() const;
+    Gui();
 
-    void render() const;
+    ~Gui() override;
+
+    void begin() const;
+
+    void end() const;
+
+    void onAttach() override;
+
+    void onDetach() override;
 };
 
 #endif //TFG_GUI_H

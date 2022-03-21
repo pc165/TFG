@@ -2,35 +2,30 @@
 #define TFG_SHADER_H
 
 #include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-
-
-#include <GL/glew.h>
-#include <sstream>
+#include <ostream>
 
 class Shader {
 private:
     uint32_t programId_, vertexShaderId_, fragmentShaderId_;
-public:
-    uint32_t getProgramId() const { return programId_; }
-
-private:
     std::string vertexShaderCode_;
     std::string fragmentShaderCode_;
+
 public:
     ~Shader();
 
     Shader();
 
-    Shader(const char *vertexFilePath, const char *fragmentFilePath);
+    uint32_t getProgramId() const { return programId_; }
 
-    Shader(const char *shaderPath);
+    Shader(std::string &vertexFilePath, std::string &fragmentFilePath);
+
+    Shader(std::string &shaderPath);
 
     void bind() const;
 
-    __attribute__((unused)) static void unBind();
+    void unBind() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const Shader &shader);
 
 private:
     void compile();
@@ -39,9 +34,9 @@ private:
 
     static std::string readFile(const char *filePath);
 
-    static void checkShader(uint32_t id, GLenum pname);
+    static void checkShader(uint32_t id);
 
-    static void checkProgram(uint32_t id, GLenum pname);
+    static void checkProgram(uint32_t id);
 };
 
 

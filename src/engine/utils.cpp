@@ -1,10 +1,6 @@
-//
-// Created by x on 3/17/22.
-//
-
-#include <GL/glew.h>
 #include <iostream>
 #include <csignal>
+#include "utils.h"
 
 void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);

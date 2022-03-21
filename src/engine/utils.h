@@ -1,11 +1,7 @@
-//
-// Created by x on 3/17/22.
-//
-
 #ifndef TFG_UTILS_H
 #define TFG_UTILS_H
 
-#include <GL/glew.h>
+#include "IncludeLibraries.h"
 
 void glfw_error_callback(int error, const char *description);
 

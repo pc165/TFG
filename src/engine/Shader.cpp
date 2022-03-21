@@ -1,6 +1,11 @@
+#include <fstream>
+#include <iostream>
+#include <vector>
 #include "Shader.h"
+#include "IncludeLibraries.h"
 
-Shader::Shader() {
+
+Shader::Shader() : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
     fragmentShaderCode_ =
             "#version 330 core\n"
             "out vec4 color;\n"
@@ -16,27 +21,30 @@ Shader::Shader() {
             "}\n";
     compile();
     link();
+    std::cout << this;
 }
 
-Shader::Shader(const char *vertexFilePath, const char *fragmentFilePath) {
-    fragmentShaderCode_ = readFile(fragmentFilePath);
-    vertexShaderCode_ = readFile(vertexFilePath);
+Shader::Shader(std::string &vertexFilePath, std::string &fragmentFilePath)
+        : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
+    fragmentShaderCode_ = readFile(fragmentFilePath.c_str());
+    vertexShaderCode_ = readFile(vertexFilePath.c_str());
     compile();
     link();
 }
 
 
-Shader::Shader(const char *shaderPath) {
+Shader::Shader(std::string &shaderPath)
+        : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
     const std::string vertexToken = "#VERTEX\n", fragmentToken = "#FRAGMENT\n";
 
-    std::string source = readFile(shaderPath);
+    std::string source = readFile(shaderPath.c_str());
     size_t idxVertex = source.find(vertexToken, 0);
     size_t idxFragment = source.find(fragmentToken, 0);
 
     if (idxFragment == std::string::npos ||
         idxVertex == std::string::npos ||
         idxVertex >= idxFragment) {
-        fprintf(stderr, "Syntax error in %s\n", shaderPath);
+        fprintf(stderr, "Syntax error in %s\n", shaderPath.c_str());
     }
 
     size_t fragmentSize = source.size() - idxVertex;
@@ -49,8 +57,11 @@ Shader::Shader(const char *shaderPath) {
     link();
 }
 
+
 void Shader::compile() {
     // Create the shaders
+    LOG_INFO("Compiling shaders");
+
     vertexShaderId_ = glCreateShader(GL_VERTEX_SHADER);
     fragmentShaderId_ = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -58,54 +69,56 @@ void Shader::compile() {
     char const *vertexSourcePointer = vertexShaderCode_.c_str();
     glShaderSource(vertexShaderId_, 1, &vertexSourcePointer, nullptr);
     glCompileShader(vertexShaderId_);
-    checkShader(vertexShaderId_, GL_COMPILE_STATUS);
+    checkShader(vertexShaderId_);
 
     // Compile Fragment Shader
     char const *FragmentSourcePointer = fragmentShaderCode_.c_str();
     glShaderSource(fragmentShaderId_, 1, &FragmentSourcePointer, nullptr);
     glCompileShader(fragmentShaderId_);
-    checkShader(fragmentShaderId_, GL_COMPILE_STATUS);
+    checkShader(fragmentShaderId_);
 }
 
 
 void Shader::link() {
     // Link the program
-    printf("Linking program\n");
+    LOG_INFO("Linking program");
     programId_ = glCreateProgram();
     glAttachShader(programId_, vertexShaderId_);
     glAttachShader(programId_, fragmentShaderId_);
     glLinkProgram(programId_);
 
-    checkProgram(programId_, GL_LINK_STATUS);
+    checkProgram(programId_);
 
     glDetachShader(programId_, vertexShaderId_);
     glDetachShader(programId_, fragmentShaderId_);
+    glDeleteShader(vertexShaderId_);
+    glDeleteShader(fragmentShaderId_);
 }
 
-void Shader::checkShader(uint32_t id, GLenum pname) {
+void Shader::checkShader(uint32_t id) {
     GLint result = GL_FALSE;
     int infoLogLength;
 
-    glGetShaderiv(id, pname, &result);
+    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLogLength);
     if (infoLogLength > 0) {
         std::vector<char> VertexShaderErrorMessage(infoLogLength + 1);
         glGetShaderInfoLog(id, infoLogLength, nullptr, &VertexShaderErrorMessage[0]);
-        printf("%s\n", &VertexShaderErrorMessage[0]);
+        LOG_INFO("{}", &VertexShaderErrorMessage[0]);
     }
 }
 
-void Shader::checkProgram(uint32_t id, GLenum pname) {
+void Shader::checkProgram(uint32_t id) {
     // Check Vertex Shader
     GLint result = GL_FALSE;
     int infoLogLength;
 
-    glGetProgramiv(id, pname, &result);
+    glGetProgramiv(id, GL_LINK_STATUS, &result);
     glGetProgramiv(id, GL_INFO_LOG_LENGTH, &infoLogLength);
     if (infoLogLength > 0) {
         std::vector<char> VertexShaderErrorMessage(infoLogLength + 1);
         glGetShaderInfoLog(id, infoLogLength, nullptr, &VertexShaderErrorMessage[0]);
-        printf("%s\n", &VertexShaderErrorMessage[0]);
+        LOG_INFO("{}", &VertexShaderErrorMessage[0]);
     }
 }
 
@@ -129,12 +142,19 @@ void Shader::bind() const {
     glUseProgram(programId_);
 }
 
-void Shader::unBind() {
+void Shader::unBind() const {
     glUseProgram(0);
 }
 
 Shader::~Shader() {
     glDeleteProgram(programId_);
-    glDeleteShader(vertexShaderId_);
-    glDeleteShader(fragmentShaderId_);
+}
+
+std::ostream &operator<<(std::ostream &os, const Shader &shader) {
+    os << "programId_: " << shader.programId_
+       << " vertexShaderId_: " << shader.vertexShaderId_
+       << " fragmentShaderId_: " << shader.fragmentShaderId_ << "\n"
+       << " vertexShaderCode_: " << shader.vertexShaderCode_ << "\n"
+       << " fragmentShaderCode_: " << shader.fragmentShaderCode_ << std::endl;
+    return os;
 }
