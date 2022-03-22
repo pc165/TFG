@@ -2,7 +2,7 @@
 #include "engine/App.h"
 
 
-int main(int argc, char *argv[]) {
+int main(int , char *[]) {
     App app;
     app.pushLayer(reinterpret_cast<Layer *>(new Sudoku));
     app.run();

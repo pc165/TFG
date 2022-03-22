@@ -1,8 +1,7 @@
 #ifndef TFG_LAYER_H
 #define TFG_LAYER_H
 
-#include <string>
-#include <utility>
+#include "IncludeLibraries.h"
 #include "Event.h"
 
 class Layer {

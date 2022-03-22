@@ -1,17 +1,16 @@
 #ifndef TFG_SUDOKU_H
 #define TFG_SUDOKU_H
 
-#include <ctype.h>
-#include "../engine/IncludeLibraries.h"
-#include "../engine/Layer.h"
-#include "../engine/Shader.h"
-#include "../engine/Buffer.h"
+#include "IncludeLibraries.h"
+#include "Layer.h"
+#include "Shader.h"
+#include "Buffer.h"
 
 class Sudoku : Layer {
 public:
     Sudoku();
 
-    ~Sudoku() = default;
+    ~Sudoku() override = default;
 
     void onAttach() override;
 

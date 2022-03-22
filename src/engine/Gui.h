@@ -2,6 +2,7 @@
 #define TFG_GUI_H
 
 #include "IncludeLibraries.h"
+#include "OpenGL.h"
 #include "Layer.h"
 
 class Gui : Layer {

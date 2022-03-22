@@ -1,12 +1,8 @@
 #ifndef TFG_APP_H
 #define TFG_APP_H
 
-#include <vector>
-#include <string>
-#include <memory>
-#include "Layer.h"
-#include "IncludeLibraries.h"
 #include "Gui.h"
+#include "Layer.h"
 
 class App {
 public:

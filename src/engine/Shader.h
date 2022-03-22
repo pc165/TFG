@@ -1,8 +1,7 @@
 #ifndef TFG_SHADER_H
 #define TFG_SHADER_H
-
-#include <string>
-#include <ostream>
+#include "IncludeLibraries.h"
+#include "OpenGL.h"
 
 class Shader {
 private:

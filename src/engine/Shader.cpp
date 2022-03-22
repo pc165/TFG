@@ -1,11 +1,6 @@
-#include <fstream>
-#include <iostream>
-#include <vector>
 #include "Shader.h"
-#include "IncludeLibraries.h"
 
-
-Shader::Shader() : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
+Shader::Shader() : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vertexShaderCode_(), fragmentShaderCode_() {
     fragmentShaderCode_ =
             "#version 330 core\n"
             "out vec4 color;\n"
@@ -25,7 +20,7 @@ Shader::Shader() : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), ve
 }
 
 Shader::Shader(std::string &vertexFilePath, std::string &fragmentFilePath)
-        : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
+        : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vertexShaderCode_(), fragmentShaderCode_() {
     fragmentShaderCode_ = readFile(fragmentFilePath.c_str());
     vertexShaderCode_ = readFile(vertexFilePath.c_str());
     compile();
@@ -34,7 +29,7 @@ Shader::Shader(std::string &vertexFilePath, std::string &fragmentFilePath)
 
 
 Shader::Shader(std::string &shaderPath)
-        : fragmentShaderCode_(), vertexShaderCode_(), programId_(0), vertexShaderId_(0), fragmentShaderId_(0) {
+        : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vertexShaderCode_(), fragmentShaderCode_() {
     const std::string vertexToken = "#VERTEX\n", fragmentToken = "#FRAGMENT\n";
 
     std::string source = readFile(shaderPath.c_str());

@@ -1,23 +1,15 @@
-#include <spdlog/sinks/stdout_sinks.h>
-#include <algorithm>
 #include "App.h"
+#include "OpenGL.h"
 #include "utils.h"
-#include "Buffer.h"
-#include "Shader.h"
-
-void initLogger() {
-    spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%s:%#:%!] %v");
-    spdlog::set_level(spdlog::level::debug);
-}
 
 App *App::instance_ = nullptr;
 
 App::App(const std::string &title, uint32_t witdh, uint32_t heigth) : window_(nullptr),
+                                                                      guiLayer(),
                                                                       layers_(),
                                                                       lastFrameTime(0.0),
                                                                       shouldClose(false),
-                                                                      enableGui(false),
-                                                                      guiLayer() {
+                                                                      enableGui(false) {
 
     initLogger();
     instance_ = this;

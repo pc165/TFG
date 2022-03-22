@@ -1,8 +1,8 @@
 #ifndef TFG_BUFFER_H
 #define TFG_BUFFER_H
 
-#include <cstdint>
-#include <cstdio>
+
+#include "OpenGL.h"
 #include "IncludeLibraries.h"
 
 class VertexBuffer {
