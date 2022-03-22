@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 project(TFG)
-
 set(CMAKE_CXX_STANDARD 14)
 
 # GLEW and OpenGL
 link_libraries(glfw)
 link_libraries(GL)
 find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
 link_libraries(${GLEW_LIBRARIES})
 
 # spdlog
@@ -20,17 +18,43 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 #imgui
-set(IMGUI_DIR src/lib/imgui)
-set(IMGUI ${IMGUI_DIR}/imgui.cpp ${IMGUI_DIR}/imgui_demo.cpp ${IMGUI_DIR}/imgui_draw.cpp ${IMGUI_DIR}/imgui_tables.cpp ${IMGUI_DIR}/imgui_widgets.cpp)
-set(IMGUI_BACKEND ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG origin/docking
+)
+FetchContent_MakeAvailable(imgui)
+
+set(IMGUI_DIR
+        ${imgui_SOURCE_DIR})
+
+FILE(GLOB IMGUI_SOURCES
+        ${IMGUI_DIR}/*.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
+
+include_directories(
+        ${GLEW_INCLUDE_DIRS}
+        ${imgui_SOURCE_DIR}
+        src/engine
+        src/game
+        src/
+)
 
 #Source and Headers
 file(GLOB_RECURSE SRC_FILES
-        "src/engine/*.cpp"
-        "src/engine/*.h"
-        "src/game/*.cpp"
-        "src/game/*.h"
+        src/engine/*.cpp
+        src/engine/*.h
+        src/game/*.cpp
+        src/game/*.h
         )
 
-add_executable(TFG src/main.cpp ${SRC_FILES} ${IMGUI} ${IMGUI_BACKEND})
+add_executable(TFG src/main.cpp ${SRC_FILES} ${IMGUI_SOURCES})
 target_link_libraries(TFG PRIVATE spdlog::spdlog)
+
+# warnings
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Weverything -Wunused-parameter")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall -Wextra -Wunused-parameter")
+endif ()
