@@ -1,5 +1,6 @@
 #ifndef TFG_SHADER_H
 #define TFG_SHADER_H
+
 #include "IncludeLibraries.h"
 #include "OpenGL.h"
 
@@ -16,9 +17,9 @@ public:
 
     uint32_t getProgramId() const { return programId_; }
 
-    Shader(std::string &vertexFilePath, std::string &fragmentFilePath);
+    Shader(const char *vertexFilePath, const char *fragmentFilePath);
 
-    Shader(std::string &shaderPath);
+    explicit Shader(const char *shaderPath);
 
     void bind() const;
 

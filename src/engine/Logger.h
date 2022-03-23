@@ -8,8 +8,8 @@
 #define LOG_TRACE(...) LOG_CALL(spdlog::level::trace,__VA_ARGS__)
 #define LOG_DEBUG(...) LOG_CALL(spdlog::level::debug,__VA_ARGS__)
 #define LOG_INFO(...) LOG_CALL(spdlog::level::info,__VA_ARGS__)
-#define LOG_WARN(...) LOG_CALL(spdlog::level::warn,_VA_ARGS__)
-#define LOG_ERROR(...) LOG_CALL(spdlog::level::error,__VA_ARGS__)
+#define LOG_WARN(...) LOG_CALL(spdlog::level::warn,__VA_ARGS__)
+#define LOG_ERROR(...) LOG_CALL(spdlog::level::err,__VA_ARGS__)
 #define LOG_CRITICAL(...) LOG_CALL(spdlog::level::critical,__VA_ARGS__)
 
 void initLogger();

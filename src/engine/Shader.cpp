@@ -19,27 +19,27 @@ Shader::Shader() : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vert
     link();
 }
 
-Shader::Shader(std::string &vertexFilePath, std::string &fragmentFilePath)
+Shader::Shader(const char *vertexFilePath, const char *fragmentFilePath)
         : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vertexShaderCode_(), fragmentShaderCode_() {
-    fragmentShaderCode_ = readFile(fragmentFilePath.c_str());
-    vertexShaderCode_ = readFile(vertexFilePath.c_str());
+    fragmentShaderCode_ = readFile(fragmentFilePath);
+    vertexShaderCode_ = readFile(vertexFilePath);
     compile();
     link();
 }
 
 
-Shader::Shader(std::string &shaderPath)
+Shader::Shader(const char *shaderPath)
         : programId_(0), vertexShaderId_(0), fragmentShaderId_(0), vertexShaderCode_(), fragmentShaderCode_() {
     const std::string vertexToken = "#VERTEX\n", fragmentToken = "#FRAGMENT\n";
 
-    std::string source = readFile(shaderPath.c_str());
+    std::string source = readFile(shaderPath);
     size_t idxVertex = source.find(vertexToken, 0);
     size_t idxFragment = source.find(fragmentToken, 0);
 
     if (idxFragment == std::string::npos ||
         idxVertex == std::string::npos ||
         idxVertex >= idxFragment) {
-        fprintf(stderr, "Syntax error in %s\n", shaderPath.c_str());
+        LOG_ERROR("Syntax error in {}", shaderPath);
     }
 
     size_t fragmentSize = source.size() - idxVertex;
@@ -55,7 +55,7 @@ Shader::Shader(std::string &shaderPath)
 
 void Shader::compile() {
     // Create the shaders
-    LOG_INFO("Compiling shaders");
+    LOG_INFO("Compiling shaders {}", programId_);
 
     vertexShaderId_ = glCreateShader(GL_VERTEX_SHADER);
     fragmentShaderId_ = glCreateShader(GL_FRAGMENT_SHADER);
@@ -76,7 +76,7 @@ void Shader::compile() {
 
 void Shader::link() {
     // Link the program
-    LOG_INFO("Linking program");
+    LOG_INFO("Linking program {}", programId_);
     programId_ = glCreateProgram();
     glAttachShader(programId_, vertexShaderId_);
     glAttachShader(programId_, fragmentShaderId_);

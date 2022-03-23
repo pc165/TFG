@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(TFG)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # GLEW and OpenGL
 link_libraries(glfw)
@@ -54,7 +54,7 @@ target_link_libraries(TFG PRIVATE spdlog::spdlog)
 
 # warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Weverything -Wunused-parameter")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Weverything")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall -Wextra -Wunused-parameter")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall")
 endif ()

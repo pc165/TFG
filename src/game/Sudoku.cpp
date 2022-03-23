@@ -1,46 +1,40 @@
 #include "Sudoku.h"
 
-Sudoku::Sudoku() : Layer("Sudoku"), showDemoWindow(true), defaultShader(), vb(), ib() {
-    GLfloat triangle[] = {
-            -0.5f, -0.5f,
-            0.5f, -0.5f,
-            0.5f, 0.5f,
-            -0.5f, 0.5f,
-    };
+Sudoku::Sudoku() : Layer("Sudoku"), showDemoWindow(true) {
 
-    GLuint index[] = {
-            0, 1, 2,
-            2, 3, 0
-    };
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-
-    vb.create(triangle, sizeof(triangle), GL_STATIC_DRAW);
-    ib.create(index, 6, GL_STATIC_DRAW);
-    ib.bind();
-    vb.bind();
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
 }
-
 
 void Sudoku::onUpdate(double deltaTimeSeconds) {
-    defaultShader.bind();
-    glBindVertexArray(VertexArrayID);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-}
-
-void Sudoku::onAttach() {
-}
-
-void Sudoku::onDetach() {
+    c.draw();
 }
 
 void Sudoku::onGuiRender() {
-    Layer::onGuiRender();
-    ImGui::ShowDemoWindow(&showDemoWindow);
+    using namespace ImGui;
+    namespace fs = std::filesystem;
+    if (BeginMainMenuBar()) {
+        if (BeginMenu("Game")) {
+            if (BeginMenu("Files")) {
+                for (auto &p: fs::directory_iterator(fs::current_path())) {
+                    if (MenuItem(p.path().filename().c_str())) {
+                        LOG_INFO("Load file {}", p.path().string());
+                    }
+                }
+                EndMenu(); // End file
+            }
+            if (MenuItem("Save", "CTRL+S")) {
+                LOG_INFO("Save game");
+            }
+            if (MenuItem("Quit")) {
+                LOG_INFO("Exit");
+                exit(0);
+            }
+            EndMenu(); // Menu
+        }
+        EndMainMenuBar();
+    }
+    ShowDemoWindow(&showDemoWindow);
 }
 
 void Sudoku::onEvent(Event &event) {
-}
 
+}

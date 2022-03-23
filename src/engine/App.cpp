@@ -9,7 +9,7 @@ App::App(const std::string &title, uint32_t witdh, uint32_t heigth) : window_(nu
                                                                       layers_(),
                                                                       lastFrameTime(0.0),
                                                                       shouldClose(false),
-                                                                      enableGui(false) {
+                                                                      enableGui(true) {
 
     initLogger();
     instance_ = this;
@@ -65,14 +65,16 @@ void App::run() {
         guiLayer.onAttach();
 
     while (!shouldClose) {
+        glfwPollEvents();
         for (auto &layer: layers_) {
             double timeSeconds = glfwGetTime();
             double deltaTime = timeSeconds - lastFrameTime;
             lastFrameTime = timeSeconds;
-            (*layer).onUpdate(deltaTime);
+            layer->onUpdate(deltaTime);
         }
 
         // TODO Call glDraw
+
 
         if (enableGui) {
             guiLayer.begin();
@@ -81,8 +83,6 @@ void App::run() {
             }
             guiLayer.end();
         }
-
-        glfwPollEvents();
         glfwSwapBuffers(window_);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }

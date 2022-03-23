@@ -8,7 +8,7 @@
 class Gui : Layer {
 private:
     GLFWwindow *window_;
-    int display_w, display_h;
+    int display_w{}, display_h{};
 public:
     Gui();
 

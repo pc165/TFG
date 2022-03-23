@@ -2,7 +2,7 @@
 #include "App.h"
 
 
-Gui::Gui() : window_(nullptr), Layer("GUI") {}
+Gui::Gui() : Layer("GUI"), window_(nullptr) {}
 
 Gui::~Gui() = default;
 
@@ -28,8 +28,6 @@ void Gui::end() {
 }
 
 void Gui::onAttach() {
-    LOG_INFO("OnAttach called");
-
     window_ = App::getInstance().getWindow();
 
     LOG_DEBUG("Window {}", fmt::ptr(window_));
