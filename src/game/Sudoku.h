@@ -1,23 +1,29 @@
 #ifndef TFG_SUDOKU_H
 #define TFG_SUDOKU_H
 
-#include "Logger.h"
-#include "Layer.h"
+#include "GameGui.h"
 #include "Cube.h"
-#include <filesystem>
 
-class Sudoku : Layer {
-private:
-    bool showDemoWindow;
-    Cube c;
+class Sudoku {
 public:
-    Sudoku();
+    explicit Sudoku(GLFWwindow *window) : window(nullptr), events(nullptr), gui(window), demo(true) {
+        gui.configure();
+        events = (EventStruct *) glfwGetWindowUserPointer(window);
+    };
 
-    void onUpdate(double deltaTimeSeconds) override;
+    void render(double deltaSeconds) {
+        c.draw();
+        gui.begin();
+        ImGui::ShowDemoWindow(&demo);
+        gui.end();
+    }
 
-    void onGuiRender() override;
-
-    void onEvent(Event &event) override;
+private:
+    Cube c;
+    GLFWwindow *window;
+    EventStruct *events;
+    GameGui gui;
+    bool demo;
 };
 
 

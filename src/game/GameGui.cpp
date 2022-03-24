@@ -1,18 +1,20 @@
-#include "Gui.h"
-#include "App.h"
+#include "GameGui.h"
 
 
-Gui::Gui() : Layer("GUI"), window_(nullptr) {}
+GameGui::GameGui(GLFWwindow *window) : window_(window) {}
 
-Gui::~Gui() = default;
+GameGui::~GameGui() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+};
 
-void Gui::begin() {
+void GameGui::begin() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void Gui::end() {
+void GameGui::end() {
     ImGui::Render();
     glfwGetFramebufferSize(window_, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
@@ -27,11 +29,7 @@ void Gui::end() {
     }
 }
 
-void Gui::onAttach() {
-    window_ = App::getInstance().getWindow();
-
-    LOG_DEBUG("Window {}", fmt::ptr(window_));
-
+void GameGui::configure() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
@@ -52,10 +50,4 @@ void Gui::onAttach() {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
-}
-
-void Gui::onDetach() {
-    LOG_INFO("GUI ooDetach called");
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
 }

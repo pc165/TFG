@@ -36,8 +36,8 @@ FILE(GLOB IMGUI_SOURCES
 include_directories(
         ${GLEW_INCLUDE_DIRS}
         ${imgui_SOURCE_DIR}
-        src/engine
         src/game
+        src/engine
         src/
 )
 

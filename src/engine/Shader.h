@@ -1,42 +1,50 @@
 #ifndef TFG_SHADER_H
 #define TFG_SHADER_H
 
-#include "IncludeLibraries.h"
+#include <string>
+#include "utils.h"
+#include "Logger.h"
+#include "strings.h"
 #include "OpenGL.h"
 
 class Shader {
 private:
-    uint32_t programId_, vertexShaderId_, fragmentShaderId_;
-    std::string vertexShaderCode_;
-    std::string fragmentShaderCode_;
-
+    std::string vertexCode{};
+    std::string fragmentCode{};
+    GLuint programId{};
 public:
-    ~Shader();
+    Shader() = default;
 
-    Shader();
+    [[nodiscard]] GLuint getProgramId() const { return programId; }
 
-    uint32_t getProgramId() const { return programId_; }
+    ~Shader() { glDeleteProgram(programId); }
 
-    Shader(const char *vertexFilePath, const char *fragmentFilePath);
+    void loadSource(const char *path) {
+        if (parseCode(path, vertexCode, ShaderType::Vertex))
+            LOG_ERROR("Cannot load code");
+        if (parseCode(path, fragmentCode, ShaderType::Fragment))
+            LOG_ERROR("Cannot load code");
+        programId = compileSource(vertexCode, fragmentCode);
+        LOG_INFO("Created program {}", programId);
+    }
 
-    explicit Shader(const char *shaderPath);
+    void setUniformMatrix4fv(const char *name, int32_t count, bool transpose, void *ptrData) const {
+        bind();
+        auto location = glGetUniformLocation(programId, name);
+        glUniformMatrix4fv(location, count, transpose ? GL_TRUE : GL_FALSE, (GLfloat *) ptrData);
+    }
 
-    void bind() const;
+    void bind() const {
+        glUseProgram(programId);
+    };
 
-    void unBind() const;
+    static void unBind() {
+        glUseProgram(0);
+    }
 
-    friend std::ostream &operator<<(std::ostream &os, const Shader &shader);
+    void parseSource() {
 
-private:
-    void compile();
-
-    void link();
-
-    static std::string readFile(const char *filePath);
-
-    static void checkShader(uint32_t id);
-
-    static void checkProgram(uint32_t id);
+    }
 };
 
 

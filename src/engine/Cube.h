@@ -1,18 +1,16 @@
 #ifndef TFG_CUBE_H
 #define TFG_CUBE_H
 
-#include "OpenGL.h"
-#include "Buffer.h"
-#include "VertexArray.h"
-#include "Shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <cstdint>
+#include "Buffer.h"
+#include "Shader.h"
 
 class Cube {
 public:
-    Cube() : shader() {
-        shader = new Shader();
-        float vertex[] = {
+    Cube() {
+        std::vector<float> position = {
                 1.0, -1.0, -1.0,
                 1.0, -1.0, 1.0,
                 -1.0, -1.0, 1.0,
@@ -22,7 +20,7 @@ public:
                 -1.0, 1.0, 1.0,
                 -1.0, 1.0, -1.0
         };
-        uint32_t index[] = {
+        std::vector<uint32_t> index = {
                 5, 1, 4,
                 5, 4, 8,
                 3, 7, 8,
@@ -36,8 +34,10 @@ public:
                 1, 2, 3,
                 1, 3, 4,
         };
-
-        double color[] = {
+        for (auto &i: index) {
+            i -= 1;
+        }
+        std::vector<float> color = {
                 0.583f, 0.771f, 0.014f,
                 0.609f, 0.115f, 0.436f,
                 0.327f, 0.483f, 0.844f,
@@ -76,21 +76,6 @@ public:
                 0.982f, 0.099f, 0.879f
         };
 
-        va.bind();
-        ib.create(index, 35);
-
-        vb.create(vertex, sizeof(vertex));
-        Layout la;
-        la.push_back({Layout::Type::FLOAT, Layout::ElementCount::Point3, false});
-        va.addLayout(vb, la);
-
-        vc.create(color, sizeof(color));
-        Layout lc;
-        lc.push_back({Layout::Type::DOUBLE, Layout::ElementCount::Point3, false});
-        va.addLayout(vc, lc);
-
-        MatrixID = glGetUniformLocation(shader->getProgramId(), "MVP");
-
         // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
         glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
         // Camera matrix
@@ -99,29 +84,31 @@ public:
                 glm::vec3(0, 0, 0), // and looks at the origin
                 glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
         );
-        // Model matrix : an identity matrix (model will be at the origin)
-        glm::mat4 Model = glm::mat4(1.0f);
+
         // Our ModelViewProjection : multiplication of our 3 matrices
-        MVP = new glm::mat4();
-        *MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
+        glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
+        shader.loadSource("mvp.glsl");
+        vao.bind();
+        ib.create(index.data(), index.size());
+        vb.create(position.data(), position.size() * sizeof(float));
+        vc.create(color.data(), color.size() * sizeof(float));
+        vao.addLayout(vb, 0, VectorType::Vec3, Type::FLOAT);
+        vao.addLayout(vb, 1, VectorType::Vec3, Type::FLOAT);
+        shader.setUniformMatrix4fv("MVP", 1, false, &MVP[0][0]);
     }
 
     void draw() {
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, reinterpret_cast<const GLfloat *>(MVP));
-
-        shader->bind();
-        va.bind();
-        glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr);
+        vao.bind();
+        glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
     }
 
 private:
-    glm::mat4 *MVP;
-    GLuint MatrixID;
-    Shader *shader;
-    VertexArray va;
-    VertexBuffer vb;
-    VertexBuffer vc;
-    IndexBuffer<uint32_t> ib;
+    glm::mat4 Model{1.0f};
+    IndexBuffer<uint32_t> ib{};
+    VertexBuffer vb{};
+    VertexBuffer vc{};
+    VertexArray vao{};
+    Shader shader{};
 };
 
 

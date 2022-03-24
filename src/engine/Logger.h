@@ -1,7 +1,7 @@
 #ifndef TFG_LOGGER_H
 #define TFG_LOGGER_H
 
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
 
 #define LOG_CALL(level, ...) (spdlog::default_logger_raw())->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
 
