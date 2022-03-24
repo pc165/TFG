@@ -66,6 +66,7 @@ int main(int, char *[]) {
     double lastFrameTime = 0;
     {
         Sudoku game(window);
+        glClearColor(0, 0, 0.5, 0);
         do {
             double timeSeconds = glfwGetTime();
             double deltaTime = timeSeconds - lastFrameTime;

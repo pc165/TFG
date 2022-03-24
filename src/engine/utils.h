@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 #include "OpenGL.h"
+#include "Camera.h"
 
 struct EventStruct {
     int witdh = 0;
     int heigth = 0;
     bool shouldClose = false;
+    Camera *camera = nullptr;
 };
 
 

@@ -6,10 +6,11 @@
 #include <cstdint>
 #include "Buffer.h"
 #include "Shader.h"
+#include "Camera.h"
 
 class Cube {
 public:
-    Cube() {
+    Cube(Camera *camera): camera_(camera) {
         std::vector<float> position = {
                 1.0, -1.0, -1.0,
                 1.0, -1.0, 1.0,
@@ -75,18 +76,6 @@ public:
                 0.820f, 0.883f, 0.371f,
                 0.982f, 0.099f, 0.879f
         };
-
-        // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-        glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-        // Camera matrix
-        glm::mat4 View = glm::lookAt(
-                glm::vec3(4, 3, -3), // Camera is at (4,3,-3), in World Space
-                glm::vec3(0, 0, 0), // and looks at the origin
-                glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-        );
-
-        // Our ModelViewProjection : multiplication of our 3 matrices
-        glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
         shader.loadSource("mvp.glsl");
         vao.bind();
         ib.create(index.data(), index.size());
@@ -94,16 +83,19 @@ public:
         vc.create(color.data(), color.size() * sizeof(float));
         vao.addLayout(vb, 0, VectorType::Vec3, Type::FLOAT);
         vao.addLayout(vb, 1, VectorType::Vec3, Type::FLOAT);
-        shader.setUniformMatrix4fv("MVP", 1, false, &MVP[0][0]);
     }
 
     void draw() {
         vao.bind();
+        MVP = camera_->getViewProjectionMatrix() * Model;
+        shader.setUniformMatrix4fv("MVP", 1, false, &MVP[0][0]);
         glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
     }
 
 private:
+    Camera *camera_;
     glm::mat4 Model{1.0f};
+    glm::mat4 MVP{};
     IndexBuffer<uint32_t> ib{};
     VertexBuffer vb{};
     VertexBuffer vc{};

@@ -8,18 +8,20 @@
 
 class GameGui {
 private:
-    GLFWwindow *window_;
-    int display_w{}, display_h{};
+    static GLFWwindow *window_;
+
 public:
     explicit GameGui(GLFWwindow *window);
 
     ~GameGui();
 
-    void begin();
+    static void begin();
 
-    void end();
+    static void end();
 
-    void configure();
+    static void configure();
+
+    static void showOverlay(bool *p_open);
 };
 
 #endif //TFG_GAMEGUI_H
