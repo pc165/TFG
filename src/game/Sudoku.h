@@ -6,17 +6,7 @@
 
 class Sudoku {
 public:
-    explicit Sudoku(GLFWwindow *window) : camera(45, 4, 3), c(&camera), window(nullptr), events(nullptr),
-                                          gui(window),
-                                          demo(true), overlay(true) {
-        GameGui::configure();
-        events = (EventStruct *) glfwGetWindowUserPointer(window);
-        events->camera = &camera;
-
-        glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int x, int y) {
-            auto s = (EventStruct *) glfwGetWindowUserPointer(window);
-            s->camera->setPerspectiveProjection(45, (float) x, (float) y);
-        });
+    Sudoku() : camera(45, 4, 3), c(&camera), demo(true), overlay(true) {
     };
 
     void render(double deltaSeconds) {
@@ -33,15 +23,32 @@ public:
         camera.setUp(cameraUp);
     }
 
+    void onEvent(Event &event) {
+        switch (event.type) {
+            case WindowClose:
+                break;
+            case WindowResize: {
+                auto winRes = dynamic_cast<WindowResizeEvent *>(&event);
+                camera.setPerspectiveProjection(45, (float) winRes->width, (float) winRes->height);
+                break;
+            }
+            case Key:
+                break;
+            case MouseMoved:
+                break;
+            case MouseScrolled:
+                break;
+            case MouseButton:
+                break;
+        }
+    }
+
 private:
     glm::vec3 cameraPosition{0, 10, 0.01};
     glm::vec3 cameraCenter{0, 0, 0};
     glm::vec<3, int> cameraUp{0, 1, 0};
     Camera camera;
     Cube c;
-    GLFWwindow *window;
-    EventStruct *events;
-    GameGui gui;
     bool demo, overlay;
 };
 

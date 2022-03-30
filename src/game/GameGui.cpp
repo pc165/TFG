@@ -2,10 +2,6 @@
 
 GLFWwindow *GameGui::window_ = nullptr;
 
-GameGui::GameGui(GLFWwindow *window) {
-    GameGui::window_ = window;
-}
-
 GameGui::~GameGui() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -33,7 +29,8 @@ void GameGui::end() {
     }
 }
 
-void GameGui::configure() {
+void GameGui::configure(GLFWwindow *window) {
+    GameGui::window_ = window;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
@@ -43,8 +40,8 @@ void GameGui::configure() {
     (void) io;
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+//    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+//    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
     io.ConfigViewportsNoAutoMerge = true;
 
     ImGui_ImplGlfw_InitForOpenGL(GameGui::window_, true);

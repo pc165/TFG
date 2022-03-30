@@ -11,7 +11,7 @@ private:
     static GLFWwindow *window_;
 
 public:
-    explicit GameGui(GLFWwindow *window);
+    GameGui() = default;
 
     ~GameGui();
 
@@ -19,7 +19,7 @@ public:
 
     static void end();
 
-    static void configure();
+    static void configure(GLFWwindow *window);
 
     static void showOverlay(bool *p_open);
 };

@@ -12,6 +12,7 @@
 #define LOG_ERROR(...) LOG_CALL(spdlog::level::err,__VA_ARGS__)
 #define LOG_CRITICAL(...) LOG_CALL(spdlog::level::critical,__VA_ARGS__)
 
-void initLogger();
+void InitLogger();
+
 
 #endif //TFG_LOGGER_H

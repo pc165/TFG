@@ -6,7 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-#include "utils.h"
+#include "Utils.h"
 #include "Logger.h"
 
 void glfw_error_callback(int error, const char *description) {

@@ -3,16 +3,19 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <variant>
 #include "OpenGL.h"
 #include "Camera.h"
+#include "Event.h"
+#include <queue>
 
-struct EventStruct {
-    int witdh = 0;
-    int heigth = 0;
+struct WindowStruct {
+    int width = 0;
+    int height = 0;
     bool shouldClose = false;
-    Camera *camera = nullptr;
+    std::queue<std::unique_ptr<Event>> eventCallbackQueue{};
 };
-
 
 enum ShaderType {
     Vertex, Fragment

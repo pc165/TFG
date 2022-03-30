@@ -6,7 +6,7 @@
 #include <vector>
 #include "OpenGL.h"
 #include "Logger.h"
-#include "utils.h"
+#include "Utils.h"
 
 
 class VertexBuffer {

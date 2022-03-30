@@ -2,7 +2,7 @@
 #define TFG_SHADER_H
 
 #include <string>
-#include "utils.h"
+#include "Utils.h"
 #include "Logger.h"
 #include "strings.h"
 #include "OpenGL.h"
