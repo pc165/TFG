@@ -6,7 +6,17 @@
 #include <vector>
 #include "OpenGL.h"
 #include "Logger.h"
-#include "Utils.h"
+
+enum VectorType {
+    Vec1 = 1,
+    Vec2 = 2,
+    Vec3 = 3,
+    Vec4 = 4
+};
+
+enum Type {
+    CHAR, INT, UINT, FLOAT, DOUBLE
+};
 
 
 class VertexBuffer {
@@ -101,12 +111,12 @@ public:
     }
 
     void addLayout(VertexBuffer &vb,
-                   uint32_t index,
-                   VectorType count,
-                   Type type,
-                   bool normalized = false,
-                   uint32_t stride = 0,
-                   void *offset = nullptr) {
+                          uint32_t index,
+                          VectorType count,
+                          Type type,
+                          bool normalized = false,
+                          uint32_t stride = 0,
+                          void *offset = nullptr) {
         glEnableVertexAttribArray(index);
         vb.bind();
         glVertexAttribPointer(index,

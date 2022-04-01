@@ -1,5 +1,6 @@
-#include "Window.h"
 #include <imgui.h>
+#include "Window.h"
+#include "Utils.h"
 
 GLFWwindow *InitWindow(const char *title, int witdh, int heigth) {
     glfwSetErrorCallback(glfw_error_callback);

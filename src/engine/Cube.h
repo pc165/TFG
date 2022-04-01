@@ -10,7 +10,7 @@
 
 class Cube {
 public:
-    Cube(Camera *camera): camera_(camera) {
+    Cube(Camera *camera) : camera_(camera) {
         std::vector<float> position = {
                 1.0, -1.0, -1.0,
                 1.0, -1.0, 1.0,

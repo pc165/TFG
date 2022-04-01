@@ -2,10 +2,16 @@
 #define TFG_SHADER_H
 
 #include <string>
-#include "Utils.h"
-#include "Logger.h"
-#include "strings.h"
 #include "OpenGL.h"
+#include "Logger.h"
+
+enum ShaderType {
+    Vertex, Fragment
+};
+
+int parseCode(const char *shaderPath, std::string &outCode, ShaderType shaderType);
+
+GLuint compileSource(std::string &vertexCode, std::string &fragmentCode);
 
 class Shader {
 private:
@@ -19,28 +25,13 @@ public:
 
     ~Shader() { glDeleteProgram(programId); }
 
-    void loadSource(const char *path) {
-        if (parseCode(path, vertexCode, ShaderType::Vertex))
-            LOG_ERROR("Cannot load code");
-        if (parseCode(path, fragmentCode, ShaderType::Fragment))
-            LOG_ERROR("Cannot load code");
-        programId = compileSource(vertexCode, fragmentCode);
-        LOG_INFO("Created program {}", programId);
-    }
+    void loadSource(const char *path);
 
-    void setUniformMatrix4fv(const char *name, int32_t count, bool transpose, void *ptrData) const {
-        bind();
-        auto location = glGetUniformLocation(programId, name);
-        glUniformMatrix4fv(location, count, transpose ? GL_TRUE : GL_FALSE, (GLfloat *) ptrData);
-    }
+    void setUniformMatrix4fv(const char *name, int32_t count, bool transpose, void *ptrData) const;
 
-    void bind() const {
-        glUseProgram(programId);
-    };
+    void bind() const;;
 
-    static void unBind() {
-        glUseProgram(0);
-    }
+    static void unBind();
 
     void parseSource() {
 

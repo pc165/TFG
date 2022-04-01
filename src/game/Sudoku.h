@@ -3,6 +3,7 @@
 
 #include "GameGui.h"
 #include "Cube.h"
+#include "Event.h"
 
 class Sudoku {
 public:

@@ -1,6 +1,5 @@
 #include "OpenGL.h"
 #include "Logger.h"
-#include "Utils.h"
 #include "Sudoku.h"
 #include "Window.h"
 

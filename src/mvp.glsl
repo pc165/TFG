@@ -17,10 +17,10 @@ void main(){
     // to produce the color of each fragment
     fragmentColor = vertexColor;
 }
-#end vertex
+    #end vertex
 
-#begin fragment
-#version 330 core
+    #begin fragment
+    #version 330 core
 
 // Interpolated values from the vertex shaders
 in vec3 fragmentColor;
@@ -35,4 +35,4 @@ void main(){
     color = fragmentColor;
 
 }
-#end fragment
+    #end fragment

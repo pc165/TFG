@@ -5,13 +5,13 @@ void main(){
     gl_Position.xyz = vertexPosition_modelspace;
     gl_Position.w = 1.0;
 }
-#end vertex
+    #end vertex
 
-#begin fragment
-#version 330 core
+    #begin fragment
+    #version 330 core
 out vec4 color;
 uniform vec4 uColor;
 void main(){
     color = uColor;
 }
-#end fragment
+    #end fragment
