@@ -2,6 +2,7 @@
 #define TFG_GAMEGUI_H
 
 #include "OpenGL.h"
+#include "Logger.h"
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -9,9 +10,9 @@
 class GameGui {
 private:
     static GLFWwindow *window_;
-
 public:
-    GameGui() = default;
+    GameGui() {
+    };
 
     ~GameGui();
 

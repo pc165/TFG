@@ -111,12 +111,12 @@ public:
     }
 
     void addLayout(VertexBuffer &vb,
-                          uint32_t index,
-                          VectorType count,
-                          Type type,
-                          bool normalized = false,
-                          uint32_t stride = 0,
-                          void *offset = nullptr) {
+                   uint32_t index,
+                   VectorType count,
+                   Type type,
+                   bool normalized = false,
+                   uint32_t stride = 0,
+                   void *offset = nullptr) {
         glEnableVertexAttribArray(index);
         vb.bind();
         glVertexAttribPointer(index,

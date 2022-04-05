@@ -1,87 +1,145 @@
 #ifndef TFG_CAMERA_H
 #define TFG_CAMERA_H
 
-#include <glm/vec3.hpp>
-#include <glm/matrix.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
+#include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include "Event.h"
+#include "EventState.h"
 
 class Camera {
 public:
-    Camera(float fovDegrees,
-           float width, float height,
-           float zNear = 0.01f, float zFar = 100.0f) {
-        projectionMatrix_ = glm::perspective(glm::radians(fovDegrees), width / height, zNear, zFar);
-        viewProjection_ = projectionMatrix_ * view_;
-    };
+    glm::vec3 pos, front, up;
+    glm::vec3 right, worldUp;
+    float yaw{-90}, pitch{0};
+    float movementSpeed{4};
+    float mouseSensitivity{0.1};
+    float fov{45};
+    float width{0}, height = {1};
+    float zNear{0.01f}, zFar{100.0f};
 
-    Camera(float left, float right, float bottom, float top) {
-        projectionMatrix_ = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-        viewProjection_ = projectionMatrix_ * view_;
-    };
-
-    void setPerspectiveProjection(float fovDegrees,
-                                  float width, float height,
-                                  float zNear = 0.01f, float zFar = 100.0f) {
-        projectionMatrix_ = glm::perspective(glm::radians(fovDegrees), width / height, zNear, zFar);
-        viewProjection_ = projectionMatrix_ * view_;
-    };
-
-    void setOrthographicProjection(float left, float right, float bottom, float top) {
-        projectionMatrix_ = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-        viewProjection_ = projectionMatrix_ * view_;
-    };
-
-    [[nodiscard]] const glm::vec3 &GetPosition() const { return position_; }
-
-    void SetPosition(const glm::vec3 &position) {
-        position_ = position;
-        RecalculateViewMatrix();
+    explicit Camera(float widht = 1080, float height = 720,
+                    glm::vec3 position = glm::vec3(1, 1, 1),
+                    glm::vec3 up = glm::vec3(0, 1, 0)) :
+            pos(position), front(glm::vec3(0, 0, -1)),
+            up(up), right(), worldUp(up),
+            width(widht), height(height) {
+        updateCameraVectors();
     }
 
-    [[nodiscard]] float getRotation() const { return rotationDegrees_; }
-
-    void SetRotation(float rotation) {
-        rotationDegrees_ = rotation;
-        RecalculateViewMatrix();
+    [[nodiscard]] auto getViewMatrix() const {
+        return glm::lookAt(pos, pos + front, up);
     }
 
-    [[nodiscard]] const glm::mat4 &getProjectionMatrix() const { return projectionMatrix_; }
-
-    [[nodiscard]] const glm::mat4 &getViewMatrix() const { return view_; }
-
-    [[nodiscard]] const glm::mat4 &getViewProjectionMatrix() const { return viewProjection_; }
-
-    void setCenter(glm::vec3 &center) {
-        center_ = center;
-        RecalculateViewMatrix();
-    }
-
-    void setUp(glm::vec<3, int> &up) {
-        up_ = up;
-        RecalculateViewMatrix();
-    }
-
-    void RecalculateViewMatrix() {
-        auto pos = glm::translate(glm::mat4(1.0f), position_);
-        auto rot = glm::rotate(glm::mat4(1.0f), glm::radians(rotationDegrees_), center_);
-        view_ = glm::inverse(pos * rot);
-        view_ = glm::lookAt(
-                position_,
-                center_,
-                up_
-        );
-        viewProjection_ = projectionMatrix_ * view_;
+    [[nodiscard]] auto getProjectionMatrix() const {
+        return glm::perspective(glm::radians(fov), width / height, zNear, zFar);
     };
+
+    [[nodiscard]] auto getOrthoMatrix() const {
+        return glm::ortho(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+    }
+
+    bool onEvent(const Event &event, double deltaTime) {
+        switch (event.type) {
+            case WindowResize: {
+                auto window = dynamic_cast<const WindowResizeEvent *>(&event);
+                width = window->width;
+                height = window->height;
+                break;
+            }
+            case Key: {
+                auto key = dynamic_cast<const KeyEvent *>(&event);
+                float velocity = movementSpeed * deltaTime;
+                switch (key->key) {
+                    case GLFW_KEY_W:
+                        pos += front * velocity;
+                        break;
+                    case GLFW_KEY_S:
+                        pos -= front * velocity;
+                        break;
+                    case GLFW_KEY_A:
+                        pos -= right * velocity;
+                        break;
+                    case GLFW_KEY_D:
+                        pos += right * velocity;
+                        break;
+                    case GLFW_KEY_SPACE:
+                        pos.y += velocity;
+                        break;
+                    case GLFW_KEY_LEFT_CONTROL:
+                        pos.y -= velocity;
+                        break;
+                }
+                break;
+            }
+            case MouseMoved: {
+                auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
+                if (!buttonPress)
+                    break;
+
+                if (firstMove) {
+                    lastX = mouse->xPos;
+                    lastY = mouse->yPos;
+                    firstMove = false;
+                }
+
+                auto xoffset = mouse->xPos - lastX;
+                auto yoffset = lastY - mouse->yPos;
+
+                lastX = mouse->xPos;
+                lastY = mouse->yPos;
+
+                xoffset *= mouseSensitivity;
+                yoffset *= mouseSensitivity;
+
+                yaw += xoffset;
+                pitch += yoffset;
+
+                if (pitch > 89.0f)
+                    pitch = 89.0f;
+                if (pitch < -89.0f)
+                    pitch = -89.0f;
+
+                updateCameraVectors();
+                break;
+            }
+            case MouseScrolled: {
+                auto mouse = dynamic_cast<const MouseScrollEvent *>(&event);
+                fov -= (float) mouse->yOffset;
+                if (fov < 1.0f)
+                    fov = 1.0f;
+                if (fov > 45.0f) {
+                    pos -= front * movementSpeed * (float) deltaTime;
+                    fov = 45.0f;
+                }
+                break;
+            }
+            case MouseButton: {
+                auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
+                buttonPress = mouse->press_release == 0;
+                if (mouse->press_release == 1)
+                    firstMove = true;
+                break;
+            }
+            default:
+                break;
+        }
+        return false;
+    }
 
 private:
-    glm::mat4 projectionMatrix_{};
-    glm::mat4 view_{1.0f};
-    glm::mat4 viewProjection_{};
-    glm::vec3 position_{0};
-    glm::vec3 center_{0, 0, 0};
-    glm::vec3 up_{0, 1, 0};
-    float rotationDegrees_ = 0.0f;
+    float lastX{0}, lastY{0};
+    bool firstMove{true}, buttonPress{false};
+
+    void updateCameraVectors() {
+        glm::vec3 front2;
+        front2.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        front2.y = sin(glm::radians(pitch));
+        front2.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        front = glm::normalize(front2);
+        right = glm::normalize(glm::cross(front, worldUp));
+        up = glm::normalize(glm::cross(right, front));
+    }
 };
 
 #endif //TFG_CAMERA_H

@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 # GLEW and OpenGL
 link_libraries(glfw)
 link_libraries(GL)
-find_package(GLEW REQUIRED)
-link_libraries(${GLEW_LIBRARIES})
 
 # spdlog
 Include(FetchContent)
@@ -25,17 +23,36 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
+#glad
+FetchContent_Declare(
+        glad
+        GIT_REPOSITORY https://github.com/Dav1dde/glad/
+        GIT_TAG origin/c
+)
+FetchContent_MakeAvailable(glad)
+
+#glad
+FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb
+        GIT_TAG origin/master
+)
+FetchContent_MakeAvailable(stb)
+
 set(IMGUI_DIR
         ${imgui_SOURCE_DIR})
 
-FILE(GLOB IMGUI_SOURCES
+FILE(GLOB LIBRARY_SOURCES
+        ${glad_SOURCE_DIR}/src/glad.c
         ${IMGUI_DIR}/*.cpp
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
 
 include_directories(
-        ${GLEW_INCLUDE_DIRS}
+        ${glad_INCLUDE_DIRS}
         ${imgui_SOURCE_DIR}
+        ${stb_SOURCE_DIR}
+        ${glad_SOURCE_DIR}/include/
         src/game
         src/engine
         src/
@@ -45,16 +62,17 @@ include_directories(
 file(GLOB_RECURSE SRC_FILES
         src/engine/*.cpp
         src/engine/*.h
+        src/engine/*.hpp
         src/game/*.cpp
         src/game/*.h
         )
 
-add_executable(TFG src/main.cpp ${SRC_FILES} ${IMGUI_SOURCES})
+add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
 target_link_libraries(TFG PRIVATE spdlog::spdlog)
 
 # warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Weverything")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-variable")
 endif ()

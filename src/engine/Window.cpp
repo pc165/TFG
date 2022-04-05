@@ -19,9 +19,8 @@ GLFWwindow *InitWindow(const char *title, int witdh, int heigth) {
     }
     glfwMakeContextCurrent(window);
 
-    // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
-    if (glewInit() != GLEW_OK) {
+    // Initialize GLAD
+    if (!gladLoadGL()) {
         LOG_CRITICAL("Failed to initialize GLEW");
         glfwTerminate();
     }
@@ -30,6 +29,7 @@ GLFWwindow *InitWindow(const char *title, int witdh, int heigth) {
     // enable Z-test
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
     return window;
 }
 
@@ -51,6 +51,7 @@ void ConfigureEvents(GLFWwindow *window) {
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event(EventType::WindowClose);
+        data.shouldClose = true;
         data.eventCallbackQueue.push(std::make_unique<WindowCloseEvent>(event));
     });
 
@@ -85,7 +86,6 @@ void ConfigureEvents(GLFWwindow *window) {
         if (io.WantCaptureMouse)
             return;
 
-
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseScrollEvent event(EventType::MouseScrolled, (float) xOffset, (float) yOffset);
         data.eventCallbackQueue.push(std::make_unique<MouseScrollEvent>(event));
@@ -103,7 +103,8 @@ void ConfigureEvents(GLFWwindow *window) {
 }
 
 void DestroyWindow(GLFWwindow *window) {
-    auto *events = (WindowStruct *) glfwGetWindowUserPointer(window);
-    delete events;
+    auto *windowProperties = (WindowStruct *) glfwGetWindowUserPointer(window);
+    delete windowProperties->camera;
+    delete windowProperties;
     glfwTerminate();
 }

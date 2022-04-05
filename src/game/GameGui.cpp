@@ -38,11 +38,11 @@ void GameGui::configure(GLFWwindow *window) {
     ImGui::StyleColorsDark();
     ImGuiIO &io = ImGui::GetIO();
     (void) io;
-    io.IniFilename = nullptr;
+//    io.IniFilename = nullptr;
     io.LogFilename = nullptr;
-//    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-//    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-    io.ConfigViewportsNoAutoMerge = true;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    io.ConfigDockingWithShift = true;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
     ImGui_ImplGlfw_InitForOpenGL(GameGui::window_, true);
     ImGui_ImplOpenGL3_Init();
@@ -74,7 +74,6 @@ void GameGui::showOverlay(bool *p_open) {
         window_flags |= ImGuiWindowFlags_NoMove;
     }
     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-    *p_open = true;
     if (ImGui::Begin("Input Status", p_open, window_flags)) {
         ImGui::Text("FPS: %.1f", io.Framerate);
         if (ImGui::IsMousePosValid())

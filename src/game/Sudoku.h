@@ -4,53 +4,63 @@
 #include "GameGui.h"
 #include "Cube.h"
 #include "Event.h"
+#include "EventState.h"
+
 
 class Sudoku {
 public:
-    Sudoku() : camera(45, 4, 3), c(&camera), demo(true), overlay(true) {
+    explicit Sudoku(Camera &camera) : camera(camera), c(&camera) {
+        c.add();
+        c.add({1, 2, 3});
     };
 
     void render(double deltaSeconds) {
         c.draw();
         GameGui::begin();
-        ImGui::SliderFloat3("Position", (float *) &cameraPosition, -10, 10);
-        ImGui::SliderFloat3("Center", (float *) &cameraCenter, -10, 10);
-        ImGui::SliderInt3("Up", (int *) &cameraUp, -1, 1);
-        ImGui::ShowDemoWindow(&demo);
-        GameGui::showOverlay(&overlay);
+        ImGui::Begin("Camera");
+        ImGui::SliderFloat3("Position", (float *) &camera.pos, -10, 10);
+        ImGui::SliderFloat3("Center", (float *) &camera.front, -10, 10);
+        ImGui::SliderFloat3("Up", (float *) &camera.up, -1, 1);
+        ImGui::End();
+
+        ImGui::Begin("Model");
+        ImGui::SliderInt("Cube id", &selector, 0, c.size - 1);
+        ImGui::SliderFloat3("Position", (float *) &c.position_[selector], -10, 10);
+        ImGui::SliderFloat3("Scale", (float *) &c.scale_[selector], 1, 10);
+        ImGui::SliderFloat3("Axis", (float *) &c.rotationAxis_[selector], -1, 1);
+        ImGui::SliderFloat("Degrees", &c.degrees_[selector], -180, 180);
+        ImGui::End();
+
+        GameGui::showOverlay(nullptr);
         GameGui::end();
-        camera.SetPosition(cameraPosition);
-        camera.setCenter(cameraCenter);
-        camera.setUp(cameraUp);
     }
 
-    void onEvent(Event &event) {
+
+    bool onEvent(const Event &event, double deltatime) {
         switch (event.type) {
-            case WindowClose:
-                break;
-            case WindowResize: {
-                auto winRes = dynamic_cast<WindowResizeEvent *>(&event);
-                camera.setPerspectiveProjection(45, (float) winRes->width, (float) winRes->height);
+            case Key: {
+                auto key = dynamic_cast<const KeyEvent *>(&event);
                 break;
             }
-            case Key:
+            case MouseMoved: {
+                auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
                 break;
-            case MouseMoved:
+            }
+            case MouseButton: {
+                auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
                 break;
-            case MouseScrolled:
-                break;
-            case MouseButton:
+            }
+            default:
                 break;
         }
+        return false;
     }
 
 private:
-    glm::vec3 cameraPosition{0, 10, 0.01};
-    glm::vec3 cameraCenter{0, 0, 0};
-    glm::vec<3, int> cameraUp{0, 1, 0};
-    Camera camera;
+    int selector = 0;
+    Camera &camera;
     Cube c;
-    bool demo, overlay;
+    GameGui gui{};
 };
 
 
