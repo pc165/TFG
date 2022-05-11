@@ -1,26 +1,53 @@
 cmake_minimum_required(VERSION 3.21)
+Include(FetchContent)
 project(TFG)
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_BULLET2_DEMOS OFF)
-option(BUILD_CPU_DEMOS OFF)
-option(BUILD_EXTRAS OFF)
-option(BUILD_OPENGL3_DEMOS OFF)
-option(BUILD_UNIT_TESTS OFF)
-
 # GLEW and OpenGL
-link_libraries(glfw)
-link_libraries(GL)
+find_package(OpenGL REQUIRED)
+if (OPENGL_FOUND)
+    message("opengl found")
+    message("include dir: ${OPENGL_INCLUDE_DIR}")
+    message("link libraries: ${OPENGL_gl_LIBRARY}")
+else (OPENGL_FOUND)
+    message("opengl not found")
+endif ()
+
+
+# GLFW
+FetchContent_Declare(
+        glfw
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
+        GIT_REPOSITORY https://github.com/glfw/glfw
+        GIT_TAG 3.3.7
+)
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(glfw)
+
+#glm
+FetchContent_Declare(
+        glm
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
+        GIT_REPOSITORY https://github.com/g-truc/glm
+        GIT_TAG 0.9.9.8
+)
+FetchContent_MakeAvailable(glm)
 
 # spdlog
-Include(FetchContent)
 FetchContent_Declare(
         spdlog
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.9.2
+        GIT_TAG v1.10.0
 )
 FetchContent_MakeAvailable(spdlog)
 
@@ -31,7 +58,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG origin/docking
+        GIT_TAG 2fa60be
 )
 FetchContent_MakeAvailable(imgui)
 
@@ -42,18 +69,18 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/Dav1dde/glad/
-        GIT_TAG origin/c
+        GIT_TAG 5bf3eda
 )
 FetchContent_MakeAvailable(glad)
 
-#stb
+#glad
 FetchContent_Declare(
         stb
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/nothings/stb
-        GIT_TAG origin/master
+        GIT_TAG af1a5bc
 )
 FetchContent_MakeAvailable(stb)
 
@@ -67,7 +94,9 @@ FILE(GLOB LIBRARY_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
 
 include_directories(
+        ${glfw_INCLUDE_DIRS}
         ${glad_INCLUDE_DIRS}
+        ${glm_SOURCE_DIR}
         ${imgui_SOURCE_DIR}
         ${stb_SOURCE_DIR}
         ${glad_SOURCE_DIR}/include/
@@ -85,8 +114,12 @@ file(GLOB_RECURSE SRC_FILES
         src/game/*.h
         )
 
+
+link_libraries(OpenGL)
+link_libraries(glfw)
+
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
-target_link_libraries(TFG PRIVATE spdlog::spdlog)
+target_link_libraries(TFG PRIVATE spdlog::spdlog glfw ${OPENGL_gl_LIBRARY})
 
 # warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
