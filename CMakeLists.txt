@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.21)
 project(TFG)
 set(CMAKE_CXX_STANDARD 17)
 
+option(BUILD_BULLET2_DEMOS OFF)
+option(BUILD_CPU_DEMOS OFF)
+option(BUILD_EXTRAS OFF)
+option(BUILD_OPENGL3_DEMOS OFF)
+option(BUILD_UNIT_TESTS OFF)
+
 # GLEW and OpenGL
 link_libraries(glfw)
 link_libraries(GL)
@@ -10,6 +16,9 @@ link_libraries(GL)
 Include(FetchContent)
 FetchContent_Declare(
         spdlog
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
         GIT_TAG v1.9.2
 )
@@ -18,6 +27,9 @@ FetchContent_MakeAvailable(spdlog)
 #imgui
 FetchContent_Declare(
         imgui
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/ocornut/imgui
         GIT_TAG origin/docking
 )
@@ -26,14 +38,20 @@ FetchContent_MakeAvailable(imgui)
 #glad
 FetchContent_Declare(
         glad
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/Dav1dde/glad/
         GIT_TAG origin/c
 )
 FetchContent_MakeAvailable(glad)
 
-#glad
+#stb
 FetchContent_Declare(
         stb
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/nothings/stb
         GIT_TAG origin/master
 )

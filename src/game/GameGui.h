@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <functional>
 
 class GameGui {
 private:
@@ -22,7 +23,7 @@ public:
 
     static void configure(GLFWwindow *window);
 
-    static void showOverlay(bool *p_open);
+    static void showOverlay(bool *p_open, const std::function<void()> &f = []() {});
 };
 
 #endif //TFG_GAMEGUI_H

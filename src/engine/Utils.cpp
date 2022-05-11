@@ -83,8 +83,11 @@ void GLAPIENTRY errorOccurredGL(GLenum source,
             _severity = "UNKNOWN";
             break;
     }
+
+    if (_severity == "NOTIFICATION" || _severity == "LOW")
+        return;
     LOG_ERROR("{} : {} of {} severity, raised from {}: {}",
               id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
-//    raise(SIGTRAP);
-//    exit(1);
+    raise(SIGTRAP);
+    exit(1);
 }

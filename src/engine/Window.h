@@ -13,7 +13,6 @@ struct WindowStruct {
     int height = 0;
     bool shouldClose = false;
     std::queue<std::unique_ptr<Event>> eventCallbackQueue{};
-    Camera *camera{nullptr};
 };
 
 GLFWwindow *InitWindow(const char *title, int witdh = 1080, int heigth = 720);

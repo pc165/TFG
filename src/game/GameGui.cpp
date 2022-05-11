@@ -53,7 +53,7 @@ void GameGui::configure(GLFWwindow *window) {
     }
 }
 
-void GameGui::showOverlay(bool *p_open) {
+void GameGui::showOverlay(bool *p_open, const std::function<void()> &f) {
     static int corner = 0;
     ImGuiIO &io = ImGui::GetIO();
     ImGuiWindowFlags window_flags =
@@ -80,7 +80,7 @@ void GameGui::showOverlay(bool *p_open) {
             ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
         else
             ImGui::Text("Mouse Position: <invalid>");
-
+        f();
     }
     ImGui::End();
 }

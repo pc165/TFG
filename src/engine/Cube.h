@@ -7,11 +7,12 @@
 #include "Buffer.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Object.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
-class Cube {
+class Cube : public Object {
 public:
-    explicit Cube(Camera *camera) : camera_(*camera) {
+    explicit Cube(Camera *camera) : Object(*camera) {
         std::vector<float> position = {
                 1.0, -1.0, -1.0,
                 1.0, -1.0, 1.0,
@@ -23,77 +24,84 @@ public:
                 -1.0, 1.0, -1.0
         };
         std::vector<uint32_t> index = {
-                5, 1, 4,
-                5, 4, 8,
-                3, 7, 8,
-                3, 8, 4,
-                2, 6, 3,
-                6, 7, 3,
+                4, 0, 3,
+                4, 3, 7,
+                2, 6, 7,
+                2, 7, 3,
                 1, 5, 2,
                 5, 6, 2,
-                5, 8, 6,
-                8, 7, 6,
-                1, 2, 3,
-                1, 3, 4,
+                0, 4, 1,
+                4, 5, 1,
+                4, 7, 5,
+                7, 6, 5,
+                0, 1, 2,
+                0, 2, 3,
         };
-        for (auto &i: index) {
-            i -= 1;
-        }
+
+        std::vector<float> normals = {
+                0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,   // v0-v1-v2 (front)
+                0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,   // v2-v3-v0
+                1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,   // v0-v3-v4 (right)
+                1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,   // v4-v5-v0
+                0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,   // v0-v5-v6 (top)
+                0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,   // v6-v1-v0
+                -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,   // v1-v6-v7 (left)
+                -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,   // v7-v2-v1
+                0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,   // v7-v4-v3 (bottom)
+                0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,   // v3-v2-v7
+                0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,   // v4-v7-v6 (back)
+                0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0    // v6-v5-v4
+        };
+
         shader.loadSource("cube.glsl");
         vao.bind();
         ib.create(index.data(), index.size());
+        // Position
         vb.create(position.data(), position.size() * sizeof(float));
         vao.addLayout(vb, 0, VectorType::Vec3, Type::FLOAT);
-        vao.addLayout(vb, 1, VectorType::Vec3, Type::FLOAT);
+
+        vn.create(normals.data(), normals.size() * sizeof(float));
+        vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
     }
 
-    void draw() {
+    void draw() override {
         vao.bind();
         shader.bind();
+
         shader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
         shader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
+
         for (auto i = 0; i < size; i++) {
-            auto Model = glm::translate(glm::mat4(1.0f), position_[i]);
-            Model = glm::rotate(Model, glm::radians(degrees_[i]), rotationAxis_[i]);
-            Model = glm::scale(Model, scale_[i]);
-            shader.setMat4("model", glm::value_ptr(Model));
+            auto tra = glm::translate(glm::mat4(1.0f), position_[i]);
+            auto rot = glm::rotate(tra, glm::radians(degrees_[i]), rotationAxis_[i]);
+            model_[i] = glm::scale(rot, scale_[i]);
+        }
+        for (auto i = 0; i < size; i++) {
+            shader.setMat4("model", glm::value_ptr(model_[i]));
+            shader.setVec3("colorIn", glm::value_ptr(color_[i]));
             glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
         }
     }
 
-    void add(glm::vec3 pos = glm::vec3(0, 0, 0), glm::vec3 rotAxis = glm::vec3(1, 0, 0),
-             glm::vec3 scale = glm::vec3(1, 1, 1), float degrees = 0) {
-        position_.push_back(pos);
-        rotationAxis_.push_back(rotAxis);
-        scale_.push_back(scale);
-        degrees_.push_back(degrees);
-        size++;
+    void drawPickObject() override {
+        vao.bind();
+        shader.bind();
+
+        shader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
+        shader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
+
+        for (auto i = 0; i < size; i++) {
+            auto tra = glm::translate(glm::mat4(1.0f), position_[i]);
+            auto rot = glm::rotate(tra, glm::radians(degrees_[i]), rotationAxis_[i]);
+            model_[i] = glm::scale(rot, scale_[i]);
+        }
+
+        for (auto i = 0; i < size; i++) {
+            shader.setMat4("model", glm::value_ptr(model_[i]));
+            shader.setVec3("colorIn", glm::value_ptr(pickColor_[i]));
+            glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
+        }
     }
-
-    void remove(int i) {
-        assert(i < size);
-        position_.erase(position_.begin() + i);
-        rotationAxis_.erase(rotationAxis_.begin() + i);
-        scale_.erase(scale_.begin() + i);
-        degrees_.erase(degrees_.begin() + i);
-        size--;
-    }
-
-private:
-    Shader shader{};
-    IndexBuffer<uint32_t> ib{};
-    VertexBuffer vb{};
-    VertexBuffer vc{};
-    VertexArray vao{};
-
-public:
-    std::vector<glm::vec3> position_{};
-    std::vector<glm::vec3> rotationAxis_{};
-    std::vector<glm::vec3> scale_{};
-    std::vector<float> degrees_{};
-    int size{0};
-    Camera &camera_;
 };
-
 
 #endif //TFG_CUBE_H

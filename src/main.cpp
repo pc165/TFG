@@ -10,10 +10,8 @@ int main(int, char *[]) {
     GameGui::configure(window);
     auto &windowProps = *reinterpret_cast<WindowStruct *> (glfwGetWindowUserPointer(window));
     auto &eventsQueue = windowProps.eventCallbackQueue;
-    auto &camera = *(new Camera());
-    windowProps.camera = &camera;
     {
-        Sudoku game(*windowProps.camera);
+        Sudoku game;
         double t0 = 0;
         while (!windowProps.shouldClose) {
             glfwPollEvents();
@@ -23,12 +21,11 @@ int main(int, char *[]) {
             t0 = t1;
             while (!eventsQueue.empty()) {
                 auto event = std::move(eventsQueue.front());
-                camera.onEvent(*event, delta);
                 game.onEvent(*event, delta);
                 eventsQueue.pop();
             }
             glfwSwapBuffers(window);
-            glClearColor(0.5, 0.5, 0.5, 1);
+            glClearColor(0, 0, 0, 0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         };
     }

@@ -9,7 +9,7 @@
 
 class Camera {
 public:
-    glm::vec3 pos, front, up;
+    glm::vec3 pos, center, up;
     glm::vec3 right, worldUp;
     float yaw{-90}, pitch{0};
     float movementSpeed{4};
@@ -18,17 +18,18 @@ public:
     float width{0}, height = {1};
     float zNear{0.01f}, zFar{100.0f};
 
-    explicit Camera(float widht = 1080, float height = 720,
-                    glm::vec3 position = glm::vec3(1, 1, 1),
-                    glm::vec3 up = glm::vec3(0, 1, 0)) :
-            pos(position), front(glm::vec3(0, 0, -1)),
-            up(up), right(), worldUp(up),
+    explicit Camera(glm::vec3 position = glm::vec3(0, 0, 0),
+                    glm::vec3 up = glm::vec3(0, 1, 0),
+                    float widht = 1080,
+                    float height = 720) :
+            pos(position), center(), up(),
+            right(), worldUp(up),
             width(widht), height(height) {
         updateCameraVectors();
     }
 
     [[nodiscard]] auto getViewMatrix() const {
-        return glm::lookAt(pos, pos + front, up);
+        return glm::lookAt(pos, pos + center, up);
     }
 
     [[nodiscard]] auto getProjectionMatrix() const {
@@ -52,10 +53,10 @@ public:
                 float velocity = movementSpeed * deltaTime;
                 switch (key->key) {
                     case GLFW_KEY_W:
-                        pos += front * velocity;
+                        pos += center * velocity;
                         break;
                     case GLFW_KEY_S:
-                        pos -= front * velocity;
+                        pos -= center * velocity;
                         break;
                     case GLFW_KEY_A:
                         pos -= right * velocity;
@@ -109,7 +110,7 @@ public:
                 if (fov < 1.0f)
                     fov = 1.0f;
                 if (fov > 45.0f) {
-                    pos -= front * movementSpeed * (float) deltaTime;
+                    pos -= center * movementSpeed * (float) deltaTime;
                     fov = 45.0f;
                 }
                 break;
@@ -136,9 +137,9 @@ private:
         front2.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         front2.y = sin(glm::radians(pitch));
         front2.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front = glm::normalize(front2);
-        right = glm::normalize(glm::cross(front, worldUp));
-        up = glm::normalize(glm::cross(right, front));
+        center = glm::normalize(front2);
+        right = glm::normalize(glm::cross(center, worldUp));
+        up = glm::normalize(glm::cross(right, center));
     }
 };
 

@@ -104,7 +104,6 @@ void ConfigureEvents(GLFWwindow *window) {
 
 void DestroyWindow(GLFWwindow *window) {
     auto *windowProperties = (WindowStruct *) glfwGetWindowUserPointer(window);
-    delete windowProperties->camera;
     delete windowProperties;
     glfwTerminate();
 }
