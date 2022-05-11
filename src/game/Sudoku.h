@@ -59,8 +59,13 @@ public:
 
     glm::vec3 screenToColor(int x, int y) {
         glm::vec3 color;
+
+        glm::vec<4, int> viewport{0};
+        glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
+        glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
+
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, glm::value_ptr(color));
+        glReadPixels(x, int(win.y), 1, 1, GL_RGB, GL_FLOAT, glm::value_ptr(color));
         int id = round(color.r * 10) +
                  round(color.g * 100) +
                  round(color.b * 1000);
