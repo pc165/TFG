@@ -12,7 +12,7 @@
 
 class Cube : public Object {
 public:
-    explicit Cube(Camera *camera) : Object(*camera) {
+    explicit Cube() : Object() {
         std::vector<float> position = {
                 1.0, -1.0, -1.0,
                 1.0, -1.0, 1.0,

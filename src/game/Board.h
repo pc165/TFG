@@ -7,9 +7,7 @@
 
 class Board {
 public:
-    explicit Board(Camera
-                   *camera) : cube_(camera), sphere_(camera) {
-    }
+    explicit Board() : cube_(), sphere_() {}
 
     void draw() const {
         cube_.draw();
@@ -31,26 +29,26 @@ public:
          * - 0 - 0 -
          * - - - - -
          * */
-        glm::vec3 cubeScale(0.5, 0.8, 0.3);
-        glm::vec3 sphereScale(0.1, 0.1, 0.1);
-        cubeScale *= scale;
-        sphereScale *= scale;
+        const glm::vec3 cubeScale(0.5 * scale, 0.8 * scale, 0.3 * scale);
+        const glm::vec3 sphereScale(0.1 * scale, 0.1 * scale, 0.1 * scale);
+        const glm::vec3 sphereColor(0, 1, 0);
 
         // set initial position to pos
         glm::vec3 spherePos{pos};
 
         // bring the sphere to the front
         spherePos.z += cubeScale.z;
+        std::vector<int> sphereId{};
 
         // use number of cubes for spheres id and cube id
         int objectId = cube_.getSize();
 
-        if (object2Number.find(objectId) != object2Number.cend()) {
+        if (object2Number_.find(objectId) != object2Number_.cend()) {
             LOG_ERROR("Duplicate objectId: {} Number: {}", objectId, number);
             return;
         }
         // save number
-        object2Number[objectId] = number;
+        object2Number_[objectId] = number;
 
         cube_.add(objectId, pos, cubeScale, {1, 0, 0});
 
@@ -89,7 +87,8 @@ public:
             number == 2 ||
             number == -1) {
             spherePos.x = -cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            auto id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
         }
 
         // right
@@ -98,7 +97,8 @@ public:
             number == 0 ||
             number == -1) {
             spherePos.x = +cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            auto id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
         }
 
         /***
@@ -115,12 +115,14 @@ public:
          * 1 1   1 1   1 0   0 1   0 1
          *
          **/
-        // left
+
         spherePos.y = +cubeScale.y / 2 + pos.y;
 
+        // left
         if (number >= 1 && number <= 8) {
             spherePos.x = -cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            auto id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
         }
 
         // right
@@ -130,7 +132,8 @@ public:
             number == 0 ||
             number == -1) {
             spherePos.x = +cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            auto id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
         }
 
 
@@ -149,33 +152,40 @@ public:
          *
          **/
 
-        // left
         spherePos.y = -cubeScale.y / 2 + pos.y;
         if (number == -1) {
+            // left
             spherePos.x = -cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            auto id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
 
             // right
             spherePos.x = +cubeScale.x / 3 + pos.x;
-            sphere_.add(objectId, spherePos, sphereScale, {0, 1, 0});
+            id = sphere_.add(objectId, spherePos, sphereScale, sphereColor);
+            sphereId.push_back(id);
         }
+
+        sphereIds_[objectId] = sphereId;
     }
 
 
     void moveTile(int objectId, glm::vec3 pos) {
         assert(objectId < cube_.getSize());
+
     }
 
     int getTileValue(int objectId) const {
-        auto v = object2Number.find(objectId);
-        if (v == object2Number.cend()) {
+        assert(objectId < cube_.getSize());
+        auto v = object2Number_.find(objectId);
+        if (v == object2Number_.cend()) {
             return -1;
         }
         return v->second;
     }
 
 private:
-    std::unordered_map<int, int> object2Number{};
+    std::unordered_map<int, int> object2Number_{};
+    std::unordered_map<int, std::vector<int>> sphereIds_{};
     Cube cube_;
     Sphere sphere_;
 };

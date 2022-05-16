@@ -75,7 +75,7 @@ public:
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                if (!buttonPress)
+                if (!buttonPress && !isFreeCamera)
                     break;
 
                 if (firstMove) {
@@ -117,7 +117,7 @@ public:
             }
             case MouseButton: {
                 auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
-                buttonPress = mouse->press_release == 0;
+                buttonPress = mouse->press_release == 0 && !isFreeCamera;
                 if (mouse->press_release == 1)
                     firstMove = true;
                 break;
@@ -128,9 +128,18 @@ public:
         return false;
     }
 
+    void setFreeCamera(bool enabled) {
+        isFreeCamera = enabled;
+    }
+
+    void setFirstMove(){
+        firstMove = true;
+    }
+
 private:
     float lastX{0}, lastY{0};
     bool firstMove{true}, buttonPress{false};
+    bool isFreeCamera{false};
 
     void updateCameraVectors() {
         glm::vec3 front2;

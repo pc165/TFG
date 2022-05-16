@@ -11,7 +11,7 @@
 
 class Sudoku {
 public:
-    explicit Sudoku() : camera({4, 4, 12}), board(&camera) {
+    explicit Sudoku() : board() {
         int number = 0;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
@@ -23,12 +23,6 @@ public:
 
     void drawGUI() {
         GameGui::begin();
-        ImGui::Begin("Camera");
-        ImGui::SliderFloat3("Position", (float *) &camera.pos, -10, 10);
-        ImGui::SliderFloat3("Center", (float *) &camera.center, -10, 10);
-        ImGui::SliderFloat3("Up", (float *) &camera.up, -1, 1);
-        ImGui::End();
-
         GameGui::showOverlay(nullptr, [this]() {
             ImGui::Text("S2W: (%s)", glm::to_string(this->screentoWorldPos).c_str());
             ImGui::Text("S2C: (%s)", glm::to_string(this->screenColor).c_str());
@@ -47,15 +41,20 @@ public:
     }
 
     bool onEvent(const Event &event, double deltatime) {
-        camera.onEvent(event, deltatime);
         switch (event.type) {
             case Key: {
                 auto key = dynamic_cast<const KeyEvent *>(&event);
+                if (key->key == GLFW_KEY_2 && key->press_release_repeat == 1) {
+                    Tools::setFreeCamera(false);
+                }
+                if (key->key == GLFW_KEY_1 && key->press_release_repeat == 1) {
+                    Tools::setFreeCamera(true);
+                }
                 break;
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                screentoWorldPos = Tools::screenToWorld(mouse->xPos, mouse->yPos, &camera);
+                screentoWorldPos = Tools::screenToWorld(mouse->xPos, mouse->yPos);
                 screenColor = Tools::screenToColor(mouse->xPos, mouse->yPos);
                 objectId = Tools::colorToId(screenColor);
                 break;
@@ -74,7 +73,6 @@ private:
     glm::vec3 screentoWorldPos{};
     glm::vec3 screenColor{};
     int objectId = -1;
-    Camera camera;
     Board board;
     GameGui gui{};
 };

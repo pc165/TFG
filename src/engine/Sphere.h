@@ -14,7 +14,7 @@
 
 class Sphere : public Object {
 public:
-    explicit Sphere(Camera *camera, float radius = 1.0f, int sectorCount = 36, int stackCount = 18) : Object(*camera) {
+    explicit Sphere(float radius = 1.0f, int sectorCount = 36, int stackCount = 18) : Object() {
         std::vector<float> position;
         std::vector<float> normals;
         std::vector<uint32_t> index;

@@ -5,17 +5,28 @@
 
 int main(int, char *[]) {
     InitLogger();
-    auto window = InitWindow("TFG");
-    ConfigureEvents(window);
-    GameGui::configure(window);
-    auto &windowProps = *reinterpret_cast<WindowStruct *> (glfwGetWindowUserPointer(window));
+    InitWindow("TFG");
+    ConfigureEvents(Tools::window);
     {
+        Camera camera({4, 4, 12});
+        Tools::camera = &camera;
+
+        assert(Tools::camera != nullptr);
+        assert(Tools::window != nullptr);
+        assert(Tools::windowStruct != nullptr);
+
+        GameGui::configure(Tools::window);
         Sudoku game;
+
+        auto windowProps = Tools::windowStruct;
         double t0 = 0, delta = 0;
-        windowProps.eventCallback = [&game, &delta](const Event &event) {
+
+        windowProps->eventCallback = [&game, &delta, &camera](const Event &event) {
+            camera.onEvent(event, delta);
             game.onEvent(event, delta);
         };
-        while (!windowProps.shouldClose) {
+
+        while (!windowProps->shouldClose) {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             game.drawPickObject();
@@ -27,10 +38,9 @@ int main(int, char *[]) {
             game.draw();
             game.drawGUI();
             t0 = t1;
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(Tools::window);
         };
     }
-
-    DestroyWindow(window);
+    DestroyWindow(Tools::window);
     return 0;
 }

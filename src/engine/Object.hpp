@@ -11,18 +11,18 @@
 #include <glm/gtc/type_ptr.hpp>
 
 class Object {
-
 public:
-    explicit Object(Camera &camera) : camera_(camera) {
+    explicit Object() : camera_(Tools::camera) {
+        assert(camera_ != nullptr);
         basicShader.loadSource("basicShader.glsl");
     }
 
-    void add(int objectId,
-             const glm::vec3 &pos = glm::vec3(0, 0, 0),
-             const glm::vec3 &scale = glm::vec3(1, 1, 1),
-             const glm::vec3 &color = glm::vec3(1, 0, 0),
-             const glm::vec3 &rotAxis = glm::vec3(1, 0, 0),
-             float degrees = 0) {
+    int add(int objectId,
+            const glm::vec3 &pos = glm::vec3(0, 0, 0),
+            const glm::vec3 &scale = glm::vec3(1, 1, 1),
+            const glm::vec3 &color = glm::vec3(1, 0, 0),
+            const glm::vec3 &rotAxis = glm::vec3(1, 0, 0),
+            float degrees = 0) {
         position_.push_back(pos);
         rotationAxis_.push_back(rotAxis);
         scale_.push_back(scale);
@@ -33,6 +33,7 @@ public:
 
         model_.emplace_back();
         size++;
+        return size;
     }
 
     void remove(int i) {
@@ -53,8 +54,8 @@ public:
         vao.bind();
         basicShader.bind();
 
-        basicShader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
-        basicShader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
+        basicShader.setMat4("view", glm::value_ptr(camera_->getViewMatrix()));
+        basicShader.setMat4("projection", glm::value_ptr(camera_->getProjectionMatrix()));
 
         for (auto i = 0; i < size; i++) {
             auto model = getProductModel(i);
@@ -68,8 +69,8 @@ public:
         vao.bind();
         basicShader.bind();
 
-        basicShader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
-        basicShader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
+        basicShader.setMat4("view", glm::value_ptr(camera_->getViewMatrix()));
+        basicShader.setMat4("projection", glm::value_ptr(camera_->getProjectionMatrix()));
 
         for (auto i = 0; i < size; i++) {
             auto model = getProductModel(i);
@@ -97,7 +98,7 @@ protected:
 
     std::vector<glm::mat4> model_{};
     int size{0};
-    Camera &camera_;
+    Camera *camera_;
 
     // getters and setters
 public:
@@ -167,11 +168,6 @@ public:
     [[nodiscard]] int getSize() const {
         return size;
     }
-
-    Camera &getCamera() const {
-        return camera_;
-    }
-
 };
 
 #endif //TFG_OBJECT_HPP

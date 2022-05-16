@@ -3,12 +3,18 @@
 
 #include "OpenGL.h"
 #include "Camera.h"
+#include "Window.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 class Tools {
 public:
-    static glm::vec3 screenToWorld(int x, int y, Camera *camera) {
+    static GLFWwindow *window;
+    static WindowStruct *windowStruct;
+    static Camera *camera;
+
+    static glm::vec3 screenToWorld(int x, int y) {
+        assert(camera != nullptr);
         glm::vec<4, int> viewport{0};
         glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
@@ -16,8 +22,7 @@ public:
         glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
         glReadPixels((int) win.x, (int) win.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win.z);
 
-        glm::vec3 pos = glm::unProject(win, camera->getViewMatrix(), camera->getProjectionMatrix(), viewport);
-
+        glm::vec3 pos = glm::unProject(win, Tools::camera->getViewMatrix(), Tools::camera->getProjectionMatrix(), viewport);
         return pos;
     }
 
@@ -27,6 +32,11 @@ public:
         glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
         glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
+
+        if (windowStruct->isFreeCamera) {
+            win.x = viewport[2] / 2.0;
+            win.y = viewport[3] / 2.0;
+        }
 
         if (win.x < viewport[0] || win.x > viewport[2] ||
             win.y < viewport[1] || win.y > viewport[3]) {
@@ -65,6 +75,18 @@ public:
 
         LOG_DEBUG("Pick color {}", glm::to_string(newColor).c_str());
         return newColor;
+    }
+
+    static void setFreeCamera(bool isEnabled) {
+        if (isEnabled) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            camera->setFirstMove();
+        } else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+        glfwSetCursorPos(window, windowStruct->width / 2.0, windowStruct->height / 2.0);
+        camera->setFreeCamera(isEnabled);
+        windowStruct->isFreeCamera = isEnabled;
     }
 };
 

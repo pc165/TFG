@@ -1,6 +1,7 @@
 #include <imgui.h>
 #include "Window.h"
 #include "Utils.h"
+#include "Tools.h"
 
 GLFWwindow *InitWindow(const char *title, int width, int height) {
     glfwSetErrorCallback(glfw_error_callback);
@@ -30,16 +31,15 @@ GLFWwindow *InitWindow(const char *title, int width, int height) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    auto winProp = new WindowStruct{width, height};
+    glfwSetWindowUserPointer(window, winProp);
+
+    Tools::window = window;
+    Tools::windowStruct = winProp;
     return window;
 }
 
 void ConfigureEvents(GLFWwindow *window) {
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
-
-    auto winProp = new WindowStruct{width, height};
-    glfwSetWindowUserPointer(window, winProp);
-
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height) {
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         data.width = width;
@@ -50,8 +50,6 @@ void ConfigureEvents(GLFWwindow *window) {
 
     glfwSetWindowPosCallback(window, [](GLFWwindow *window, int xpos, int ypos) {
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        data.xPos = xpos;
-        data.yPos = ypos;
         WindowPositionEvent event(EventType::WindowPosition, xpos, ypos);
         data.eventCallback(event);
     });
@@ -105,15 +103,8 @@ void ConfigureEvents(GLFWwindow *window) {
             return;
 
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-//        LOG_DEBUG("{} {} {} {}", data.xPos, data.yPos, data.height + data.xPos, data.width + data.yPos);
-//        if (((yPos >= data.xPos) &&
-//             (yPos <= (data.xPos + data.width))) &&
-//            (xPos >= data.yPos) &&
-//            (xPos <= (data.yPos + data.height))) {
         MouseMoveEvent event(EventType::MouseMoved, (float) xPos, (float) yPos);
         data.eventCallback(event);
-//        }
-
     });
 }
 

@@ -1,4 +1,5 @@
 #include "GameGui.h"
+#include "Tools.h"
 
 GLFWwindow *GameGui::window_ = nullptr;
 
@@ -82,5 +83,11 @@ void GameGui::showOverlay(bool *p_open, const std::function<void()> &f) {
             ImGui::Text("Mouse Position: <invalid>");
         f();
     }
+    ImGui::End();
+
+    ImGui::Begin("Camera");
+    ImGui::SliderFloat3("Position", glm::value_ptr(Tools::camera->pos), -10, 10);
+    ImGui::SliderFloat3("Center", glm::value_ptr(Tools::camera->center), -10, 10);
+    ImGui::SliderFloat3("Up", glm::value_ptr(Tools::camera->up), -1, 1);
     ImGui::End();
 }
