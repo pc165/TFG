@@ -80,11 +80,11 @@ public:
     static void setFreeCamera(bool isEnabled) {
         if (isEnabled) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            camera->setFirstMove();
         } else {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
         glfwSetCursorPos(window, windowStruct->width / 2.0, windowStruct->height / 2.0);
+        camera->setFirstMove();
         camera->setFreeCamera(isEnabled);
         windowStruct->isFreeCamera = isEnabled;
     }
