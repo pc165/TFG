@@ -29,23 +29,24 @@ VertexArray::VertexArray() : vertexId_(0) {
     glBindVertexArray(vertexId_);
 }
 
-GLenum VertexArray::getGLType(Type elementType) {
+
+GLenum VertexArray::getGLType(TFG::Type elementType) {
     switch (elementType) {
-        case CHAR:
+        case TFG::CHAR:
             return GL_BYTE;
-        case INT:
+        case TFG::INT:
             return GL_INT;
-        case UINT:
+        case TFG::UINT:
             return GL_UNSIGNED_INT;
-        case FLOAT:
+        case TFG::FLOAT:
             return GL_FLOAT;
-        case DOUBLE:
+        case TFG::DOUBLE:
             return GL_DOUBLE;
     }
     assert(false);
 }
 
-void VertexArray::addLayout(VertexBuffer &vb, uint32_t index, VectorType count, Type type, bool normalized, uint32_t stride, void *offset) {
+void VertexArray::addLayout(VertexBuffer &vb, uint32_t index, TFG::VectorType count, TFG::Type type, bool normalized, uint32_t stride, void *offset) {
     glEnableVertexAttribArray(index);
     vb.bind();
     glVertexAttribPointer(index,

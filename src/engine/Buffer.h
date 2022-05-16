@@ -6,7 +6,7 @@
 #include <vector>
 #include "OpenGL.h"
 #include "Logger.h"
-
+namespace TFG{
 enum VectorType {
     Vec1 = 1,
     Vec2 = 2,
@@ -17,6 +17,7 @@ enum VectorType {
 enum Type {
     CHAR, INT, UINT, FLOAT, DOUBLE
 };
+}
 
 
 class VertexBuffer {
@@ -41,14 +42,14 @@ private:
 
 public:
 
-    static GLenum getGLType(Type elementType);
+    static GLenum getGLType(TFG::Type elementType);
 
     VertexArray();
 
     static void addLayout(VertexBuffer &vb,
                           uint32_t index,
-                          VectorType count,
-                          Type type,
+                          TFG::VectorType count,
+                          TFG::Type type,
                           bool normalized = false,
                           uint32_t stride = 0,
                           void *offset = nullptr);

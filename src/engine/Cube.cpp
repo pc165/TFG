@@ -45,10 +45,10 @@ Cube::Cube() : Object() {
     ib.create(index.data(), index.size());
     // Position
     vb.create(position.data(), position.size() * sizeof(float));
-    vao.addLayout(vb, 0, VectorType::Vec3, Type::FLOAT);
+    vao.addLayout(vb, 0,TFG:: Vec3, TFG::FLOAT);
 
     vn.create(normals.data(), normals.size() * sizeof(float));
-    vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
+    vao.addLayout(vn, 1, TFG::Vec3, TFG::FLOAT);
 }
 
 void Cube::draw() const {
