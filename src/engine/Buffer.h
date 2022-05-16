@@ -21,31 +21,46 @@ enum Type {
 
 class VertexBuffer {
 public:
-    VertexBuffer() : bufferId_(0) {
-        glCreateBuffers(1, &bufferId_);
-    }
+    VertexBuffer();
 
-    void create(const void *data, uint32_t size, GLenum usage = GL_STATIC_DRAW) {
-        LOG_INFO("Create vertex buffer {} with size {}", bufferId_, size);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId_);
-        glBufferData(GL_ARRAY_BUFFER, size, data, usage);
-    }
+    void create(const void *data, uint32_t size, GLenum usage = GL_STATIC_DRAW);
 
-    ~VertexBuffer() {
-        glDeleteBuffers(1, &bufferId_);
-    }
+    ~VertexBuffer();
 
-    void bind() const {
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId_);
-    }
+    void bind() const;
 
-    static void unBind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+    static void unBind();
 
 private:
     uint32_t bufferId_;
 };
+
+class VertexArray {
+private:
+    uint32_t vertexId_;
+
+public:
+
+    static GLenum getGLType(Type elementType);
+
+    VertexArray();
+
+    static void addLayout(VertexBuffer &vb,
+                          uint32_t index,
+                          VectorType count,
+                          Type type,
+                          bool normalized = false,
+                          uint32_t stride = 0,
+                          void *offset = nullptr);
+
+    ~VertexArray();
+
+    void bind() const;
+
+    static void unBind();
+
+};
+
 
 template<typename T>
 class IndexBuffer {
@@ -81,66 +96,6 @@ public:
     }
 
 };
-
-class VertexArray {
-private:
-    uint32_t vertexId_;
-
-public:
-
-    static GLenum getGLType(Type elementType) {
-        switch (elementType) {
-            case CHAR:
-                return GL_BYTE;
-            case INT:
-                return GL_INT;
-            case UINT:
-                return GL_UNSIGNED_INT;
-            case FLOAT:
-                return GL_FLOAT;
-            case DOUBLE:
-                return GL_DOUBLE;
-        }
-        assert(false);
-    }
-
-    VertexArray() : vertexId_(0) {
-        glGenVertexArrays(1, &vertexId_);
-        LOG_INFO("Created vertex array {}", vertexId_);
-        glBindVertexArray(vertexId_);
-    }
-
-    void addLayout(VertexBuffer &vb,
-                   uint32_t index,
-                   VectorType count,
-                   Type type,
-                   bool normalized = false,
-                   uint32_t stride = 0,
-                   void *offset = nullptr) {
-        glEnableVertexAttribArray(index);
-        vb.bind();
-        glVertexAttribPointer(index,
-                              (GLint) count,
-                              getGLType(type),
-                              normalized ? GL_TRUE : GL_FALSE,
-                              (GLint) stride,
-                              offset);
-    }
-
-    ~VertexArray() {
-        glDeleteVertexArrays(1, &vertexId_);
-    }
-
-    void bind() const {
-        glBindVertexArray(vertexId_);
-    }
-
-    static void unBind() {
-        glBindVertexArray(0);
-    }
-
-};
-
 
 #endif // TFG_BUFFER_H
 

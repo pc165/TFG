@@ -1,14 +1,11 @@
 #ifndef TFG_OBJECT_HPP
 #define TFG_OBJECT_HPP
 
-#include <cmath>
 #include <glm/glm.hpp>
-#include <cstdint>
 #include "Buffer.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Tools.h"
-#include <glm/gtc/type_ptr.hpp>
 
 class Object {
 public:

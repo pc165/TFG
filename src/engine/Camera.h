@@ -1,11 +1,9 @@
 #ifndef TFG_CAMERA_H
 #define TFG_CAMERA_H
 
-#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include "Event.h"
-#include "EventState.h"
 
 class Camera {
 public:
@@ -132,7 +130,7 @@ public:
         isFreeCamera = enabled;
     }
 
-    void setFirstMove(){
+    void setFirstMove() {
         firstMove = true;
     }
 
