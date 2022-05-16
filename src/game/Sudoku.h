@@ -2,30 +2,22 @@
 #define TFG_SUDOKU_H
 
 #include "GameGui.h"
-#include "Cube.h"
+#include "Board.h"
 #include "Event.h"
-#include "EventState.h"
+#include "Tools.h"
+#include <cmath>
 #include <glm/gtx/string_cast.hpp>
 
 
 class Sudoku {
 public:
-    explicit Sudoku() : camera({0, 0, 5}), c(&camera) {
-        glm::vec3 scale(0.1);
-        c.add({0, 0, 0}, scale);
-        c.add({0, 1, 0}, scale);
-//        for (int i = 0; i < 9; i++) {
-//            for (int j = 0; j < 3; j++) {
-//                for (int z = 0; z < 3; z++) {
-//                    glm::vec3 pos(j + i, z + i, 0);
-//                    c.add(pos, scale);
-//                }
-//            }
-//        }
+    explicit Sudoku() : camera({0, 0, 5}), board(&camera) {
+        board.addTile({0, 0, 0}, 0);
+        board.addTile({0, 5, 0}, 0);
     };
 
-    void render(double deltaSeconds) {
-        c.draw();
+    void render() {
+        board.draw();
         GameGui::begin();
         ImGui::Begin("Camera");
         ImGui::SliderFloat3("Position", (float *) &camera.pos, -10, 10);
@@ -33,43 +25,16 @@ public:
         ImGui::SliderFloat3("Up", (float *) &camera.up, -1, 1);
         ImGui::End();
 
-        ImGui::Begin("Model");
-        ImGui::SliderInt("Cube id", &selector, 0, c.size - 1);
-        ImGui::SliderFloat3("Position", (float *) &c.position_[selector], -10, 10);
-        ImGui::SliderFloat3("Scale", (float *) &c.scale_[selector], 1, 10);
-        ImGui::SliderFloat3("Axis", (float *) &c.rotationAxis_[selector], -1, 1);
-        ImGui::SliderFloat("Degrees", &c.degrees_[selector], -180, 180);
-        ImGui::End();
-
         GameGui::showOverlay(nullptr, [this]() {
             ImGui::Text("S2W: (%s)", glm::to_string(this->screentoWorldPos).c_str());
-            ImGui::Text("S2C: (%s)", glm::to_string(this->screentoWorldColor).c_str());
+            ImGui::Text("S2C: (%s)", glm::to_string(this->screenColor).c_str());
+            ImGui::Text("Object id: (%d)", objectInt);
         });
         GameGui::end();
     }
 
-    glm::vec3 screenToWorld(int x, int y) {
-        glm::vec<4, int> viewport{0};
-        glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
-        glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
-        glReadPixels(x, int(win.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win.z);
-        return glm::unProject(win, camera.getViewMatrix(), camera.getProjectionMatrix(), viewport);
-    }
-
-
-    glm::vec3 screenToColor(int x, int y) {
-        glm::vec3 color;
-
-        glm::vec<4, int> viewport{0};
-        glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
-        glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
-
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glReadPixels(x, int(win.y), 1, 1, GL_RGB, GL_FLOAT, glm::value_ptr(color));
-        int id = round(color.r * 10) +
-                 round(color.g * 100) +
-                 round(color.b * 1000);
-        return color;
+    void renderPickObject() {
+        board.drawPickObject();
     }
 
     bool onEvent(const Event &event, double deltatime) {
@@ -81,8 +46,9 @@ public:
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                screentoWorldPos = screenToWorld(mouse->xPos, mouse->yPos);
-                screentoWorldColor = screenToColor(mouse->xPos, mouse->yPos);
+                screentoWorldPos = Tools::screenToWorld(mouse->xPos, mouse->yPos, &camera);
+                screenColor = Tools::screenToColor(mouse->xPos, mouse->yPos);
+                objectInt = Object::colorToId(screenColor);
                 break;
             }
             case MouseButton: {
@@ -97,10 +63,10 @@ public:
 
 private:
     glm::vec3 screentoWorldPos{};
-    glm::vec3 screentoWorldColor{};
-    int selector = 0;
+    glm::vec3 screenColor{};
+    int objectInt = -1;
     Camera camera;
-    Cube c;
+    Board board;
     GameGui gui{};
 };
 

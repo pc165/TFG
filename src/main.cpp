@@ -9,24 +9,26 @@ int main(int, char *[]) {
     ConfigureEvents(window);
     GameGui::configure(window);
     auto &windowProps = *reinterpret_cast<WindowStruct *> (glfwGetWindowUserPointer(window));
-    auto &eventsQueue = windowProps.eventCallbackQueue;
     {
         Sudoku game;
-        double t0 = 0;
+        double t0 = 0, delta = 0;
+        windowProps.eventCallback = [&game, &delta](const Event &event) {
+            game.onEvent(event, delta);
+        };
         while (!windowProps.shouldClose) {
-            glfwPollEvents();
-            auto t1 = glfwGetTime();
-            auto delta = t1 - t0;
-            game.render(delta);
-            t0 = t1;
-            while (!eventsQueue.empty()) {
-                auto event = std::move(eventsQueue.front());
-                game.onEvent(*event, delta);
-                eventsQueue.pop();
-            }
-            glfwSwapBuffers(window);
-            glClearColor(0, 0, 0, 0);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            game.renderPickObject();
+            glfwPollEvents();
+
+            glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            auto t1 = glfwGetTime();
+            delta = t1 - t0;
+            game.render();
+            t0 = t1;
+            glfwSwapBuffers(window);
         };
     }
 

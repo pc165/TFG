@@ -45,14 +45,14 @@ void ConfigureEvents(GLFWwindow *window) {
         data.width = width;
         data.height = height;
         WindowResizeEvent event(EventType::WindowResize, width, height);
-        data.eventCallbackQueue.push(std::make_unique<WindowResizeEvent>(event));
+        data.eventCallback(event);
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event(EventType::WindowClose);
         data.shouldClose = true;
-        data.eventCallbackQueue.push(std::make_unique<WindowCloseEvent>(event));
+        data.eventCallback(event);
     });
 
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -68,7 +68,7 @@ void ConfigureEvents(GLFWwindow *window) {
             event.press_release_repeat = 1;
         else
             event.press_release_repeat = 2;
-        data.eventCallbackQueue.push(std::make_unique<KeyEvent>(event));
+        data.eventCallback(event);
     });
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
@@ -78,7 +78,7 @@ void ConfigureEvents(GLFWwindow *window) {
 
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseButtonEvent event(EventType::MouseButton, button, action == GLFW_PRESS ? 0 : 1);
-        data.eventCallbackQueue.push(std::make_unique<MouseButtonEvent>(event));
+        data.eventCallback(event);
     });
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
@@ -88,7 +88,7 @@ void ConfigureEvents(GLFWwindow *window) {
 
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseScrollEvent event(EventType::MouseScrolled, (float) xOffset, (float) yOffset);
-        data.eventCallbackQueue.push(std::make_unique<MouseScrollEvent>(event));
+        data.eventCallback(event);
     });
 
     glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xPos, double yPos) {
@@ -98,7 +98,7 @@ void ConfigureEvents(GLFWwindow *window) {
 
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseMoveEvent event(EventType::MouseMoved, (float) xPos, (float) yPos);
-        data.eventCallbackQueue.push(std::make_unique<MouseMoveEvent>(event));
+        data.eventCallback(event);
     });
 }
 

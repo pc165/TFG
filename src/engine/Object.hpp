@@ -1,18 +1,20 @@
 #ifndef TFG_OBJECT_HPP
 #define TFG_OBJECT_HPP
 
+#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cstdint>
 #include "Buffer.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "glm/gtx/string_cast.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
 class Object {
 
 public:
-    explicit Object(Camera &camera) : camera_(camera) {}
+    explicit Object(Camera &camera, bool enablePick = true) : enablePick_(enablePick), camera_(camera) {}
 
     void add(const glm::vec3 &pos = glm::vec3(0, 0, 0),
              const glm::vec3 &scale = glm::vec3(1, 1, 1),
@@ -25,7 +27,7 @@ public:
         degrees_.push_back(degrees);
 
         color_.emplace_back(color);
-        pickColor_.emplace_back(genPickColor());
+        pickColor_.emplace_back(enablePick_ ? genPickColor() : glm::vec3(1, 1, 1));
 
         model_.emplace_back();
         size++;
@@ -49,23 +51,29 @@ public:
 
     virtual void drawPickObject() = 0;
 
+    static int colorToId(glm::vec3 color) {
+        if (color == glm::vec3(1, 1, 1))
+            return -1;
+
+        int id = std::round(color.r * 10) +
+                 std::round(color.g * 100) +
+                 std::round(color.b * 1000);
+        return id;
+    };
+
 private:
     [[nodiscard]] glm::vec3 genPickColor() const {
-        /**
-         * 2   -> 0, 0, 2
-         * 10  -> 0, 1, 0
-         * 21  -> 0, 2, 1
-         * 100 -> 1, 0, 0
-         * 123 -> 1, 2, 3
-         **/
         int n = pickColor_.size();
         float r = int((n % 10)) / 10.f;
         float g = int((n % 100) / 10) / 10.f;
         float b = int((n % 1000) / 100) / 100.f;
         glm::vec3 newColor(r, g, b);
-        LOG_DEBUG("Pick color {} {} {}", r, g, b);
+        LOG_DEBUG("Pick color {}", glm::to_string(newColor).c_str());
         return newColor;
     }
+
+private:
+    bool enablePick_ = true;
 
 protected:
     Shader shader{};
