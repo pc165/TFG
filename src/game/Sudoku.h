@@ -48,7 +48,7 @@ public:
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
                 screentoWorldPos = Tools::screenToWorld(mouse->xPos, mouse->yPos, &camera);
                 screenColor = Tools::screenToColor(mouse->xPos, mouse->yPos);
-                objectInt = Object::colorToId(screenColor);
+                objectInt = Tools::colorToId(screenColor);
                 break;
             }
             case MouseButton: {

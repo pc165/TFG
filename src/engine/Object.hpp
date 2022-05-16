@@ -3,12 +3,11 @@
 
 #include <cmath>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <cstdint>
 #include "Buffer.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "glm/gtx/string_cast.hpp"
+#include "Tools.h"
 #include <glm/gtc/type_ptr.hpp>
 
 class Object {
@@ -27,7 +26,7 @@ public:
         degrees_.push_back(degrees);
 
         color_.emplace_back(color);
-        pickColor_.emplace_back(enablePick_ ? genPickColor() : glm::vec3(1, 1, 1));
+        pickColor_.emplace_back(enablePick_ ? Tools::genPickColor(pickColor_.size()) : glm::vec3(1, 1, 1));
 
         model_.emplace_back();
         size++;
@@ -50,27 +49,6 @@ public:
     virtual void draw() = 0;
 
     virtual void drawPickObject() = 0;
-
-    static int colorToId(glm::vec3 color) {
-        if (color == glm::vec3(1, 1, 1))
-            return -1;
-
-        int id = std::round(color.r * 10) +
-                 std::round(color.g * 100) +
-                 std::round(color.b * 1000);
-        return id;
-    };
-
-private:
-    [[nodiscard]] glm::vec3 genPickColor() const {
-        int n = pickColor_.size();
-        float r = int((n % 10)) / 10.f;
-        float g = int((n % 100) / 10) / 10.f;
-        float b = int((n % 1000) / 100) / 100.f;
-        glm::vec3 newColor(r, g, b);
-        LOG_DEBUG("Pick color {}", glm::to_string(newColor).c_str());
-        return newColor;
-    }
 
 private:
     bool enablePick_ = true;
