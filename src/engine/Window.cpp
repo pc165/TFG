@@ -30,7 +30,7 @@ GLFWwindow *InitWindow(const char *title, int width, int height) {
     // enable Z-test
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
+    glfwSwapInterval(1);
     auto winProp = new WindowStruct{width, height};
     glfwSetWindowUserPointer(window, winProp);
 
