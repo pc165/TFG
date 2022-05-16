@@ -18,8 +18,6 @@ public:
 
         glm::vec3 pos = glm::unProject(win, camera->getViewMatrix(), camera->getProjectionMatrix(), viewport);
 
-        LOG_TRACE("gl unProject {}", glm::to_string(pos).c_str());
-
         return pos;
     }
 
@@ -42,7 +40,6 @@ public:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glReadPixels((int) win.x, (int) win.y, 1, 1, GL_RGB, GL_FLOAT, glm::value_ptr(color));
 
-        LOG_TRACE("Read color {}", glm::to_string(color).c_str());
         return color;
     }
 
@@ -57,7 +54,6 @@ public:
                  std::round(color.g * 100) +
                  std::round(color.b * 1000);
 
-        LOG_TRACE("object id {}", id);
         return id;
     };
 

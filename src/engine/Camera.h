@@ -20,11 +20,11 @@ public:
 
     explicit Camera(glm::vec3 position = glm::vec3(0, 0, 0),
                     glm::vec3 up = glm::vec3(0, 1, 0),
-                    float widht = 1080,
+                    float width = 1080,
                     float height = 720) :
             pos(position), center(), up(),
             right(), worldUp(up),
-            width(widht), height(height) {
+            width(width), height(height) {
         updateCameraVectors();
     }
 

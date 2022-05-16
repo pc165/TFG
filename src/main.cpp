@@ -18,15 +18,14 @@ int main(int, char *[]) {
         while (!windowProps.shouldClose) {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            game.renderPickObject();
+            game.drawPickObject();
             glfwPollEvents();
-
             glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
             auto t1 = glfwGetTime();
             delta = t1 - t0;
-            game.render();
+            game.draw();
+            game.drawGUI();
             t0 = t1;
             glfwSwapBuffers(window);
         };

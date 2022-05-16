@@ -15,7 +15,7 @@ struct WindowStruct {
     std::function<void(const Event &event)> eventCallback;
 };
 
-GLFWwindow *InitWindow(const char *title, int witdh = 1080, int heigth = 720);
+GLFWwindow *InitWindow(const char *title, int width = 1080, int height = 720);
 
 void ConfigureEvents(GLFWwindow *window);
 

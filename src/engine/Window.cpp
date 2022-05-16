@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Utils.h"
 
-GLFWwindow *InitWindow(const char *title, int witdh, int heigth) {
+GLFWwindow *InitWindow(const char *title, int width, int height) {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         LOG_CRITICAL("Failed to initialize GLFW");
@@ -11,7 +11,7 @@ GLFWwindow *InitWindow(const char *title, int witdh, int heigth) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    GLFWwindow *window = glfwCreateWindow(witdh, heigth, title, nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
     LOG_DEBUG("Window created {}", fmt::ptr(window));
     if (window == nullptr) {

@@ -53,7 +53,6 @@ public:
                 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0    // v6-v5-v4
         };
 
-        shader.loadSource("cube.glsl");
         vao.bind();
         ib.create(index.data(), index.size());
         // Position
@@ -64,43 +63,9 @@ public:
         vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
     }
 
-    void draw() override {
-        vao.bind();
-        shader.bind();
-
-        shader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
-        shader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
-
-        for (auto i = 0; i < size; i++) {
-            auto tra = glm::translate(glm::mat4(1.0f), position_[i]);
-            auto rot = glm::rotate(tra, glm::radians(degrees_[i]), rotationAxis_[i]);
-            model_[i] = glm::scale(rot, scale_[i]);
-        }
-        for (auto i = 0; i < size; i++) {
-            shader.setMat4("model", glm::value_ptr(model_[i]));
-            shader.setVec3("colorIn", glm::value_ptr(color_[i]));
-            glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
-        }
-    }
-
-    void drawPickObject() override {
-        vao.bind();
-        shader.bind();
-
-        shader.setMat4("view", glm::value_ptr(camera_.getViewMatrix()));
-        shader.setMat4("projection", glm::value_ptr(camera_.getProjectionMatrix()));
-
-        for (auto i = 0; i < size; i++) {
-            auto tra = glm::translate(glm::mat4(1.0f), position_[i]);
-            auto rot = glm::rotate(tra, glm::radians(degrees_[i]), rotationAxis_[i]);
-            model_[i] = glm::scale(rot, scale_[i]);
-        }
-
-        for (auto i = 0; i < size; i++) {
-            shader.setMat4("model", glm::value_ptr(model_[i]));
-            shader.setVec3("colorIn", glm::value_ptr(pickColor_[i]));
-            glDrawElements(GL_TRIANGLES, (GLsizei) ib.getCount(), GL_UNSIGNED_INT, nullptr);
-        }
+    void draw() const override {
+        Object::draw();
+        // TODO
     }
 };
 
