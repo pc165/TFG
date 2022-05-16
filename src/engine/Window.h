@@ -9,6 +9,8 @@
 struct WindowStruct {
     int width = 0;
     int height = 0;
+    int xPos = 0;
+    int yPos = 0;
     bool shouldClose = false;
     std::function<void(const Event &event)> eventCallback;
 };

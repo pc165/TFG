@@ -2,7 +2,7 @@
 #define TFG_EVENT_H
 
 enum EventType {
-    WindowClose = 0, WindowResize,
+    WindowClose = 0, WindowResize, WindowPosition,
     Key,
     MouseMoved, MouseScrolled, MouseButton
 };
@@ -23,6 +23,12 @@ struct WindowResizeEvent : public Event {
     WindowResizeEvent(EventType type, int width, int height) : Event(type), width(width), height(height) {};
     int width;
     int height;
+};
+
+struct WindowPositionEvent : public Event {
+    WindowPositionEvent(EventType type, int xpos, int ypos) : Event(type), xPos(xpos), yPos(ypos) {};
+    int xPos;
+    int yPos;
 };
 
 struct MouseButtonEvent : public Event {

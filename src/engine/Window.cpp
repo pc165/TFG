@@ -48,6 +48,14 @@ void ConfigureEvents(GLFWwindow *window) {
         data.eventCallback(event);
     });
 
+    glfwSetWindowPosCallback(window, [](GLFWwindow *window, int xpos, int ypos) {
+        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
+        data.xPos = xpos;
+        data.yPos = ypos;
+        WindowPositionEvent event(EventType::WindowPosition, xpos, ypos);
+        data.eventCallback(event);
+    });
+
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event(EventType::WindowClose);
@@ -97,8 +105,15 @@ void ConfigureEvents(GLFWwindow *window) {
             return;
 
         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
+//        LOG_DEBUG("{} {} {} {}", data.xPos, data.yPos, data.height + data.xPos, data.width + data.yPos);
+//        if (((yPos >= data.xPos) &&
+//             (yPos <= (data.xPos + data.width))) &&
+//            (xPos >= data.yPos) &&
+//            (xPos <= (data.yPos + data.height))) {
         MouseMoveEvent event(EventType::MouseMoved, (float) xPos, (float) yPos);
         data.eventCallback(event);
+//        }
+
     });
 }
 
