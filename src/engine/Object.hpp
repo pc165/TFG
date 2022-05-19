@@ -14,43 +14,9 @@ public:
         basicShader.loadSource("basicShader.glsl");
     }
 
-    int add(int objectId,
-            const glm::vec3 &pos = glm::vec3(0, 0, 0),
-            const glm::vec3 &scale = glm::vec3(1, 1, 1),
-            const glm::vec3 &color = glm::vec3(1, 0, 0),
-            const glm::vec3 &rotAxis = glm::vec3(1, 0, 0),
-            float degrees = 0) {
-        position_.push_back(pos);
-        rotationAxis_.push_back(rotAxis);
-        scale_.push_back(scale);
-        degrees_.push_back(degrees);
-
-        color_.emplace_back(color);
-        pickColor_.emplace_back(Tools::genPickColor(objectId));
-
-        model_.emplace_back();
-        size++;
-        return size;
-    }
-
-    void remove(int i) {
-        assert(i < size);
-        position_.erase(position_.begin() + i);
-        rotationAxis_.erase(rotationAxis_.begin() + i);
-        scale_.erase(scale_.begin() + i);
-        degrees_.erase(degrees_.begin() + i);
-
-        color_.erase(color_.begin() + i);
-        pickColor_.erase(pickColor_.begin() + i);
-
-        model_.erase(model_.begin() + i);
-        size--;
-    }
-
     virtual void draw() const {
         vao.bind();
         basicShader.bind();
-
         basicShader.setMat4("view", glm::value_ptr(camera_->getViewMatrix()));
         basicShader.setMat4("projection", glm::value_ptr(camera_->getProjectionMatrix()));
 
@@ -99,10 +65,10 @@ protected:
 
     // getters and setters
 public:
-    [[nodiscard]] glm::mat4 getProductModel(int i) const {
-        auto translated = glm::translate(glm::mat4(1.0f), position_[i]);
-        auto rotated = glm::rotate(translated, glm::radians(degrees_[i]), rotationAxis_[i]);
-        auto scaled = glm::scale(rotated, scale_[i]);
+    [[nodiscard]] glm::mat4 getProductModel(ObjectData const &data) const {
+        auto translated = glm::translate(glm::mat4(1.0f), data.position);
+        auto rotated = glm::rotate(translated, glm::radians(data.rotationDegress), data.rotationAxis);
+        auto scaled = glm::scale(rotated, data.scale);
         return scaled;
     }
 

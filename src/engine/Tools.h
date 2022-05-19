@@ -12,6 +12,7 @@ public:
     static GLFWwindow *window;
     static WindowStruct *windowStruct;
     static Camera *camera;
+    static int EntitySize;
 
     static glm::vec3 screenToWorld(int x, int y);
 
@@ -19,7 +20,7 @@ public:
 
     static int colorToId(glm::vec3 color);;
 
-    static glm::vec3 genPickColor(int n);
+    static glm::vec3 genPickColor();
 
     static void setFreeCamera(bool isEnabled);
 };

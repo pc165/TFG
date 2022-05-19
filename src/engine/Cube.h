@@ -6,8 +6,6 @@
 class Cube : public Object {
 public:
     explicit Cube();
-
-    void draw() const override;
 };
 
 #endif //TFG_CUBE_H

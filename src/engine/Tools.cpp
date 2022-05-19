@@ -3,6 +3,7 @@
 GLFWwindow *Tools::window = nullptr;
 WindowStruct *Tools::windowStruct = nullptr;
 Camera *Tools::camera = nullptr;
+int Tools::EntitySize = 0;
 
 glm::vec3 Tools::screenToWorld(int x, int y) {
     assert(camera != nullptr);
@@ -57,7 +58,10 @@ int Tools::colorToId(glm::vec3 color) {
     return id;
 }
 
-glm::vec3 Tools::genPickColor(int n) {
+glm::vec3 Tools::genPickColor() {
+    int n = Tools::EntitySize;
+    Tools::EntitySize++;
+
     float r = int((n % 10)) / 10.f;
     float g = int((n % 100) / 10) / 10.f;
     float b = int((n % 1000) / 100) / 100.f;

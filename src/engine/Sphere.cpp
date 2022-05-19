@@ -69,8 +69,3 @@ Sphere::Sphere(float radius, int sectorCount, int stackCount) : Object() {
     vn.create(normals.data(), normals.size() * sizeof(float));
     vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
 }
-
-void Sphere::draw() const {
-    Object::draw();
-    // TODO
-}

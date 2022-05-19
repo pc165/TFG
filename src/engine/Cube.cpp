@@ -50,8 +50,3 @@ Cube::Cube() : Object() {
     vn.create(normals.data(), normals.size() * sizeof(float));
     vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
 }
-
-void Cube::draw() const {
-    Object::draw();
-    // TODO
-}
