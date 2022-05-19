@@ -1,5 +1,6 @@
 #include "Sphere.h"
 
+#define M_PI 3.1415926535
 Sphere::Sphere(float radius, int sectorCount, int stackCount) : Object() {
     std::vector<float> position;
     std::vector<float> normals;
@@ -64,8 +65,8 @@ Sphere::Sphere(float radius, int sectorCount, int stackCount) : Object() {
 
     // Position
     vb.create(position.data(), position.size() * sizeof(float));
-    vao.addLayout(vb, 0, VectorType::Vec3, Type::FLOAT);
+    vao.addLayout(vb, 0, TFG::VectorType::Vec3, TFG::Type::FLOAT);
 
     vn.create(normals.data(), normals.size() * sizeof(float));
-    vao.addLayout(vn, 1, VectorType::Vec3, Type::FLOAT);
+    vao.addLayout(vn, 1,TFG:: VectorType::Vec3, TFG::Type::FLOAT);
 }

@@ -31,10 +31,10 @@ glm::vec3 Tools::screenToColor(int x, int y) {
 
     if (win.x < viewport[0] || win.x > viewport[2] ||
         win.y < viewport[1] || win.y > viewport[3]) {
-        glm::vec3 clearColor;
+        glm::vec4 clearColor;
         LOG_TRACE("Mouse outside viewport");
         glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(clearColor));
-        return clearColor;
+        return glm::vec3{clearColor};
     }
 
     glm::vec3 color;
@@ -45,10 +45,10 @@ glm::vec3 Tools::screenToColor(int x, int y) {
 }
 
 int Tools::colorToId(glm::vec3 color) {
-    glm::vec3 clearColor;
+    glm::vec4 clearColor;
     glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(clearColor));
 
-    if (color == clearColor)
+    if (color == glm::vec3{clearColor})
         return -1;
 
     int id = std::round(color.r * 10) +

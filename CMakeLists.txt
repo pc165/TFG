@@ -115,8 +115,7 @@ file(GLOB_RECURSE SRC_FILES
         )
 
 
-link_libraries(OpenGL)
-link_libraries(glfw)
+
 
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
 target_link_libraries(TFG PRIVATE spdlog::spdlog glfw ${OPENGL_gl_LIBRARY})
