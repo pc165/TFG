@@ -13,8 +13,8 @@ glm::vec3 Tools::screenToWorld(int x, int y) {
     // convert to open GL coordinates
     glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
     glReadPixels((int) win.x, (int) win.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win.z);
-
     glm::vec3 pos = glm::unProject(win, Tools::camera->getViewMatrix(), Tools::camera->getProjectionMatrix(), viewport);
+    LOG_DEBUG("WinDow Pos: {} {} {} Unproject {} {} {}", win.x, win.y, win.z, pos.x, pos.y, pos.z);
     return pos;
 }
 

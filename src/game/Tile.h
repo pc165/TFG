@@ -17,6 +17,35 @@ struct TileData : Entity {
         }
         LOG_DEBUG("\n{}\nCube\n{}\n{}\n", this->to_string(), cube.to_string(), a);
     }
+
+
+    void updatePosition(glm::vec3 const &pos) {
+        cube.position = pos;
+
+        // sphere position offsets
+        auto xOffset = cube.scale.x / 3;
+        auto yOffset = cube.scale.y / 2;
+        auto zOffset = cube.scale.z;
+
+        // top left
+        sphere[0].position = glm::vec3{-xOffset, yOffset, zOffset} + pos;
+
+        // top right
+        sphere[1].position = glm::vec3{xOffset, yOffset, zOffset} + pos;
+
+        // middle left
+        sphere[2].position = glm::vec3{-xOffset, 0, zOffset} + pos;
+
+        // middle right
+        sphere[3].position = glm::vec3{xOffset, 0, zOffset} + pos;
+
+        // bottom left
+        sphere[4].position = glm::vec3{-xOffset, -yOffset, zOffset} + pos;
+
+        // bottom right
+        sphere[5].position = glm::vec3{xOffset, -yOffset, zOffset} + pos;
+    }
+
 };
 
 class Tile {
@@ -57,40 +86,13 @@ public:
         tile.colorPick = Tools::genPickColor(tile.entityId);
 
         // Setup cube
-        tile.cube.position = pos;
         tile.cube.scale = glm::vec3{0.5 * scale, 0.8 * scale, 0.3 * scale};
         tile.cube.color = {1, 0, 0};
-
-
-        // sphere position offsets
-        auto xOffset = tile.cube.scale.x / 3;
-        auto yOffset = tile.cube.scale.y / 2;
-
-        // top left
-        tile.sphere[0].position = glm::vec3{-xOffset, yOffset, 0};
-
-        // top right
-        tile.sphere[1].position = glm::vec3{xOffset, yOffset, 0};
-
-        // middle left
-        tile.sphere[2].position = glm::vec3{-xOffset, 0, 0};
-
-        // middle right
-        tile.sphere[3].position = glm::vec3{xOffset, 0, 0};
-
-        // bottom left
-        tile.sphere[4].position = glm::vec3{-xOffset, -yOffset, 0};
-
-        // bottom right
-        tile.sphere[5].position = glm::vec3{xOffset, -yOffset, 0};
-
+        tile.updatePosition(pos);
 
         // Setup sphere
         for (auto &i: tile.sphere) {
             // translate spheres
-            i.position += pos;
-            i.position.z += tile.cube.scale.z;
-
             i.scale = glm::vec3{0.1f * scale};
             i.color = {0, 1, 0};
         }
@@ -108,6 +110,24 @@ public:
                 sphere_.draw(tile.sphere[i], sphereColor);
             }
         }
+    }
+
+    void moveTile(int entityId, glm::vec3 pos) {
+        pos.z = 0;
+        for (auto &i: tileData_) {
+            if (i.entityId == entityId) {
+                i.updatePosition(pos);
+                return;
+            }
+        }
+    }
+
+    TileData *getTile(int entityId) {
+        for (auto &i: tileData_) {
+            if (i.entityId == entityId)
+                return &i;
+        }
+        return nullptr;
     }
 
 private:
