@@ -58,10 +58,7 @@ int Tools::colorToId(glm::vec3 color) {
     return id;
 }
 
-glm::vec3 Tools::genPickColor() {
-    int n = Tools::EntitySize;
-    Tools::EntitySize++;
-
+glm::vec3 Tools::genPickColor(int n) {
     float r = int((n % 10)) / 10.f;
     float g = int((n % 100) / 10) / 10.f;
     float b = int((n % 1000) / 100) / 100.f;
