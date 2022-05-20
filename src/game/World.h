@@ -2,7 +2,7 @@
 #define TFG_WORLD_H
 
 #include "GameGui.h"
-#include "Tile.h"
+#include "Board.h"
 #include "Event.h"
 #include "Tools.h"
 #include "Sudoku.h"
@@ -114,9 +114,12 @@ public:
 private:
     GameGui gui_{};
     Camera camera_{{4, 4, 12}};
-    Tile board_{};
+
+    Board board_{};
     Sudoku sudoku_{};
+
     float deltaFrmame_{0};
+
     int entityId_{-1};
     int selectedEntityId_{-1};
     bool buttonPress{false};

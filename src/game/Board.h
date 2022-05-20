@@ -1,10 +1,10 @@
-#ifndef TFG_TILE_H
-#define TFG_TILE_H
+#ifndef TFG_BOARD_H
+#define TFG_BOARD_H
 
 #include "Sphere.h"
 #include "Cube.h"
 
-struct TileData : Entity {
+struct Tile : Entity {
     int numericalValue{0};
     Transform cube{};
     std::vector<Transform> sphere{6};
@@ -48,9 +48,9 @@ struct TileData : Entity {
 
 };
 
-class Tile {
+class Board {
 public:
-    explicit Tile() : number2Braille_(), cube_(), sphere_() {
+    explicit Board() : number2Braille_(), cube_(), sphere_() {
         /***
           *      Braille numbers
           *  1     2     3     4     5
@@ -79,7 +79,7 @@ public:
     }
 
     void addTile(glm::vec3 const &pos, int numericalValue, float scale = 0.5f) {
-        TileData tile{};
+        Tile tile{};
 
         tile.numericalValue = numericalValue;
         tile.entityId = Tools::getEntityId();
@@ -122,7 +122,7 @@ public:
         }
     }
 
-    TileData *getTile(int entityId) {
+    Tile *getTile(int entityId) {
         for (auto &i: tileData_) {
             if (i.entityId == entityId)
                 return &i;
@@ -132,9 +132,9 @@ public:
 
 private:
     std::vector<std::vector<size_t>> number2Braille_;
-    std::vector<TileData> tileData_;
+    std::vector<Tile> tileData_;
     Cube cube_;
     Sphere sphere_;
 };
 
-#endif //TFG_TILE_H
+#endif //TFG_BOARD_H
