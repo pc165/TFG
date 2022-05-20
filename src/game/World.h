@@ -5,6 +5,7 @@
 #include "Tile.h"
 #include "Event.h"
 #include "Tools.h"
+#include "Sudoku.h"
 #include <cmath>
 #include <glm/gtx/string_cast.hpp>
 
@@ -43,11 +44,7 @@ public:
             auto t1 = glfwGetTime();
             deltaFrmame_ = t1 - t0;
             board_.drawBoard();
-            GameGui::drawwGUI([this]() {
-                guiOverlay();
-            }, [this]() {
-                guiWindow();
-            });
+            GameGui::drawwGUI([this]() { guiOverlay(); }, [this]() { guiWindow(); });
             t0 = t1;
             glfwSwapBuffers(Tools::window);
         };
@@ -74,12 +71,8 @@ public:
         switch (event.type) {
             case Key: {
                 auto key = dynamic_cast<const KeyEvent *>(&event);
-                if (key->key == GLFW_KEY_2 && key->press_release_repeat == 1) {
-                    Tools::setFreeCamera(false);
-                    return true;
-                }
                 if (key->key == GLFW_KEY_1 && key->press_release_repeat == 1) {
-                    Tools::setFreeCamera(true);
+                    Tools::setFreeCamera(!Tools::windowStruct->isFreeCamera);
                     return true;
                 }
                 break;
@@ -102,7 +95,7 @@ public:
                     selectedEntityId_ = entityId_;
                     return true;
                 }
-                if (mouse->press_release == 0 && selectedEntityId_ != -1) {
+                if (mouse->press_release == 1 && selectedEntityId_ != -1) {
                     selectedEntityId_ = -1;
                     return true;
                 }
@@ -122,6 +115,7 @@ private:
     GameGui gui_{};
     Camera camera_{{4, 4, 12}};
     Tile board_{};
+    Sudoku sudoku_{};
     float deltaFrmame_{0};
     int entityId_{-1};
     int selectedEntityId_{-1};

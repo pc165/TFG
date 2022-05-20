@@ -16,7 +16,7 @@ public:
                 -1.0, 1.0, 1.0,
                 -1.0, 1.0, -1.0
         };
-        std::vector<uint32_t> index = {
+        std::vector<unsigned int> index = {
                 4, 0, 3,
                 4, 3, 7,
                 2, 6, 7,
@@ -45,15 +45,7 @@ public:
                 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,   // v4-v7-v6 (back)
                 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0    // v6-v5-v4
         };
-
-        vao.bind();
-        ib.create(index.data(), index.size());
-        // Position
-        vb.create(position.data(), position.size() * sizeof(float));
-        vao.addLayout(vb, 0, 3, GL_FLOAT);
-
-        vn.create(normals.data(), normals.size() * sizeof(float));
-        vao.addLayout(vn, 1, 3, GL_FLOAT);
+        setupVao(position, normals, index);
     }
 };
 

@@ -9,7 +9,7 @@ public:
     explicit Sphere(float radius = 1.0f, int sectorCount = 36, int stackCount = 18) : Object() {
         std::vector<float> position;
         std::vector<float> normals;
-        std::vector<uint32_t> index;
+        std::vector<unsigned int> index;
 
         float x, y, z, xy;                              // vertex position
         float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
@@ -64,16 +64,7 @@ public:
             }
         }
 
-        basicShader.loadSource("cube.glsl");
-        vao.bind();
-        ib.create(index.data(), index.size());
-
-        // Position
-        vb.create(position.data(), position.size() * sizeof(float));
-        vao.addLayout(vb, 0, 3, GL_FLOAT);
-
-        vn.create(normals.data(), normals.size() * sizeof(float));
-        vao.addLayout(vn, 1, 3, GL_FLOAT);
+        setupVao(position, normals, index);
     }
 };
 
