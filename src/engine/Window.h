@@ -1,7 +1,7 @@
 #ifndef TFG_WINDOW_H
 #define TFG_WINDOW_H
 
-#include "OpenGL.h"
+#include <GLFW/glfw3.h>
 #include "Logger.h"
 #include "Event.h"
 #include "Camera.h"

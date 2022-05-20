@@ -1,4 +1,3 @@
-#include "OpenGL.h"
 #include "Logger.h"
 #include "World.h"
 #include "Window.h"

@@ -1,7 +1,7 @@
 #ifndef TFG_UTILS_H
 #define TFG_UTILS_H
 
-#include "OpenGL.h"
+#include <GLFW/glfw3.h>
 
 void glfw_error_callback(int error, const char *description);
 

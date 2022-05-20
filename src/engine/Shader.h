@@ -6,7 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include "OpenGL.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "Logger.h"
 
 enum ShaderType {

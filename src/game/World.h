@@ -2,7 +2,7 @@
 #define TFG_WORLD_H
 
 #include "GameGui.h"
-#include "Board.h"
+#include "Tile.h"
 #include "Event.h"
 #include "Tools.h"
 #include <cmath>
@@ -35,14 +35,14 @@ public:
         while (!windowProps->shouldClose) {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            board_.drawPickObject();
+            board_.drawBoard(true);
             glfwPollEvents();
             glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             auto t1 = glfwGetTime();
             deltaFrmame_ = t1 - t0;
+            board_.drawBoard();
             gui_.drawwGUI();
-            board_.draw();
             t0 = t1;
             glfwSwapBuffers(Tools::window);
         };
@@ -59,9 +59,9 @@ public:
 
 
 private:
-    Camera camera_{{4, 4, 12}};
     GameGui gui_{};
-    Board board_{};
+    Camera camera_{{4, 4, 12}};
+    Tile board_{};
     float deltaFrmame_{0};
 };
 

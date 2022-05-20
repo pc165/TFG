@@ -1,11 +1,12 @@
 #ifndef TFG_GAMEGUI_H
 #define TFG_GAMEGUI_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include "OpenGL.h"
 #include "Logger.h"
 #include "Tools.h"
 
@@ -39,44 +40,24 @@ public:
 
 
     void drawwGUI() {
-        static int corner = 0;
+        GameGui::begin();
         ImGuiIO &io = ImGui::GetIO();
-        ImGuiWindowFlags window_flags =
-                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize |
-                ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-        if (corner != -1) {
-            const float PAD = 10.0f;
-            const ImGuiViewport *viewport = ImGui::GetMainViewport();
-            ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-            ImVec2 work_size = viewport->WorkSize;
-            ImVec2 window_pos, window_pos_pivot;
-            window_pos.x = (corner & 1) ? (work_pos.x + work_size.x - PAD) : (work_pos.x + PAD);
-            window_pos.y = (corner & 2) ? (work_pos.y + work_size.y - PAD) : (work_pos.y + PAD);
-            window_pos_pivot.x = (corner & 1) ? 1.0f : 0.0f;
-            window_pos_pivot.y = (corner & 2) ? 1.0f : 0.0f;
-            ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-            ImGui::SetNextWindowViewport(viewport->ID);
-            window_flags |= ImGuiWindowFlags_NoMove;
-        }
-        ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-        if (ImGui::Begin("Input Status", nullptr, window_flags)) {
-            ImGui::Text("FPS: %.1f", io.Framerate);
-            if (ImGui::IsMousePosValid())
-                ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
-            else
-                ImGui::Text("Mouse Position: <invalid>");
+        ImGui::Text("FPS: %.1f", io.Framerate);
+        if (ImGui::IsMousePosValid())
+            ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+        else
+            ImGui::Text("Mouse Position: <invalid>");
 
-            ImGui::Text("S2W: (%s)", glm::to_string(screentoWorldPos_).c_str());
-            ImGui::Text("S2C: (%s)", glm::to_string(screenColor_).c_str());
-            ImGui::Text("Object id: (%d)", objectId_);
-        }
-        ImGui::End();
+        ImGui::Text("S2W: (%s)", glm::to_string(screentoWorldPos_).c_str());
+        ImGui::Text("S2C: (%s)", glm::to_string(screenColor_).c_str());
+        ImGui::Text("Object id: (%d)", objectId_);
 
         ImGui::Begin("Camera");
         ImGui::SliderFloat3("Position", glm::value_ptr(Tools::camera->pos), -10, 10);
         ImGui::SliderFloat3("Center", glm::value_ptr(Tools::camera->center), -10, 10);
         ImGui::SliderFloat3("Up", glm::value_ptr(Tools::camera->up), -1, 1);
         ImGui::End();
+        GameGui::end();
     }
 
 
@@ -108,13 +89,13 @@ public:
         }
     }
 
-    void begin() {
+    static void begin() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     };
 
-    void end() {
+    static void end() {
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(Tools::window, &display_w, &display_h);
