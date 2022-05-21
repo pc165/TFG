@@ -85,7 +85,11 @@ public:
         switch (event.type) {
             case Key: {
                 auto key = dynamic_cast<const KeyEvent *>(&event);
-                if (key->key == GLFW_KEY_1 && key->press_release_repeat == 1) {
+                if (key->key == GLFW_KEY_ESCAPE && key->press_release_repeat == 0) {
+                    Tools::windowStruct->shouldClose = true;
+                }
+
+                if (key->key == GLFW_KEY_1 && key->press_release_repeat == 0) {
                     Tools::setFreeCamera(!Tools::windowStruct->isFreeCamera);
                     return true;
                 }
@@ -127,7 +131,7 @@ public:
 
 private:
     GameGui gui_{};
-    Camera camera_{{4, -4, 12}};
+    Camera camera_{{4 * 3, -4 * 3, 35}};
 
     Board board_{};
     Sudoku sudoku_{};

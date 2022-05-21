@@ -16,7 +16,7 @@ struct Tile : Entity {
         for (auto &i: sphere) {
             a += fmt::format("Sphere {}\n{}\n", j++, i.to_string());
         }
-        LOG_DEBUG("\n{}\nCube\n{}\n{}\n", this->to_string(), cube.to_string(), a);
+        LOG_DEBUG("\n{}\nCube\n{}\n{}\n", this->to_string(), cube.to_string(), "");
     }
 
 
@@ -51,7 +51,7 @@ struct Tile : Entity {
 
 class Board {
 public:
-    explicit Board() : number2Braille_(), cube_(), sphere_() {
+    explicit Board(glm::vec3 topLeftCorner = {0, 0, 0}) : topLeftCorner_(topLeftCorner), number2Braille_(), cube_(), sphere_() {
         /***
           *      Braille numbers
           *  1     2     3     4     5
@@ -80,7 +80,9 @@ public:
         };
     }
 
-    auto &addTile(glm::vec3 const &pos, int numericalValue, int col, int row, float scale = 0.5f) {
+    auto &addTile(int numericalValue, int col, int row) {
+        glm::vec3 pos{row * offset_, -col * offset_, 0};
+        pos += topLeftCorner_;
         Tile tile{};
         tile.row = row;
         tile.col = col;
@@ -89,14 +91,13 @@ public:
         tile.colorPick = Tools::genPickColor(tile.entityId);
 
         // Setup cube
-        tile.cube.scale = glm::vec3{0.5 * scale, 0.8 * scale, 0.3 * scale};
+        tile.cube.scale = {1, 1, 0.375};
         tile.cube.color = {1, 0, 0};
         tile.updatePosition(pos);
 
         // Setup sphere
         for (auto &i: tile.sphere) {
-            // translate spheres
-            i.scale = glm::vec3{0.1f * scale};
+            i.scale = glm::vec3{0.2f};
             i.color = {0, 1, 0};
         }
 
@@ -109,8 +110,8 @@ public:
         for (auto &tile: tileData_) {
             auto cubeColor = isPicking ? tile.colorPick : tile.cube.color;
             cube_.draw(tile.cube, cubeColor);
-            auto sphereColor = isPicking ? tile.colorPick : tile.sphere[0].color;
             for (auto i: number2Braille_[tile.numericalValue]) {
+                auto sphereColor = isPicking ? tile.colorPick : tile.sphere[i].color;
                 sphere_.draw(tile.sphere[i], sphereColor);
             }
         }
@@ -134,7 +135,37 @@ public:
         return nullptr;
     }
 
+    void setupBottomDrawer() {
+        for (int i = 0; i < 10; ++i) {
+            glm::vec3 pos{i * offset_, -9 * offset_, 0};
+            pos += topLeftCorner_;
+            Tile tile{};
+            tile.entityId = Tools::getEntityId();
+            tile.colorPick = Tools::genPickColor(tile.entityId);
+
+            // Setup cube
+            tile.cube.scale = {1, 1, 0.375};
+            tile.cube.color = {0, 0, 1};
+            tile.updatePosition(pos);
+
+            // Setup sphere
+            for (auto &j: tile.sphere) {
+                j.scale = glm::vec3{0.2f};
+                j.color = {0, 1, 0};
+            }
+            tile.numericalValue = i;
+            tile.log();
+            tileData_.emplace_back(tile);
+        }
+    }
+
 private:
+    static void setupTile(Tile &tile, glm::vec3 const &pos) {
+
+    }
+
+    const float offset_{3.0f};
+    glm::vec3 topLeftCorner_{0};
     std::vector<std::vector<size_t>> number2Braille_;
     std::vector<Tile> tileData_;
     Cube cube_;

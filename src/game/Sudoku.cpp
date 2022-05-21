@@ -64,11 +64,12 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> &sudoku, Board &board) {
         for (int j = 0; j < 9; j++) {
             int number = sudoku[i][j];
             auto &b = board_[i][j];
-            b.tile = &board.addTile({j, -i, 0}, number, i, j);
+            b.tile = &board.addTile(number, i, j);
             b.value = number;
             b.isReadOnly = number != 0;
         }
     }
+    board.setupBottomDrawer();
 }
 
 Sudoku::Sudoku() {
