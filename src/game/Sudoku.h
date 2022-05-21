@@ -2,12 +2,13 @@
 
 #include <iostream>
 #include <vector>
+#include "Board.h"
 
 class Sudoku {
 public:
     Sudoku();
 
-    explicit Sudoku(const std::string &);
+    void setupSudoku(std::vector<std::vector<int>> &, Board &);
 
     bool removeNumber(int, int);
 
@@ -20,8 +21,9 @@ public:
     [[nodiscard]] bool repeatedInRowOrColumn(int row, int col, int num) const;
 
     struct Cell {
-        int value = 0;
-        bool isReadOnly = false;
+        int value{0};
+        bool isReadOnly{false};
+        Tile *tile{nullptr};
     };
 
 private:

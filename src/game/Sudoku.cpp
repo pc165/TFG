@@ -54,30 +54,23 @@ bool Sudoku::isDone() const {
 }
 
 
-Sudoku::Sudoku(const std::string &name) {
-    std::ifstream file;
-    file.open(name);
+void Sudoku::setupSudoku(std::vector<std::vector<int>> &sudoku, Board &board) {
     board_.resize(9);
     for (auto &i: board_) {
         i.resize(9);
     }
-    if (!file.is_open())
-        return;
 
-    for (auto &i: board_) {
-        for (auto &j: i) {
-            int number = 0;
-            file >> number;
-            j.value = number;
-            if (number != 0)
-                j.isReadOnly = true;
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            int number = sudoku[i][j];
+            auto &b = board_[i][j];
+            b.tile = &board.addTile({j, -i, 0}, number, i, j);
+            b.value = number;
+            b.isReadOnly = number != 0;
         }
     }
 }
 
 Sudoku::Sudoku() {
-    board_.resize(9);
-    for (auto &i: board_) {
-        i.resize(9);
-    }
+
 }

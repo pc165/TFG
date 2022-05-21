@@ -9,11 +9,11 @@ class Camera {
 public:
     glm::vec3 pos, center, up;
     glm::vec3 right, worldUp;
-    float yaw{-90}, pitch{0};
+    float yaw{270}, pitch{0};
     float movementSpeed{4};
     float mouseSensitivity{0.1};
     float fov{45};
-    float width{0}, height = {1};
+    float width{0}, height{1};
     float zNear{0.01f}, zFar{100.0f};
 
     explicit Camera(glm::vec3 position = glm::vec3(0, 0, 0),
@@ -94,6 +94,11 @@ public:
                 yaw += xoffset;
                 pitch += yoffset;
 
+                if (yaw > 360.0f)
+                    yaw = 0.0f;
+                if (yaw < 0)
+                    yaw = 360.f;
+
                 if (pitch > 89.0f)
                     pitch = 89.0f;
                 if (pitch < -89.0f)
@@ -107,9 +112,8 @@ public:
                 fov -= (float) mouse->yOffset;
                 if (fov < 1.0f)
                     fov = 1.0f;
-                if (fov > 45.0f) {
-                    pos -= center * movementSpeed * (float) deltaTime;
-                    fov = 45.0f;
+                if (fov > 179.0f) {
+                    fov = 179.0f;
                 }
                 break;
             }
@@ -134,11 +138,6 @@ public:
         firstMove = true;
     }
 
-private:
-    float lastX{0}, lastY{0};
-    bool firstMove{true}, buttonPress{false};
-    bool isFreeCamera{false};
-
     void updateCameraVectors() {
         glm::vec3 front2;
         front2.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -148,6 +147,11 @@ private:
         right = glm::normalize(glm::cross(center, worldUp));
         up = glm::normalize(glm::cross(right, center));
     }
+
+private:
+    float lastX{0}, lastY{0};
+    bool firstMove{true}, buttonPress{false};
+    bool isFreeCamera{false};
 };
 
 #endif //TFG_CAMERA_H

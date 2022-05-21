@@ -69,9 +69,9 @@ public:
         if (ImGui::Begin("Input Status", nullptr, window_flags)) {
             ImGui::Text("FPS: %.1f", io.Framerate);
             if (ImGui::IsMousePosValid())
-                ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+                ImGui::Text("Mouse: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
             else
-                ImGui::Text("Mouse Position: <invalid>");
+                ImGui::Text("Mouse: <invalid>");
             overlay();
         }
         ImGui::End();

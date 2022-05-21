@@ -17,13 +17,18 @@ public:
         assert(Tools::camera != nullptr);
         assert(Tools::window != nullptr);
         assert(Tools::windowStruct != nullptr);
-        int number = 0;
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                board_.addTile({j, i, 0}, number % 10);
-                number++;
-            }
-        }
+        std::vector<std::vector<int>> s =
+                {{9, 0, 4, 5, 7, 6, 2, 1, 3},
+                 {5, 1, 3, 4, 8, 2, 9, 6, 7},
+                 {7, 2, 6, 1, 3, 9, 5, 0, 8},
+                 {6, 3, 1, 9, 4, 7, 8, 5, 2},
+                 {4, 9, 5, 2, 6, 8, 3, 7, 1},
+                 {8, 7, 2, 0, 5, 1, 6, 9, 4},
+                 {2, 5, 7, 6, 1, 3, 4, 8, 9},
+                 {3, 6, 8, 7, 9, 4, 1, 2, 5},
+                 {1, 4, 9, 8, 2, 5, 7, 3, 6},
+                };
+        sudoku_.setupSudoku(s, board_);
     }
 
     void gameLoop() {
@@ -51,19 +56,28 @@ public:
     };
 
     void guiOverlay() {
-        ImGui::Text("S2W: (%s)", glm::to_string(screentoWorldPos_).c_str());
-        ImGui::Text("S2C: (%s)", glm::to_string(screenColor_).c_str());
-        ImGui::Text("Hover entity id: (%d)", entityId_);
-        ImGui::Text("Selected entity id: (%d)", selectedEntityId_);
+        ImGui::Text("S2W: (%0.1f,%0.1f,%0.1f)", screentoWorldPos_.x, screentoWorldPos_.y, screentoWorldPos_.z);
+        ImGui::Text("S2C: (%0.1f,%0.1f,%0.1f)", screenColor_.x, screenColor_.y, screenColor_.z);
         ImGui::Text("Mouse button: (%d)", buttonPress);
+        ImGui::Text("Hovered entity: (%d)", entityId_);
+        ImGui::Text("Selected entity: (%d)", selectedEntityId_);
     }
 
     void guiWindow() {
         ImGui::Begin("Controls");
+        ImGui::InputFloat("FoV", &camera_.fov);
+        ImGui::SliderFloat("Yaw", &camera_.yaw, 0, 360);
+        ImGui::SliderFloat("Pitch", &camera_.pitch, 0, 360);
         ImGui::SliderFloat3("Position", glm::value_ptr(camera_.pos), -10, 10);
         ImGui::SliderFloat3("Center", glm::value_ptr(camera_.center), -10, 10);
         ImGui::SliderFloat3("Up", glm::value_ptr(camera_.up), -1, 1);
+        camera_.updateCameraVectors();
         ImGui::Separator();
+        auto data = board_.getTile(entityId_);
+        if (data != nullptr) {
+            ImGui::Text("Position (%0.1f,%0.1f,%0.1f)", data->cube.position.x, data->cube.position.y, data->cube.position.z);
+            ImGui::Text("Value %d (%d,%d)", data->numericalValue, data->row, data->col);
+        }
         ImGui::End();
     }
 
@@ -84,7 +98,7 @@ public:
                 entityId_ = Tools::colorToId(screenColor_);
                 if (selectedEntityId_ > -1) {
                     board_.moveTile(selectedEntityId_, screentoWorldPos_);
-                    return true;
+                    return false;
                 }
                 break;
             }
@@ -113,7 +127,7 @@ public:
 
 private:
     GameGui gui_{};
-    Camera camera_{{4, 4, 12}};
+    Camera camera_{{4, -4, 12}};
 
     Board board_{};
     Sudoku sudoku_{};

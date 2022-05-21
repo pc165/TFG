@@ -6,6 +6,7 @@
 
 struct Tile : Entity {
     int numericalValue{0};
+    int row = -1, col = -1;
     Transform cube{};
     std::vector<Transform> sphere{6};
 
@@ -64,7 +65,8 @@ public:
           * 0 0   0 0   0 0   0 0   0 0
           * */
         number2Braille_ = {
-                {1, 2, 3}, // 0
+//                {1, 2, 3}, // 0
+                {}, // 0
                 {0}, // 1
                 {0, 2}, // 2
                 {0, 1}, // 3
@@ -78,9 +80,10 @@ public:
         };
     }
 
-    void addTile(glm::vec3 const &pos, int numericalValue, float scale = 0.5f) {
+    auto &addTile(glm::vec3 const &pos, int numericalValue, int col, int row, float scale = 0.5f) {
         Tile tile{};
-
+        tile.row = row;
+        tile.col = col;
         tile.numericalValue = numericalValue;
         tile.entityId = Tools::getEntityId();
         tile.colorPick = Tools::genPickColor(tile.entityId);
@@ -99,6 +102,7 @@ public:
 
         tile.log();
         tileData_.emplace_back(tile);
+        return tileData_[tileData_.size() - 1];
     }
 
     void drawBoard(bool isPicking = false) {
