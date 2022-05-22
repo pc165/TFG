@@ -1,6 +1,15 @@
-#include <iostream>
+#include "Logger.h"
+#include "World.h"
+#include "Window.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+int main(int, char *[]) {
+    InitLogger();
+    InitWindow("TFG");
+    ConfigureEvents(Injector::window);
+    {
+        World game;
+        game.gameLoop();
+    }
+    DestroyWindow(Injector::window);
     return 0;
 }
