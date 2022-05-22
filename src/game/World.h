@@ -30,6 +30,8 @@ public:
                  {1, 4, 9, 8, 2, 5, 7, 3, 6},
                 };
         sudoku_.setupSudoku(s, board_);
+        Injector::setFreeCamera(true);
+
     }
 
     void gameLoop() {
@@ -108,7 +110,7 @@ public:
                 screenColor_ = Injector::screenToColor(mouse->xPos, mouse->yPos);
                 entityId_ = Injector::colorToId(screenColor_);
 
-                 glm::vec3 point;
+                glm::vec3 point;
                 if (entityId_ != -1)
                     point = board_.getTile(entityId_)->cube.position;
                 else
@@ -128,7 +130,7 @@ public:
                 }
 
                 if (selectedEntityId_ > -1) {
-                    board_.getTile(selectedEntityId_)->updatePosition(screentoWorldPos_);
+                    board_.moveTile(selectedEntityId_, screentoWorldPos_);
                     return false;
                 }
                 break;
@@ -158,7 +160,7 @@ public:
 
 private:
     GameGui gui_{};
-    Camera camera_{{4 * 3, -4 * 3, 35}};
+    Camera camera_{{4 * 4, -4 * 4, 35}};
 
     Board board_{};
     Sudoku sudoku_{};

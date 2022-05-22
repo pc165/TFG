@@ -131,6 +131,12 @@ public:
         return nullptr;
     }
 
+    void moveTile(int entityiD, glm::vec3 pos) {
+        auto a = getTile(entityiD);
+        pos.z = a->cube.position.z;
+        a->updatePosition(pos);
+    }
+
     void setupBottomDrawer() {
         for (int i = 0; i < 10; ++i) {
             glm::vec3 pos{i * offset_, -9 * offset_, 0};
@@ -159,7 +165,7 @@ public:
         return nearest;
     }
 
-    const float offset_{3.0f};
+    const float offset_{4.0f};
 private:
     std::vector<std::vector<size_t>> number2Braille_;
     std::vector<Tile> tileData_;

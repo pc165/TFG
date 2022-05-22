@@ -22,6 +22,7 @@ public:
         io.LogFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigDockingWithShift = true;
+        io.ConfigViewportsNoAutoMerge = true;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
         ImGui_ImplGlfw_InitForOpenGL(Injector::window, true);
