@@ -79,30 +79,30 @@ void ConfigureEvents(GLFWwindow *window) {
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse)
+         WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
+        if (io.WantCaptureMouse && !data.isFreeCamera)
             return;
 
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseButtonEvent event(EventType::MouseButton, button, action == GLFW_PRESS ? 0 : 1);
         data.eventCallback(event);
     });
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse)
+        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
+        if (io.WantCaptureMouse && !data.isFreeCamera)
             return;
 
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseScrollEvent event(EventType::MouseScrolled, (float) xOffset, (float) yOffset);
         data.eventCallback(event);
     });
 
     glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xPos, double yPos) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse)
+        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
+        if (io.WantCaptureMouse && !data.isFreeCamera)
             return;
 
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
         MouseMoveEvent event(EventType::MouseMoved, (float) xPos, (float) yPos);
         data.eventCallback(event);
     });
