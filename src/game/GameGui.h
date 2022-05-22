@@ -8,7 +8,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include "Logger.h"
-#include "Tools.h"
+#include "Injector.h"
 
 class GameGui {
 public:
@@ -24,7 +24,7 @@ public:
         io.ConfigDockingWithShift = true;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
-        ImGui_ImplGlfw_InitForOpenGL(Tools::window, true);
+        ImGui_ImplGlfw_InitForOpenGL(Injector::window, true);
         ImGui_ImplOpenGL3_Init();
         ImGuiStyle &style = ImGui::GetStyle();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -69,7 +69,7 @@ public:
         if (ImGui::Begin("Input Status", nullptr, window_flags)) {
             ImGui::Text("FPS: %.1f", io.Framerate);
             if (ImGui::IsMousePosValid())
-                ImGui::Text("Mouse: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+                ImGui::Text("Mouse: (%.0f,%.0f)", io.MousePos.x, io.MousePos.y);
             else
                 ImGui::Text("Mouse: <invalid>");
             overlay();
@@ -80,7 +80,7 @@ public:
 
         ImGui::Render();
         int display_w, display_h;
-        glfwGetFramebufferSize(Tools::window, &display_w, &display_h);
+        glfwGetFramebufferSize(Injector::window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

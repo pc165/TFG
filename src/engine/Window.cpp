@@ -1,5 +1,5 @@
 #include <imgui.h>
-#include "Tools.h"
+#include "Injector.h"
 #include "Window.h"
 #include "Utils.h"
 
@@ -34,8 +34,8 @@ GLFWwindow *InitWindow(const char *title, int width, int height) {
     auto winProp = new WindowStruct{width, height};
     glfwSetWindowUserPointer(window, winProp);
 
-    Tools::window = window;
-    Tools::windowStruct = winProp;
+    Injector::window = window;
+    Injector::windowStruct = winProp;
     return window;
 }
 

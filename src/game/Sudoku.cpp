@@ -19,6 +19,7 @@ bool Sudoku::setNumber(int i, int j, int num) {
         return false;
 
     board_[i][j].value = num;
+    board_[i][j].tile->numericalValue = num;
     return true;
 }
 
@@ -64,7 +65,10 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> &sudoku, Board &board) {
         for (int j = 0; j < 9; j++) {
             int number = sudoku[i][j];
             auto &b = board_[i][j];
-            b.tile = &board.addTile(number, i, j);
+            glm::vec3 pos{j * board.offset_, -i * board.offset_, 0};
+            b.tile = &board.addTile(pos, number);
+            b.tile->col = i;
+            b.tile->row = j;
             b.value = number;
             b.isReadOnly = number != 0;
         }

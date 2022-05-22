@@ -1,5 +1,5 @@
-#ifndef TFG_TOOLS_H
-#define TFG_TOOLS_H
+#ifndef TFG_INJECTOR_H
+#define TFG_INJECTOR_H
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,23 +9,23 @@
 #include "Window.h"
 #include "Entity.h"
 
-class Tools {
+class Injector {
 public:
     static GLFWwindow *window;
     static WindowStruct *windowStruct;
     static Camera *camera;
     static int EntitySize;
 
-    Tools() = delete;
+    Injector() = delete;
 
-    static glm::vec3 screenToWorld(int x, int y);
+    static glm::vec3 screenToWorld(int x, int y, glm::vec3 const &point);
 
     static glm::vec3 screenToColor(int x, int y);
 
     static int colorToId(glm::vec3 color);
 
     static int getEntityId() {
-        return Tools::EntitySize++;
+        return Injector::EntitySize++;
     }
 
     static glm::vec3 genPickColor(int n);
@@ -33,4 +33,4 @@ public:
     static void setFreeCamera(bool isEnabled);
 };
 
-#endif //TFG_TOOLS_H
+#endif //TFG_INJECTOR_H

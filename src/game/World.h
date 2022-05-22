@@ -4,8 +4,9 @@
 #include "GameGui.h"
 #include "Board.h"
 #include "Event.h"
-#include "Tools.h"
+#include "Injector.h"
 #include "Sudoku.h"
+#include "Crosshair.h"
 #include <cmath>
 #include <glm/gtx/string_cast.hpp>
 
@@ -13,10 +14,10 @@
 class World {
 public:
     explicit World() {
-        Tools::camera = &this->camera_;
-        assert(Tools::camera != nullptr);
-        assert(Tools::window != nullptr);
-        assert(Tools::windowStruct != nullptr);
+        Injector::camera = &this->camera_;
+        assert(Injector::camera != nullptr);
+        assert(Injector::window != nullptr);
+        assert(Injector::windowStruct != nullptr);
         std::vector<std::vector<int>> s =
                 {{9, 0, 4, 5, 7, 6, 2, 1, 3},
                  {5, 1, 3, 4, 8, 2, 9, 6, 7},
@@ -32,7 +33,7 @@ public:
     }
 
     void gameLoop() {
-        auto windowProps = Tools::windowStruct;
+        auto windowProps = Injector::windowStruct;
         windowProps->eventCallback = [this](const Event &event) {
             if (!onEvent(event))
                 camera_.onEvent(event, deltaFrmame_);
@@ -49,15 +50,16 @@ public:
             auto t1 = glfwGetTime();
             deltaFrmame_ = t1 - t0;
             board_.drawBoard();
+            crosshair.draw();
             GameGui::drawwGUI([this]() { guiOverlay(); }, [this]() { guiWindow(); });
             t0 = t1;
-            glfwSwapBuffers(Tools::window);
+            glfwSwapBuffers(Injector::window);
         };
     };
 
-    void guiOverlay() {
-        ImGui::Text("S2W: (%0.1f,%0.1f,%0.1f)", screentoWorldPos_.x, screentoWorldPos_.y, screentoWorldPos_.z);
-        ImGui::Text("S2C: (%0.1f,%0.1f,%0.1f)", screenColor_.x, screenColor_.y, screenColor_.z);
+    void guiOverlay() const {
+        ImGui::Text("World: (%0.2f,%0.2f,%0.2f)", screentoWorldPos_.x, screentoWorldPos_.y, screentoWorldPos_.z);
+        ImGui::Text("Color: (%0.2f,%0.2f,%0.2f)", screenColor_.x, screenColor_.y, screenColor_.z);
         ImGui::Text("Mouse button: (%d)", buttonPress);
         ImGui::Text("Hovered entity: (%d)", entityId_);
         ImGui::Text("Selected entity: (%d)", selectedEntityId_);
@@ -65,18 +67,24 @@ public:
 
     void guiWindow() {
         ImGui::Begin("Controls");
-        ImGui::InputFloat("FoV", &camera_.fov);
-        ImGui::SliderFloat("Yaw", &camera_.yaw, 0, 360);
-        ImGui::SliderFloat("Pitch", &camera_.pitch, 0, 360);
-        ImGui::SliderFloat3("Position", glm::value_ptr(camera_.pos), -10, 10);
-        ImGui::SliderFloat3("Center", glm::value_ptr(camera_.center), -10, 10);
-        ImGui::SliderFloat3("Up", glm::value_ptr(camera_.up), -1, 1);
+        ImGui::SliderFloat("zNear", &camera_.zNear_, 0.001f, 200);
+        ImGui::SliderFloat("zFar", &camera_.zFar_, 0.001f, 200);
+        ImGui::InputFloat("FoV", &camera_.fov_);
+        ImGui::SliderFloat("Yaw", &camera_.yaw_, 0, 360);
+        ImGui::SliderFloat("Pitch", &camera_.pitch_, -89, 89);
+        ImGui::SliderFloat3("Position", &camera_.position_.x, -10, 10);
+        ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
+        ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
         camera_.updateCameraVectors();
-        ImGui::Separator();
         auto data = board_.getTile(entityId_);
         if (data != nullptr) {
-            ImGui::Text("Position (%0.1f,%0.1f,%0.1f)", data->cube.position.x, data->cube.position.y, data->cube.position.z);
+            ImGui::Separator();
+            ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", data->cube.position.x, data->cube.position.y, data->cube.position.z);
             ImGui::Text("Value %d (%d,%d)", data->numericalValue, data->row, data->col);
+        }
+        if (nearesTile_) {
+            ImGui::Separator();
+            ImGui::Text("Neares entity %d", nearesTile_->entityId);
         }
         ImGui::End();
     }
@@ -86,22 +94,41 @@ public:
             case Key: {
                 auto key = dynamic_cast<const KeyEvent *>(&event);
                 if (key->key == GLFW_KEY_ESCAPE && key->press_release_repeat == 0) {
-                    Tools::windowStruct->shouldClose = true;
+                    Injector::windowStruct->shouldClose = true;
                 }
 
-                if (key->key == GLFW_KEY_1 && key->press_release_repeat == 0) {
-                    Tools::setFreeCamera(!Tools::windowStruct->isFreeCamera);
+                if (key->key == GLFW_KEY_F1 && key->press_release_repeat == 0) {
+                    Injector::setFreeCamera(!Injector::windowStruct->isFreeCamera);
                     return true;
                 }
                 break;
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                screentoWorldPos_ = Tools::screenToWorld(mouse->xPos, mouse->yPos);
-                screenColor_ = Tools::screenToColor(mouse->xPos, mouse->yPos);
-                entityId_ = Tools::colorToId(screenColor_);
+                screenColor_ = Injector::screenToColor(mouse->xPos, mouse->yPos);
+                entityId_ = Injector::colorToId(screenColor_);
+
+                 glm::vec3 point;
+                if (entityId_ != -1)
+                    point = board_.getTile(entityId_)->cube.position;
+                else
+                    point = {camera_.position_.x, camera_.position_.y, camera_.zFar_};
+
+                screentoWorldPos_ = Injector::screenToWorld(mouse->xPos, mouse->yPos, point);
+
+                auto nearesTile = board_.nearestTile(screentoWorldPos_, selectedEntityId_);
+                if (nearesTile != nearesTile_) {
+                    if (nearesTile_)
+                        nearesTile_->isSelected = false;
+                    nearesTile_ = nearesTile;
+                }
+
+                if (nearesTile_) {
+                    nearesTile_->isSelected = true;
+                }
+
                 if (selectedEntityId_ > -1) {
-                    board_.moveTile(selectedEntityId_, screentoWorldPos_);
+                    board_.getTile(selectedEntityId_)->updatePosition(screentoWorldPos_);
                     return false;
                 }
                 break;
@@ -135,12 +162,15 @@ private:
 
     Board board_{};
     Sudoku sudoku_{};
+    Crosshair crosshair{};
 
     float deltaFrmame_{0};
 
     int entityId_{-1};
     int selectedEntityId_{-1};
     bool buttonPress{false};
+    Tile *nearesTile_{nullptr};
+
     glm::vec3 screentoWorldPos_{};
     glm::vec3 screenColor_{};
 };

@@ -5,11 +5,11 @@
 int main(int, char *[]) {
     InitLogger();
     InitWindow("TFG");
-    ConfigureEvents(Tools::window);
+    ConfigureEvents(Injector::window);
     {
         World game;
         game.gameLoop();
     }
-    DestroyWindow(Tools::window);
+    DestroyWindow(Injector::window);
     return 0;
 }

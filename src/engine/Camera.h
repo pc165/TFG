@@ -4,124 +4,125 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include "Event.h"
+#include "Logger.h"
 
 class Camera {
 public:
-    glm::vec3 pos, center, up;
-    glm::vec3 right, worldUp;
-    float yaw{270}, pitch{0};
-    float movementSpeed{4};
-    float mouseSensitivity{0.1};
-    float fov{45};
-    float width{0}, height{1};
-    float zNear{0.01f}, zFar{100.0f};
+    glm::vec3 position_, center_, up_;
+    glm::vec3 right, worldUp_;
+    float yaw_{270}, pitch_{0};
+    float movementSpeed_{4};
+    float mouseSensitivity_{0.1};
+    float fov_{45};
+    float width_{0}, height_{1};
+    float zNear_{0.001f}, zFar_{100.0f};
 
     explicit Camera(glm::vec3 position = glm::vec3(0, 0, 0),
                     glm::vec3 up = glm::vec3(0, 1, 0),
                     float width = 1080,
                     float height = 720) :
-            pos(position), center(), up(),
-            right(), worldUp(up),
-            width(width), height(height) {
+            position_(position), center_(), up_(),
+            right(), worldUp_(up),
+            width_(width), height_(height) {
         updateCameraVectors();
     }
 
     [[nodiscard]] auto getViewMatrix() const {
-        return glm::lookAt(pos, pos + center, up);
+        return glm::lookAt(position_, position_ + center_, up_);
     }
 
     [[nodiscard]] auto getProjectionMatrix() const {
-        return glm::perspective(glm::radians(fov), width / height, zNear, zFar);
+        return glm::perspective(glm::radians(fov_), width_ / height_, zNear_, zFar_);
     };
 
     [[nodiscard]] auto getOrthoMatrix() const {
-        return glm::ortho(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+        return glm::ortho(0.0f, width_, height_, 0.0f, -1.0f, 1.0f);
     }
 
     bool onEvent(const Event &event, double deltaTime) {
         switch (event.type) {
             case WindowResize: {
                 auto window = dynamic_cast<const WindowResizeEvent *>(&event);
-                width = window->width;
-                height = window->height;
+                width_ = window->width;
+                height_ = window->height;
                 break;
             }
             case Key: {
                 auto key = dynamic_cast<const KeyEvent *>(&event);
-                float velocity = movementSpeed * deltaTime;
+                float velocity = movementSpeed_ * deltaTime;
                 switch (key->key) {
                     case GLFW_KEY_W:
-                        pos += center * velocity;
+                        position_ += center_ * velocity;
                         break;
                     case GLFW_KEY_S:
-                        pos -= center * velocity;
+                        position_ -= center_ * velocity;
                         break;
                     case GLFW_KEY_A:
-                        pos -= right * velocity;
+                        position_ -= right * velocity;
                         break;
                     case GLFW_KEY_D:
-                        pos += right * velocity;
+                        position_ += right * velocity;
                         break;
                     case GLFW_KEY_SPACE:
-                        pos.y += velocity;
+                        position_.y += velocity;
                         break;
                     case GLFW_KEY_LEFT_CONTROL:
-                        pos.y -= velocity;
+                        position_.y -= velocity;
                         break;
                 }
                 break;
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                if (!buttonPress && !isFreeCamera)
+                if (!buttonPress_ && !isFreeCamera_)
                     break;
 
-                if (firstMove) {
-                    lastX = mouse->xPos;
-                    lastY = mouse->yPos;
-                    firstMove = false;
+                if (firstMove_) {
+                    lastX_ = mouse->xPos;
+                    lastY_ = mouse->yPos;
+                    firstMove_ = false;
                 }
 
-                auto xoffset = mouse->xPos - lastX;
-                auto yoffset = lastY - mouse->yPos;
+                auto xoffset = mouse->xPos - lastX_;
+                auto yoffset = lastY_ - mouse->yPos;
 
-                lastX = mouse->xPos;
-                lastY = mouse->yPos;
+                lastX_ = mouse->xPos;
+                lastY_ = mouse->yPos;
 
-                xoffset *= mouseSensitivity;
-                yoffset *= mouseSensitivity;
+                xoffset *= mouseSensitivity_;
+                yoffset *= mouseSensitivity_;
 
-                yaw += xoffset;
-                pitch += yoffset;
+                yaw_ += xoffset;
+                pitch_ += yoffset;
 
-                if (yaw > 360.0f)
-                    yaw = 0.0f;
-                if (yaw < 0)
-                    yaw = 360.f;
+                if (yaw_ > 360.0f)
+                    yaw_ = 0.0f;
+                if (yaw_ < 0)
+                    yaw_ = 360.f;
 
-                if (pitch > 89.0f)
-                    pitch = 89.0f;
-                if (pitch < -89.0f)
-                    pitch = -89.0f;
+                if (pitch_ > 89.0f)
+                    pitch_ = 89.0f;
+                if (pitch_ < -89.0f)
+                    pitch_ = -89.0f;
 
                 updateCameraVectors();
                 break;
             }
             case MouseScrolled: {
                 auto mouse = dynamic_cast<const MouseScrollEvent *>(&event);
-                fov -= (float) mouse->yOffset;
-                if (fov < 1.0f)
-                    fov = 1.0f;
-                if (fov > 179.0f) {
-                    fov = 179.0f;
+                fov_ -= (float) mouse->yOffset;
+                if (fov_ < 1.0f)
+                    fov_ = 1.0f;
+                if (fov_ > 179.0f) {
+                    fov_ = 179.0f;
                 }
                 break;
             }
             case MouseButton: {
                 auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
-                buttonPress = mouse->press_release == 0 && !isFreeCamera;
+                buttonPress_ = mouse->press_release == 0 && !isFreeCamera_;
                 if (mouse->press_release == 1)
-                    firstMove = true;
+                    firstMove_ = true;
                 break;
             }
             default:
@@ -131,27 +132,27 @@ public:
     }
 
     void setFreeCamera(bool enabled) {
-        isFreeCamera = enabled;
+        isFreeCamera_ = enabled;
     }
 
     void setFirstMove() {
-        firstMove = true;
+        firstMove_ = true;
     }
 
     void updateCameraVectors() {
         glm::vec3 front2;
-        front2.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front2.y = sin(glm::radians(pitch));
-        front2.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        center = glm::normalize(front2);
-        right = glm::normalize(glm::cross(center, worldUp));
-        up = glm::normalize(glm::cross(right, center));
+        front2.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+        front2.y = sin(glm::radians(pitch_));
+        front2.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+        center_ = glm::normalize(front2);
+        right = glm::normalize(glm::cross(center_, worldUp_));
+        up_ = glm::normalize(glm::cross(right, center_));
     }
 
 private:
-    float lastX{0}, lastY{0};
-    bool firstMove{true}, buttonPress{false};
-    bool isFreeCamera{false};
+    float lastX_{0}, lastY_{0};
+    bool firstMove_{true}, buttonPress_{false};
+    bool isFreeCamera_{false};
 };
 
 #endif //TFG_CAMERA_H

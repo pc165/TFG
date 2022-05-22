@@ -7,6 +7,7 @@
 struct Tile : Entity {
     int numericalValue{0};
     int row = -1, col = -1;
+    bool isSelected{false};
     Transform cube{};
     std::vector<Transform> sphere{6};
 
@@ -51,7 +52,7 @@ struct Tile : Entity {
 
 class Board {
 public:
-    explicit Board(glm::vec3 topLeftCorner = {0, 0, 0}) : topLeftCorner_(topLeftCorner), number2Braille_(), cube_(), sphere_() {
+    explicit Board() : number2Braille_(), cube_(), sphere_() {
         /***
           *      Braille numbers
           *  1     2     3     4     5
@@ -80,15 +81,11 @@ public:
         };
     }
 
-    auto &addTile(int numericalValue, int col, int row) {
-        glm::vec3 pos{row * offset_, -col * offset_, 0};
-        pos += topLeftCorner_;
+    auto &addTile(glm::vec3 const &pos, int numericalValue) {
         Tile tile{};
-        tile.row = row;
-        tile.col = col;
         tile.numericalValue = numericalValue;
-        tile.entityId = Tools::getEntityId();
-        tile.colorPick = Tools::genPickColor(tile.entityId);
+        tile.entityId = Injector::getEntityId();
+        tile.colorPick = Injector::genPickColor(tile.entityId);
 
         // Setup cube
         tile.cube.scale = {1, 1, 0.375};
@@ -108,21 +105,20 @@ public:
 
     void drawBoard(bool isPicking = false) {
         for (auto &tile: tileData_) {
-            auto cubeColor = isPicking ? tile.colorPick : tile.cube.color;
+            glm::vec3 cubeColor;
+            if (isPicking)
+                cubeColor = tile.colorPick;
+            else if (tile.isSelected)
+                cubeColor = {0, 1, 1};
+            else
+                cubeColor = tile.cube.color;
             cube_.draw(tile.cube, cubeColor);
-            for (auto i: number2Braille_[tile.numericalValue]) {
-                auto sphereColor = isPicking ? tile.colorPick : tile.sphere[i].color;
-                sphere_.draw(tile.sphere[i], sphereColor);
-            }
-        }
-    }
 
-    void moveTile(int entityId, glm::vec3 pos) {
-        pos.z = 0;
-        for (auto &i: tileData_) {
-            if (i.entityId == entityId) {
-                i.updatePosition(pos);
-                return;
+            if (isPicking)
+                continue;
+
+            for (auto i: number2Braille_[tile.numericalValue]) {
+                sphere_.draw(tile.sphere[i], tile.sphere[i].color);
             }
         }
     }
@@ -138,34 +134,33 @@ public:
     void setupBottomDrawer() {
         for (int i = 0; i < 10; ++i) {
             glm::vec3 pos{i * offset_, -9 * offset_, 0};
-            pos += topLeftCorner_;
-            Tile tile{};
-            tile.entityId = Tools::getEntityId();
-            tile.colorPick = Tools::genPickColor(tile.entityId);
-
-            // Setup cube
-            tile.cube.scale = {1, 1, 0.375};
-            tile.cube.color = {0, 0, 1};
-            tile.updatePosition(pos);
-
-            // Setup sphere
-            for (auto &j: tile.sphere) {
-                j.scale = glm::vec3{0.2f};
-                j.color = {0, 1, 0};
-            }
-            tile.numericalValue = i;
-            tile.log();
-            tileData_.emplace_back(tile);
+            addTile(pos, i).cube.color = {0, 0, 1};
         }
     }
 
-private:
-    static void setupTile(Tile &tile, glm::vec3 const &pos) {
+    Tile *nearestTile(glm::vec3 pos, int selectedEntity = -1) {
+        Tile *nearest = nullptr;
+        float best = INFINITY;
+        for (auto &i: tileData_) {
+//            LOG_DEBUG("Nearest {} {} {} {}", i.entityId,
+//                      glm::to_string(pos).c_str(),
+//                      glm::to_string(i.cube.position).c_str(),
+//                      glm::distance(i.cube.position, pos));
 
+            if (i.entityId == selectedEntity) continue;
+
+            auto d = glm::distance(i.cube.position, pos);
+
+            if (d < 5.0f && d < best) {
+                best = d;
+                nearest = &i;
+            }
+        }
+        return nearest;
     }
 
     const float offset_{3.0f};
-    glm::vec3 topLeftCorner_{0};
+private:
     std::vector<std::vector<size_t>> number2Braille_;
     std::vector<Tile> tileData_;
     Cube cube_;
