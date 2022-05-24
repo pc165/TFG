@@ -1,6 +1,5 @@
 #ifndef TFG_SPHERE_H
 #define TFG_SPHERE_H
-
 #include "Object.hpp"
 
 
@@ -16,12 +15,12 @@ public:
         float s, t;                                     // vertex texCoord
         int k1, k2;
 
-        float sectorStep = 2 * M_PI / sectorCount;
-        float stackStep = M_PI / stackCount;
+        float sectorStep = 2 * glm::pi<float>() / sectorCount;
+        float stackStep = glm::pi<float>() / stackCount;
         float sectorAngle, stackAngle;
 
         for (int i = 0; i <= stackCount; ++i) {
-            stackAngle = M_PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+            stackAngle = glm::pi<float>() / 2 - i * stackStep;        // starting from pi/2 to -pi/2
             xy = radius * cosf(stackAngle);             // r * cos(u)
             z = radius * sinf(stackAngle);              // r * sin(u)
 

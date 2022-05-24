@@ -1,9 +1,6 @@
 #ifndef TFG_OBJECT_HPP
 #define TFG_OBJECT_HPP
 
-#define _USE_MATH_DEFINES
-
-#include <cmath>
 #include <glm/glm.hpp>
 #include "Shader.h"
 #include "Camera.h"
