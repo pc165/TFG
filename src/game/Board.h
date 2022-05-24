@@ -4,12 +4,12 @@
 #include "Sphere.h"
 #include "Cube.h"
 
-struct Tile : Entity {
+struct Tile : tfg::Entity {
     int numericalValue{0};
     int row = -1, col = -1;
     bool isSelected{false};
-    Transform cube{};
-    std::vector<Transform> sphere{6};
+    tfg::Transform cube{};
+    std::vector<tfg::Transform> sphere{6};
 
     void log() {
         std::string a;
@@ -84,8 +84,8 @@ public:
     auto &addTile(glm::vec3 const &pos, int numericalValue) {
         Tile tile{};
         tile.numericalValue = numericalValue;
-        tile.entityId = Injector::getEntityId();
-        tile.colorPick = Injector::genPickColor(tile.entityId);
+        tile.entityId = tfg::getEntityId();
+        tile.colorPick = tfg::genPickColor(tile.entityId);
 
         // Setup cube
         tile.cube.scale = {1, 1, 0.375};

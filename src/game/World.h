@@ -4,11 +4,9 @@
 #include "GameGui.h"
 #include "Board.h"
 #include "Event.h"
-#include "Injector.h"
 #include "Sudoku.h"
 #include "Crosshair.h"
-#include <cmath>
-#include <glm/gtx/string_cast.hpp>
+#include "Utils.h"
 
 
 class World {
@@ -18,20 +16,19 @@ public:
         assert(Injector::camera != nullptr);
         assert(Injector::window != nullptr);
         assert(Injector::windowStruct != nullptr);
-        std::vector<std::vector<int>> s =
-                {{9, 0, 4, 5, 7, 6, 2, 1, 3},
-                 {5, 1, 3, 4, 8, 2, 9, 6, 7},
-                 {7, 2, 6, 1, 3, 9, 5, 0, 8},
-                 {6, 3, 1, 9, 4, 7, 8, 5, 2},
-                 {4, 9, 5, 2, 6, 8, 3, 7, 1},
-                 {8, 7, 2, 0, 5, 1, 6, 9, 4},
-                 {2, 5, 7, 6, 1, 3, 4, 8, 9},
-                 {3, 6, 8, 7, 9, 4, 1, 2, 5},
-                 {1, 4, 9, 8, 2, 5, 7, 3, 6},
-                };
+        std::vector<std::vector<int>> s = {
+                {9, 0, 4, 5, 7, 6, 2, 1, 3},
+                {5, 1, 3, 4, 8, 2, 9, 6, 7},
+                {7, 2, 6, 1, 3, 9, 5, 0, 8},
+                {6, 3, 1, 9, 4, 7, 8, 5, 2},
+                {4, 9, 5, 2, 6, 8, 3, 7, 1},
+                {8, 7, 2, 0, 5, 1, 6, 9, 4},
+                {2, 5, 7, 6, 1, 3, 4, 8, 9},
+                {3, 6, 8, 7, 9, 4, 1, 2, 5},
+                {1, 4, 9, 8, 2, 5, 7, 3, 6},
+        };
         sudoku_.setupSudoku(s, board_);
-        Injector::setFreeCamera(true);
-
+        tfg::setFreeCamera(true);
     }
 
     void gameLoop() {
@@ -100,15 +97,15 @@ public:
                 }
 
                 if (key->key == GLFW_KEY_F1 && key->press_release_repeat == 0) {
-                    Injector::setFreeCamera(!Injector::windowStruct->isFreeCamera);
+                    tfg::setFreeCamera(!Injector::windowStruct->isFreeCamera);
                     return true;
                 }
                 break;
             }
             case MouseMoved: {
                 auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                screenColor_ = Injector::screenToColor(mouse->xPos, mouse->yPos);
-                entityId_ = Injector::colorToId(screenColor_);
+                screenColor_ = tfg::screenToColor(mouse->xPos, mouse->yPos);
+                entityId_ = tfg::colorToId(screenColor_);
 
                 glm::vec3 point;
                 Tile *tile;
@@ -117,7 +114,7 @@ public:
                 else
                     point = {camera_.position_.x, camera_.position_.y, camera_.zFar_};
 
-                screentoWorldPos_ = Injector::screenToWorld(mouse->xPos, mouse->yPos, point);
+                screentoWorldPos_ = tfg::screenToWorld(mouse->xPos, mouse->yPos, point);
 
                 auto nearesTile = board_.nearestTile(screentoWorldPos_, selectedEntityId_);
                 if (nearesTile != nearesTile_) {

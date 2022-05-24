@@ -1,5 +1,3 @@
-#include <string>
-#include <fstream>
 #include "Sudoku.h"
 
 bool Sudoku::removeNumber(int i, int j) {

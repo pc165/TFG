@@ -1,15 +1,14 @@
-#include "Logger.h"
+#include "Utils.h"
 #include "World.h"
-#include "Window.h"
 
 int main(int, char *[]) {
-    InitLogger();
-    InitWindow("TFG");
-    ConfigureEvents(Injector::window);
+    tfg::InitLogger();
+    tfg::InitWindow("TFG");
+    tfg::ConfigureEvents(Injector::window);
     {
         World game;
         game.gameLoop();
     }
-    DestroyWindow(Injector::window);
+    tfg::DestroyWindow(Injector::window);
     return 0;
 }

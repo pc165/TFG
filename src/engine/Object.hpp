@@ -1,10 +1,8 @@
 #ifndef TFG_OBJECT_HPP
 #define TFG_OBJECT_HPP
 
-#include <glm/glm.hpp>
+#include "Utils.h"
 #include "Shader.h"
-#include "Camera.h"
-#include "Injector.h"
 
 class Object {
 public:
@@ -67,7 +65,7 @@ public:
         glBindVertexArray(vertexArrayId_);
     }
 
-    virtual void draw(Transform const &data, glm::vec3 const &color) const {
+    virtual void draw(tfg::Transform const &data, glm::vec3 const &color) const {
         bind();
         basicShader.bind();
 
