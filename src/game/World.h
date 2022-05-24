@@ -111,8 +111,9 @@ public:
                 entityId_ = Injector::colorToId(screenColor_);
 
                 glm::vec3 point;
-                if (entityId_ != -1)
-                    point = board_.getTile(entityId_)->cube.position;
+                Tile *tile;
+                if ((tile = board_.getTile(entityId_)) != nullptr)
+                    point = tile->cube.position;
                 else
                     point = {camera_.position_.x, camera_.position_.y, camera_.zFar_};
 
