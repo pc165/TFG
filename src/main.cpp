@@ -4,11 +4,11 @@
 int main(int, char *[]) {
     tfg::InitLogger();
     tfg::InitWindow("TFG");
-    tfg::ConfigureEvents(Injector::window);
+    tfg::ConfigureEvents();
     {
         World game;
         game.gameLoop();
     }
-    tfg::DestroyWindow(Injector::window);
+    tfg::DestroyWindow();
     return 0;
 }

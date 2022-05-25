@@ -3,7 +3,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
-#include "Event.h"
 #include "Logger.h"
 
 class Camera {
@@ -17,13 +16,14 @@ public:
     float width_{0}, height_{1};
     float zNear_{0.001f}, zFar_{100.0f};
 
-    explicit Camera(glm::vec3 position = glm::vec3(0, 0, 0),
+    explicit Camera(EventState *eventState, glm::vec3 position = glm::vec3(0, 0, 0),
                     glm::vec3 up = glm::vec3(0, 1, 0),
                     float width = 1080,
-                    float height = 720) :
-            position_(position), center_(), up_(),
-            right(), worldUp_(up),
-            width_(width), height_(height) {
+                    float height = 720) : position_(position),
+                                          center_(), up_(), right(),
+                                          worldUp_(up), width_(width),
+                                          height_(height), eventState_(eventState) {
+        assert(eventState_ != nullptr);
         updateCameraVectors();
     }
 
@@ -39,96 +39,74 @@ public:
         return glm::ortho(0.0f, width_, height_, 0.0f, -1.0f, 1.0f);
     }
 
-    bool onEvent(const Event &event, double deltaTime) {
-        switch (event.type) {
-            case WindowResize: {
-                auto window = dynamic_cast<const WindowResizeEvent *>(&event);
-                width_ = window->width;
-                height_ = window->height;
-                break;
+    void onUpdate(double deltaTime) {
+        float velocity = movementSpeed_ * deltaTime;
+        if (eventState_->keyDown(GLFW_KEY_W))
+            position_ += center_ * velocity;
+
+        if (eventState_->keyDown(GLFW_KEY_S))
+            position_ -= center_ * velocity;
+
+        if (eventState_->keyDown(GLFW_KEY_A))
+            position_ -= right * velocity;
+
+        if (eventState_->keyDown(GLFW_KEY_D))
+            position_ += right * velocity;
+
+        if (eventState_->keyDown(GLFW_KEY_SPACE))
+            position_.y += velocity;
+
+        if (eventState_->keyDown(GLFW_KEY_LEFT_CONTROL))
+            position_.y -= velocity;
+
+        if (eventState_->isMouseScrolled()) {
+            fov_ -= (float) eventState_->getMouseScroll().y;
+            if (fov_ < 1.0f)
+                fov_ = 1.0f;
+            if (fov_ > 179.0f) {
+                fov_ = 179.0f;
             }
-            case Key: {
-                auto key = dynamic_cast<const KeyEvent *>(&event);
-                float velocity = movementSpeed_ * deltaTime;
-                switch (key->key) {
-                    case GLFW_KEY_W:
-                        position_ += center_ * velocity;
-                        break;
-                    case GLFW_KEY_S:
-                        position_ -= center_ * velocity;
-                        break;
-                    case GLFW_KEY_A:
-                        position_ -= right * velocity;
-                        break;
-                    case GLFW_KEY_D:
-                        position_ += right * velocity;
-                        break;
-                    case GLFW_KEY_SPACE:
-                        position_.y += velocity;
-                        break;
-                    case GLFW_KEY_LEFT_CONTROL:
-                        position_.y -= velocity;
-                        break;
-                }
-                break;
-            }
-            case MouseMoved: {
-                auto mouse = dynamic_cast<const MouseMoveEvent *>(&event);
-                if (!buttonPress_ && !isFreeCamera_)
-                    break;
-
-                if (firstMove_) {
-                    lastX_ = mouse->xPos;
-                    lastY_ = mouse->yPos;
-                    firstMove_ = false;
-                }
-
-                auto xoffset = mouse->xPos - lastX_;
-                auto yoffset = lastY_ - mouse->yPos;
-
-                lastX_ = mouse->xPos;
-                lastY_ = mouse->yPos;
-
-                xoffset *= mouseSensitivity_;
-                yoffset *= mouseSensitivity_;
-
-                yaw_ += xoffset;
-                pitch_ += yoffset;
-
-                if (yaw_ > 360.0f)
-                    yaw_ = 0.0f;
-                if (yaw_ < 0)
-                    yaw_ = 360.f;
-
-                if (pitch_ > 89.0f)
-                    pitch_ = 89.0f;
-                if (pitch_ < -89.0f)
-                    pitch_ = -89.0f;
-
-                updateCameraVectors();
-                break;
-            }
-            case MouseScrolled: {
-                auto mouse = dynamic_cast<const MouseScrollEvent *>(&event);
-                fov_ -= (float) mouse->yOffset;
-                if (fov_ < 1.0f)
-                    fov_ = 1.0f;
-                if (fov_ > 179.0f) {
-                    fov_ = 179.0f;
-                }
-                break;
-            }
-            case MouseButton: {
-                auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
-                buttonPress_ = mouse->press_release == 0 && !isFreeCamera_;
-                if (mouse->press_release == 1)
-                    firstMove_ = true;
-                break;
-            }
-            default:
-                break;
         }
-        return false;
+
+        if (isFreeCamera_ || (eventState_->isMouseMoved() && eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))) {
+            auto mouse = eventState_->getMousePosition();
+
+            if (firstMove_) {
+                lastX_ = mouse.x;
+                lastY_ = mouse.y;
+                firstMove_ = false;
+            }
+
+            auto xoffset = mouse.x - lastX_;
+            auto yoffset = lastY_ - mouse.y;
+
+            lastX_ = mouse.x;
+            lastY_ = mouse.y;
+
+            xoffset *= mouseSensitivity_;
+            yoffset *= mouseSensitivity_;
+
+            yaw_ += xoffset;
+            pitch_ += yoffset;
+
+            if (yaw_ > 360.0f)
+                yaw_ = 0.0f;
+            if (yaw_ < 0)
+                yaw_ = 360.f;
+
+            if (pitch_ > 89.0f)
+                pitch_ = 89.0f;
+            if (pitch_ < -89.0f)
+                pitch_ = -89.0f;
+
+            updateCameraVectors();
+        }
+
+        if (eventState_->isWindowSizeChanged()) {
+            auto window = eventState_->getWindowSize();
+            width_ = window.x;
+            height_ = window.y;
+        }
     }
 
     void setFreeCamera(bool enabled) {
@@ -150,8 +128,9 @@ public:
     }
 
 private:
+    EventState *eventState_{nullptr};
     float lastX_{0}, lastY_{0};
-    bool firstMove_{true}, buttonPress_{false};
+    bool firstMove_{true};
     bool isFreeCamera_{false};
 };
 

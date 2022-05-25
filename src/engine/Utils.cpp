@@ -2,6 +2,7 @@
 
 GLFWwindow *tfg::Injector::window = nullptr;
 tfg::WindowStruct *tfg::Injector::windowStruct = nullptr;
+EventState *tfg::Injector::eventState = nullptr;
 Camera *tfg::Injector::camera = nullptr;
 int tfg::Injector::EntitySize = 0;
 
@@ -100,7 +101,7 @@ void tfg::errorOccurredGL(GLenum source,
 }
 
 
-GLFWwindow *tfg::InitWindow(const char *title, int width, int height) {
+void tfg::InitWindow(const char *title, int width, int height) {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         LOG_CRITICAL("Failed to initialize GLFW");
@@ -133,29 +134,25 @@ GLFWwindow *tfg::InitWindow(const char *title, int width, int height) {
 
     Injector::window = window;
     Injector::windowStruct = winProp;
-    return window;
+    Injector::eventState = new EventState();
 }
 
-void tfg::ConfigureEvents(GLFWwindow *window) {
+void tfg::ConfigureEvents() {
+    assert(Injector::windowStruct != nullptr);
+    assert(Injector::window != nullptr);
+    assert(Injector::eventState != nullptr);
+
+    auto window = Injector::window;
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height) {
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        data.width = width;
-        data.height = height;
-        WindowResizeEvent event(EventType::WindowResize, width, height);
-        data.eventCallback(event);
+        Injector::eventState->windowSizeHandler(width, height);
     });
 
     glfwSetWindowPosCallback(window, [](GLFWwindow *window, int xpos, int ypos) {
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        WindowPositionEvent event(EventType::WindowPosition, xpos, ypos);
-        data.eventCallback(event);
+        Injector::eventState->windowPositionHandler(xpos, ypos);
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        WindowCloseEvent event(EventType::WindowClose);
-        data.shouldClose = true;
-        data.eventCallback(event);
+        Injector::windowStruct->shouldClose = true;
     });
 
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -163,56 +160,47 @@ void tfg::ConfigureEvents(GLFWwindow *window) {
         if (io.WantCaptureKeyboard)
             return;
 
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        KeyEvent event(EventType::Key, key, 0);
-        if (action == GLFW_PRESS)
-            event.press_release_repeat = 0;
-        else if (action == GLFW_RELEASE)
-            event.press_release_repeat = 1;
-        else
-            event.press_release_repeat = 2;
-        data.eventCallback(event);
+        Injector::eventState->keyboardHandler(key, action, mods);
     });
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
         ImGuiIO &io = ImGui::GetIO();
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        if (io.WantCaptureMouse && !data.isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
             return;
 
-        MouseButtonEvent event(EventType::MouseButton, button, action == GLFW_PRESS ? 0 : 1);
-        data.eventCallback(event);
+        Injector::eventState->mouseHandler(button, action);
     });
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
         ImGuiIO &io = ImGui::GetIO();
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        if (io.WantCaptureMouse && !data.isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
             return;
 
-        MouseScrollEvent event(EventType::MouseScrolled, (float) xOffset, (float) yOffset);
-        data.eventCallback(event);
+        Injector::eventState->mouseScrollHandler(xOffset, yOffset);
     });
 
     glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xPos, double yPos) {
         ImGuiIO &io = ImGui::GetIO();
-        WindowStruct &data = *reinterpret_cast<WindowStruct *>(glfwGetWindowUserPointer(window));
-        if (io.WantCaptureMouse && !data.isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
             return;
 
-        MouseMoveEvent event(EventType::MouseMoved, (float) xPos, (float) yPos);
-        data.eventCallback(event);
+        Injector::eventState->mouseMoveHandler(xPos, yPos);
     });
 }
 
-void tfg::DestroyWindow(GLFWwindow *window) {
-    auto *windowProperties = (WindowStruct *) glfwGetWindowUserPointer(window);
-    delete windowProperties;
+void tfg::DestroyWindow() {
+    assert(Injector::windowStruct != nullptr);
+    assert(Injector::window != nullptr);
+    assert(Injector::eventState != nullptr);
+    delete Injector::windowStruct;
+    delete Injector::eventState;
     glfwTerminate();
 }
 
 glm::vec3 tfg::screenToWorld(int x, int y, const glm::vec3 &point) {
     assert(Injector::camera != nullptr);
+    assert(Injector::windowStruct != nullptr);
+
     glm::vec<4, int> viewport{0};
     glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
@@ -231,6 +219,7 @@ glm::vec3 tfg::screenToWorld(int x, int y, const glm::vec3 &point) {
 }
 
 glm::vec3 tfg::screenToColor(int x, int y) {
+    assert(Injector::windowStruct != nullptr);
     glm::vec<4, int> viewport{0};
     glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
@@ -266,6 +255,8 @@ int tfg::colorToId(glm::vec3 color) {
     int id = std::round(color.r * 10) +
              std::round(color.g * 100) +
              std::round(color.b * 1000);
+
+    assert(id < Injector::EntitySize);
 
     return id;
 }

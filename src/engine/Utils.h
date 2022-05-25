@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include "Event.h"
+#include "EventState.h"
 #include "Camera.h"
 #include "Logger.h"
 
@@ -22,7 +22,6 @@ namespace tfg {
         int height = 0;
         bool isFreeCamera = false;
         bool shouldClose = false;
-        std::function<void(const Event &event)> eventCallback;
     };
 
 
@@ -53,8 +52,8 @@ namespace tfg {
     class Injector {
     public:
         Injector() = delete;
-
         static GLFWwindow *window;
+        static EventState *eventState;
         static WindowStruct *windowStruct;
         static Camera *camera;
         static int EntitySize;
@@ -115,11 +114,11 @@ namespace tfg {
 
     void InitLogger();
 
-    GLFWwindow *InitWindow(const char *title, int width = 1080, int height = 720);
+    void InitWindow(const char *title, int width = 1080, int height = 720);
 
-    void ConfigureEvents(GLFWwindow *window);
+    void ConfigureEvents();
 
-    void DestroyWindow(GLFWwindow *window);
+    void DestroyWindow();
 
     glm::vec3 screenToWorld(int x, int y, glm::vec3 const &point);
 

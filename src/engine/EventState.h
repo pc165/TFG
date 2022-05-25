@@ -5,101 +5,142 @@
 #include <vector>
 #include <ctime>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include "Logger.h"
-#include "Event.h"
 
 class EventState {
 public:
-    enum class InputType {
-        Keyboard = 0, Mouse
-    };
-
-    struct CallBack {
-        InputType inputType{-1};
-        int key = -1;
-        int press_release_repeat = -1;
-        std::function<void()> callback = []() {
-            LOG_DEBUG("No callback set!");
-        };
-    };
-
-    EventState() : stateKeys(KEYBOARD_SIZE, NONE), activeKeys(KEYBOARD_SIZE, NONE),
-                   stateMouseKeys(MOUSE_KEY_SIZE, NONE), activeMouseKeys(MOUSE_KEY_SIZE, NONE) {
+    EventState() : stateKeys_(KEYBOARD_SIZE, 0),
+                   activeKeys_(KEYBOARD_SIZE, 0),
+                   stateMouseKeys_(MOUSE_KEY_SIZE, 0),
+                   activeMouseKeys_(MOUSE_KEY_SIZE, 0),
+                   mousePosition_(0, 0) {
     }
 
-    void subscribe(InputType type, int key, int press_release_repeat, std::function<void()> &callback) {
-        CallBack d;
-        d.inputType = type;
-        d.key = key;
-        d.press_release_repeat = press_release_repeat;
-        d.callback = std::move(callback);
-        callbackList.emplace_back(d);
+    void onUpdate(float d) {
+        callback_(d);
+        for (auto &i: stateKeys_) i = 0;
+        for (auto &i: stateMouseKeys_) i = 0;
+        mouseMoved_ = false;
+        mouseScrolled_ = false;
+        windowSizeChanged_ = false;
+        windowPositionChanged_ = false;
     }
 
-    void dispatch() {
-        for (auto &i: callbackList) {
-            switch (i.inputType) {
-                case InputType::Keyboard: {
-                    if (stateKeys[i.key] == i.press_release_repeat) {
-                        i.callback();
-                        break;
-                    }
-                }
-                case InputType::Mouse: {
-                    if (stateMouseKeys[i.key] == i.press_release_repeat) {
-                        i.callback();
-                    }
-                    break;
-                }
-            }
+    void mouseHandler(int button, int action) {
+        if (action == GLFW_PRESS) {
+            activeMouseKeys_[button] = true;
+        } else if (action == GLFW_RELEASE) {
+            activeMouseKeys_[button] = false;
         }
+        stateMouseKeys_[button] = action;
     }
 
-    void reset() {
-        for (auto &i: stateKeys)
-            i = NONE;
-        for (auto &i: stateMouseKeys)
-            i = NONE;
+    void mouseMoveHandler(float x, float y) {
+        mouseMoved_ = true;
+        mousePosition_ = {x, y};
     }
 
-    bool onEvent(const Event &event) {
-        switch (event.type) {
-            case Key: {
-                auto key = dynamic_cast<const KeyEvent *>(&event);
-                activeKeys[key->key] = key->press_release_repeat == 0; // active if key is pressed
-                stateKeys[key->key] = key->press_release_repeat;
-                break;
-            }
-            case MouseButton: {
-                auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
-                activeMouseKeys[mouse->button] = mouse->press_release == 0; // active if mouse button is pressed
-                stateMouseKeys[mouse->button] = mouse->press_release;
-                break;
-            }
+    void mouseScrollHandler(float dx, float dy) {
+        mouseScrolled_ = true;
+        mouseScroll_ = {dx, dy};
+    }
 
-            case MouseMoved: {
-                auto mouse = dynamic_cast<const MouseButtonEvent *>(&event);
-                activeMouseKeys[mouse->button] = mouse->press_release == 0; // active if mouse button is pressed
-                stateMouseKeys[mouse->button] = mouse->press_release;
-                break;
-            }
-            default:
-                break;
+    void windowSizeHandler(int xpos, int ypos) {
+        windowSizeChanged_ = true;
+        windowSize_ = {xpos, ypos};
+    }
+
+    void windowPositionHandler(int x, int y) {
+        windowPositionChanged_ = true;
+        windowPosition_ = {x, y};
+    }
+
+    void keyboardHandler(int key, int action, int mods) {
+        if (action == GLFW_PRESS) {
+            activeKeys_[key] = true;
+        } else if (action == GLFW_RELEASE) {
+            activeKeys_[key] = false;
         }
-        return false;
+        stateKeys_[key] = action;
+    }
+
+    [[nodiscard]] bool keyDown(int key) const {
+        return activeKeys_[key];
+    }
+
+    [[nodiscard]] bool keyPressed(int key) const {
+        return stateKeys_[key] == GLFW_PRESS;
+    }
+
+    [[nodiscard]] bool keyReleased(int key) const {
+        return stateKeys_[key] == GLFW_RELEASE;
+    }
+
+    [[nodiscard]] bool mouseButtonDown(int button) const {
+        return activeMouseKeys_[button];
+    }
+
+    [[nodiscard]] bool mouseButtonPressed(int button) const {
+        return stateMouseKeys_[button] == GLFW_PRESS;
+    }
+
+    [[nodiscard]] bool mouseButtonReleased(int button) const {
+        return stateMouseKeys_[button] == GLFW_RELEASE;
+    }
+
+    [[nodiscard]] const glm::vec2 &getMousePosition() const {
+        return mousePosition_;
+    }
+
+    [[nodiscard]] const glm::vec2 &getMouseScroll() const {
+        return mouseScroll_;
+    }
+
+    [[nodiscard]] const glm::vec2 &getWindowSize() const {
+        return windowSize_;
+    }
+
+    [[nodiscard]] const glm::vec2 &getWindowPosition() const {
+        return windowPosition_;
+    }
+
+    [[nodiscard]] bool isMouseMoved() const {
+        return mouseMoved_;
+    }
+
+    [[nodiscard]] bool isMouseScrolled() const {
+        return mouseScrolled_;
+    }
+
+    [[nodiscard]] bool isWindowSizeChanged() const {
+        return windowSizeChanged_;
+    }
+
+    [[nodiscard]] bool isWindowPositionChanged() const {
+        return windowPositionChanged_;
+    }
+
+    void setCallback(std::function<void(float)> const &callback) {
+        callback_ = callback;
     }
 
 private:
     const int KEYBOARD_SIZE{GLFW_KEY_LAST};
     const int MOUSE_KEY_SIZE{GLFW_MOUSE_BUTTON_LAST};
-    const int NONE{-1};
-    std::vector<int> stateKeys;
-    std::vector<int> activeKeys;
-    std::vector<int> stateMouseKeys;
-    std::vector<int> activeMouseKeys;
-    float mouseX{0};
-    float mouseY{0};
-    std::vector<CallBack> callbackList{};
+    std::vector<int> stateKeys_;
+    std::vector<int> activeKeys_;
+    std::vector<int> stateMouseKeys_;
+    std::vector<int> activeMouseKeys_;
+    glm::vec2 mousePosition_{};
+    glm::vec2 mouseScroll_{};
+    glm::vec2 windowSize_{};
+    glm::vec2 windowPosition_{};
+    bool mouseMoved_{false};
+    bool mouseScrolled_{false};
+    bool windowSizeChanged_{false};
+    bool windowPositionChanged_{false};
+    std::function<void(float)> callback_{};
 };
 
 #endif //TFG_EVENTSTATE_H
