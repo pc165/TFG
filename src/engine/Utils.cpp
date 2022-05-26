@@ -2,9 +2,10 @@
 
 GLFWwindow *tfg::Injector::window = nullptr;
 glm::vec3 tfg::Injector::clearColor{0};
-tfg::WindowStruct *tfg::Injector::windowStruct = nullptr;
 EventState *tfg::Injector::eventState = nullptr;
 Camera *tfg::Injector::camera = nullptr;
+bool tfg::Injector::shouldClose = false;
+bool tfg::Injector::isFreeCamera = false;
 int tfg::Injector::EntitySize = 0;
 
 void tfg::InitLogger() {
@@ -130,16 +131,12 @@ void tfg::InitWindow(const char *title, int width, int height) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glfwSwapInterval(1);
-    auto winProp = new WindowStruct{width, height};
-    glfwSetWindowUserPointer(window, winProp);
 
     Injector::window = window;
-    Injector::windowStruct = winProp;
     Injector::eventState = new EventState();
 }
 
 void tfg::ConfigureEvents() {
-    assert(Injector::windowStruct != nullptr);
     assert(Injector::window != nullptr);
     assert(Injector::eventState != nullptr);
 
@@ -153,7 +150,7 @@ void tfg::ConfigureEvents() {
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
-        Injector::windowStruct->shouldClose = true;
+        Injector::shouldClose = true;
     });
 
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -166,7 +163,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::isFreeCamera)
             return;
 
         Injector::eventState->mouseHandler(button, action);
@@ -174,7 +171,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::isFreeCamera)
             return;
 
         Injector::eventState->mouseScrollHandler(xOffset, yOffset);
@@ -182,7 +179,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xPos, double yPos) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::windowStruct->isFreeCamera)
+        if (io.WantCaptureMouse && !Injector::isFreeCamera)
             return;
 
         Injector::eventState->mouseMoveHandler(xPos, yPos);
@@ -190,23 +187,20 @@ void tfg::ConfigureEvents() {
 }
 
 void tfg::DestroyWindow() {
-    assert(Injector::windowStruct != nullptr);
     assert(Injector::window != nullptr);
     assert(Injector::eventState != nullptr);
-    delete Injector::windowStruct;
     delete Injector::eventState;
     glfwTerminate();
 }
 
 glm::vec3 tfg::screenToWorld(int x, int y) {
     assert(Injector::camera != nullptr);
-    assert(Injector::windowStruct != nullptr);
 
     glm::vec<4, int> viewport{0};
     glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
     glm::vec3 win;
-    if (Injector::windowStruct->isFreeCamera)
+    if (Injector::isFreeCamera)
         win = {(float) viewport[2] / 2.0f, viewport[3] / 2.0f, 0};
     else
         win = {(float) x, viewport[3] - (float) y, 0};
@@ -220,13 +214,12 @@ glm::vec3 tfg::screenToWorld(int x, int y) {
 }
 
 glm::vec3 tfg::screenToColor(int x, int y) {
-    assert(Injector::windowStruct != nullptr);
     glm::vec<4, int> viewport{0};
     glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
     glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
 
-    if (Injector::windowStruct->isFreeCamera) {
+    if (Injector::isFreeCamera) {
         win.x = viewport[2] / 2.0;
         win.y = viewport[3] / 2.0;
     }
@@ -252,7 +245,7 @@ int tfg::colorToId(glm::vec3 color) {
              std::round(color.g * 100) +
              std::round(color.b * 1000);
 
-    assert(id < Injector::EntitySize);
+//    assert(id < Injector::EntitySize);
 
     return id;
 }
@@ -270,7 +263,7 @@ glm::vec3 tfg::genPickColor(int n) {
 void tfg::setFreeCamera(bool isEnabled) {
     glfwSetInputMode(Injector::window, GLFW_CURSOR, isEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     Injector::camera->setFreeCamera(isEnabled);
-    Injector::windowStruct->isFreeCamera = isEnabled;
+    Injector::isFreeCamera = isEnabled;
 }
 
 int tfg::getEntityId() {

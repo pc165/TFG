@@ -16,7 +16,6 @@ public:
         assert(Injector::camera != nullptr);
         assert(Injector::eventState != nullptr);
         assert(Injector::window != nullptr);
-        assert(Injector::windowStruct != nullptr);
 //        tfg::setFreeCamera(true);
 
         std::vector<std::vector<int>> s = {
@@ -32,8 +31,8 @@ public:
         };
 
         eventState_->setCallback([this](float frameTime) {
-            onUpdate(frameTime);
-            camera_.onUpdate(frameTime);
+            if (!onUpdate(frameTime))
+                camera_.onUpdate(frameTime);
         });
 
         sudoku_.setupSudoku(s, board_);
@@ -41,7 +40,7 @@ public:
 
     void gameLoop() {
         float t0 = 0;
-        while (!Injector::windowStruct->shouldClose) {
+        while (!Injector::shouldClose) {
             // Picking object
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -102,16 +101,18 @@ public:
 
     bool onUpdate(float deltatme) {
         if (eventState_->keyPressed(GLFW_KEY_ESCAPE)) {
-            Injector::windowStruct->shouldClose = true;
+            Injector::shouldClose = true;
         }
 
         if (eventState_->keyPressed(GLFW_KEY_F1)) {
-            tfg::setFreeCamera(!Injector::windowStruct->isFreeCamera);
+            tfg::setFreeCamera(!Injector::isFreeCamera);
         }
 
         if (eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && selectedEntityId_ == -1 && hoveredEntity != -1) {
             selectedEntityId_ = hoveredEntity;
-        } else if (!eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        }
+
+        if (!eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
             selectedEntityId_ = -1;
         }
 
@@ -134,8 +135,10 @@ public:
 
             if (selectedEntityId_ != -1) {
                 board_.moveTile(selectedEntityId_, screentoWorldPos_);
+                return !Injector::isFreeCamera;
             }
         }
+
         return false;
     }
 
