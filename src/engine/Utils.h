@@ -25,8 +25,9 @@ namespace tfg {
         static glm::vec3 clearColor;
         static GLFWwindow *window;
         static EventState *eventState;
-        static WindowStruct *windowStruct;
         static Camera *camera;
+        static bool shouldClose;
+        static bool isFreeCamera;
         static int EntitySize;
     };
 

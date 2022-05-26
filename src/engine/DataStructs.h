@@ -8,13 +8,6 @@
 #include "Logger.h"
 
 namespace tfg {
-    struct WindowStruct {
-        int width = 0;
-        int height = 0;
-        bool isFreeCamera = false;
-        bool shouldClose = false;
-    };
-
 
     struct Transform {
         glm::vec3 position{0};

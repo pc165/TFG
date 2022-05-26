@@ -40,11 +40,10 @@ public:
         return glm::ortho(0.0f, width_, height_, 0.0f, -1.0f, 1.0f);
     }
 
-    bool onUpdate(double deltaTime) {
+    void onUpdate(double deltaTime) {
         float velocity = movementSpeed_ * deltaTime;
-        if (eventState_->keyDown(GLFW_KEY_W)) {
+        if (eventState_->keyDown(GLFW_KEY_W))
             position_ += center_ * velocity;
-        }
 
         if (eventState_->keyDown(GLFW_KEY_S))
             position_ -= center_ * velocity;
@@ -65,16 +64,23 @@ public:
             fov_ -= (float) eventState_->getMouseScroll().y;
             if (fov_ < 1.0f)
                 fov_ = 1.0f;
-            if (fov_ > 179.0f) {
+            if (fov_ > 179.0f)
                 fov_ = 179.0f;
-            }
+        }
+
+        if (eventState_->isWindowSizeChanged()) {
+            auto window = eventState_->getWindowSize();
+            width_ = window.x;
+            height_ = window.y;
         }
 
         if (!isFreeCamera_ && eventState_->isMouseMoved() && !eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
             lastMousePos_ = eventState_->getMousePosition();
         }
 
-        if (isFreeCamera_ || (eventState_->isMouseMoved() && eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))) {
+        auto moveCamera = eventState_->isMouseMoved() && eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
+
+        if (isFreeCamera_ || (!cameraLock && moveCamera)) {
             auto mouse = eventState_->getMousePosition();
 
             yaw_ += (mouse.x - lastMousePos_.x) * mouseSensitivity_;
@@ -94,21 +100,14 @@ public:
 
             updateCameraVectors();
         }
-
-        if (eventState_->isWindowSizeChanged()) {
-            auto window = eventState_->getWindowSize();
-            width_ = window.x;
-            height_ = window.y;
-        }
-        return false;
     }
 
     void setFreeCamera(bool enabled) {
         isFreeCamera_ = enabled;
     }
 
-    void setFirstMove() {
-        firstMove_ = true;
+    void setCameraLock(bool enabled) {
+        cameraLock = enabled;
     }
 
     void updateCameraVectors() {
@@ -130,7 +129,7 @@ public:
 private:
     EventState *eventState_{nullptr};
     glm::vec2 lastMousePos_{0};
-    bool firstMove_{true};
+    bool cameraLock;
     bool isFreeCamera_{false};
     tfg::Plane plane_;
 };

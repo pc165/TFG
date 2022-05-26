@@ -136,6 +136,7 @@ public:
 
     void moveTile(int entityiD, glm::vec3 pos) {
         auto a = getTile(entityiD);
+        if (!a) return;
         pos.z = a->cube.position.z;
         if (isInBoard(pos))
             a->updatePosition(pos);
