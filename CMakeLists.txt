@@ -112,9 +112,9 @@ file(GLOB_RECURSE SRC_FILES
         src/engine/*.hpp
         src/game/*.cpp
         src/game/*.h
+        src/render/*.cpp
+        src/render/*.h
         )
-
-
 
 
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})

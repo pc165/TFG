@@ -1,16 +1,16 @@
 #ifndef TFG_WORLD_H
 #define TFG_WORLD_H
 
-#include "GameGui.h"
-#include "Board.h"
+#include "render/GameGui.h"
+#include "render/Board.h"
 #include "Sudoku.h"
-#include "Crosshair.h"
+#include "render/Crosshair.h"
 #include "Utils.h"
 
 
 class World {
 public:
-    explicit World() : eventState(Injector::eventState) {
+    explicit World() {
         Injector::camera = &this->camera_;
 
         assert(Injector::camera != nullptr);
@@ -31,7 +31,7 @@ public:
                 {1, 4, 9, 8, 2, 5, 7, 3, 6},
         };
 
-        eventState->setCallback([this](float frameTime) {
+        eventState_->setCallback([this](float frameTime) {
             onUpdate(frameTime);
             camera_.onUpdate(frameTime);
         });
@@ -49,7 +49,7 @@ public:
             board_.drawBoard(true);
 
             // update state
-            eventState->onUpdate(frameTime_);
+            eventState_->onUpdate(frametime_);
             // normal rendering
             glfwPollEvents();
             auto t1 = glfwGetTime();
@@ -59,8 +59,8 @@ public:
 
             // draw boar and crosshair
             board_.drawBoard();
-            crosshair.draw();
-            frameTime_ = t1 - t0;
+            crosshairRender_.draw();
+            frametime_ = t1 - t0;
             t0 = t1;
             // draw gui
             GameGui::drawwGUI([this]() { guiOverlay(); }, [this]() { guiWindow(); });
@@ -72,7 +72,6 @@ public:
     void guiOverlay() const {
         ImGui::Text("World: (%0.2f,%0.2f,%0.2f)", screentoWorldPos_.x, screentoWorldPos_.y, screentoWorldPos_.z);
         ImGui::Text("Color: (%0.2f,%0.2f,%0.2f)", screenColor_.x, screenColor_.y, screenColor_.z);
-        ImGui::Text("Mouse button: (%d)", buttonPress);
         ImGui::Text("Hovered entity: (%d)", hoveredEntity);
         ImGui::Text("Selected entity: (%d)", selectedEntityId_);
     }
@@ -102,22 +101,22 @@ public:
     }
 
     bool onUpdate(float deltatme) {
-        if (eventState->keyPressed(GLFW_KEY_ESCAPE)) {
+        if (eventState_->keyPressed(GLFW_KEY_ESCAPE)) {
             Injector::windowStruct->shouldClose = true;
         }
 
-        if (eventState->keyPressed(GLFW_KEY_F1)) {
+        if (eventState_->keyPressed(GLFW_KEY_F1)) {
             tfg::setFreeCamera(!Injector::windowStruct->isFreeCamera);
         }
 
-        if (eventState->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && selectedEntityId_ == -1 && hoveredEntity != -1) {
+        if (eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && selectedEntityId_ == -1 && hoveredEntity != -1) {
             selectedEntityId_ = hoveredEntity;
-        } else if (!eventState->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        } else if (!eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
             selectedEntityId_ = -1;
         }
 
-        if (eventState->isMouseMoved()) {
-            auto mouse = eventState->getMousePosition();
+        if (eventState_->isMouseMoved()) {
+            auto mouse = eventState_->getMousePosition();
             screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
             screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
             hoveredEntity = tfg::colorToId(screenColor_);
@@ -143,16 +142,14 @@ public:
 private:
     GameGui gui_{};
     Camera camera_{Injector::eventState, {4 * 4, -4 * 4, 35}};
-    EventState *eventState{nullptr};
+    EventState *eventState_{Injector::eventState};
     Board board_{};
+    Crosshair crosshairRender_{};
     Sudoku sudoku_{};
-    Crosshair crosshair{};
+    float frametime_{0};
     int hoveredEntity{-1};
     int selectedEntityId_{-1};
-    bool buttonPress{false};
     Tile *nearesTile_{nullptr};
-    float frameTime_{0};
-
     glm::vec3 screentoWorldPos_{};
     glm::vec3 screenColor_{};
 };

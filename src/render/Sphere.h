@@ -1,7 +1,7 @@
 #ifndef TFG_SPHERE_H
 #define TFG_SPHERE_H
 
-#include "Object.hpp"
+#include "render/Object.hpp"
 
 
 class Sphere : public Object {

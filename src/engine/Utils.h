@@ -11,7 +11,7 @@
 #include <string>
 #include <functional>
 #include "EventState.h"
-#include "Camera.h"
+#include "render/Camera.h"
 #include "Logger.h"
 #include "DataStructs.h"
 

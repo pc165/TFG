@@ -268,12 +268,7 @@ glm::vec3 tfg::genPickColor(int n) {
 }
 
 void tfg::setFreeCamera(bool isEnabled) {
-    if (isEnabled) {
-        glfwSetInputMode(Injector::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    } else {
-        glfwSetInputMode(Injector::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-    glfwSetCursorPos(Injector::window, Injector::windowStruct->width / 2.0, Injector::windowStruct->height / 2.0);
+    glfwSetInputMode(Injector::window, GLFW_CURSOR, isEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     Injector::camera->setFreeCamera(isEnabled);
     Injector::windowStruct->isFreeCamera = isEnabled;
 }
