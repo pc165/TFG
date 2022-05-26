@@ -31,38 +31,40 @@ public:
                 {1, 4, 9, 8, 2, 5, 7, 3, 6},
         };
 
-        eventState->setCallback([this](float frametime) {
-            camera_.onUpdate(frametime);
-            onUpdate(frametime);
+        eventState->setCallback([this](float frameTime) {
+            onUpdate(frameTime);
+            camera_.onUpdate(frameTime);
         });
 
         sudoku_.setupSudoku(s, board_);
     }
 
     void gameLoop() {
-        float t0 = 0.0f, t1 = 0.0f;
+        float t0 = 0;
         while (!Injector::windowStruct->shouldClose) {
             // Picking object
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            tfg::setClearColor({1.0f, 1.0f, 1.0f, 1.0f});
             board_.drawBoard(true);
 
             // update state
-            eventState->onUpdate(t1 - t0);
+            eventState->onUpdate(frameTime_);
             // normal rendering
             glfwPollEvents();
+            auto t1 = glfwGetTime();
             glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            t1 = glfwGetTime();
+            tfg::setClearColor({0.5f, 0.5f, 0.5f, 0.0f});
 
             // draw boar and crosshair
             board_.drawBoard();
             crosshair.draw();
-
+            frameTime_ = t1 - t0;
+            t0 = t1;
             // draw gui
             GameGui::drawwGUI([this]() { guiOverlay(); }, [this]() { guiWindow(); });
 
-            t0 = t1;
             glfwSwapBuffers(Injector::window);
         };
     };
@@ -99,7 +101,7 @@ public:
         ImGui::End();
     }
 
-    void onUpdate(float deltatme) {
+    bool onUpdate(float deltatme) {
         if (eventState->keyPressed(GLFW_KEY_ESCAPE)) {
             Injector::windowStruct->shouldClose = true;
         }
@@ -116,15 +118,9 @@ public:
 
         if (eventState->isMouseMoved()) {
             auto mouse = eventState->getMousePosition();
+            screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
             screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
             hoveredEntity = tfg::colorToId(screenColor_);
-
-
-            Tile *tile = board_.getTile(hoveredEntity);
-            glm::vec3 cameraPlane{camera_.position_.x, camera_.position_.y, camera_.zFar_};
-            glm::vec3 point = tile != nullptr ? tile->cube.position : cameraPlane;
-
-            screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y, point);
 
             auto nearesTile = board_.nearestTile(screentoWorldPos_, selectedEntityId_);
             if (nearesTile != nearesTile_) {
@@ -141,6 +137,7 @@ public:
                 board_.moveTile(selectedEntityId_, screentoWorldPos_);
             }
         }
+        return false;
     }
 
 private:
@@ -154,6 +151,7 @@ private:
     int selectedEntityId_{-1};
     bool buttonPress{false};
     Tile *nearesTile_{nullptr};
+    float frameTime_{0};
 
     glm::vec3 screentoWorldPos_{};
     glm::vec3 screenColor_{};

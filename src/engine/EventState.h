@@ -10,6 +10,8 @@
 
 class EventState {
 public:
+    typedef std::function<void  (float)> CallBackType;
+
     EventState() : stateKeys_(KEYBOARD_SIZE, 0),
                    activeKeys_(KEYBOARD_SIZE, 0),
                    stateMouseKeys_(MOUSE_KEY_SIZE, 0),
@@ -17,8 +19,8 @@ public:
                    mousePosition_(0, 0) {
     }
 
-    void onUpdate(float d) {
-        callback_(d);
+    void onUpdate(float frameTime) {
+        callback_(frameTime);
         for (auto &i: stateKeys_) i = 0;
         for (auto &i: stateMouseKeys_) i = 0;
         mouseMoved_ = false;
@@ -121,7 +123,7 @@ public:
         return windowPositionChanged_;
     }
 
-    void setCallback(std::function<void(float)> const &callback) {
+    void setCallback(CallBackType const &callback) {
         callback_ = callback;
     }
 
@@ -140,7 +142,7 @@ private:
     bool mouseScrolled_{false};
     bool windowSizeChanged_{false};
     bool windowPositionChanged_{false};
-    std::function<void(float)> callback_{};
+    CallBackType callback_{};
 };
 
 #endif //TFG_EVENTSTATE_H

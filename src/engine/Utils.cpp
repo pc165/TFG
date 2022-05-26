@@ -1,6 +1,7 @@
 #include "Utils.h"
 
 GLFWwindow *tfg::Injector::window = nullptr;
+glm::vec3 tfg::Injector::clearColor{0};
 tfg::WindowStruct *tfg::Injector::windowStruct = nullptr;
 EventState *tfg::Injector::eventState = nullptr;
 Camera *tfg::Injector::camera = nullptr;
@@ -197,7 +198,7 @@ void tfg::DestroyWindow() {
     glfwTerminate();
 }
 
-glm::vec3 tfg::screenToWorld(int x, int y, const glm::vec3 &point) {
+glm::vec3 tfg::screenToWorld(int x, int y) {
     assert(Injector::camera != nullptr);
     assert(Injector::windowStruct != nullptr);
 
@@ -214,7 +215,7 @@ glm::vec3 tfg::screenToWorld(int x, int y, const glm::vec3 &point) {
 
     glm::vec3 unProject = glm::unProject(win, Injector::camera->getViewMatrix(), Injector::camera->getProjectionMatrix(), viewport);
 
-    LOG_DEBUG("WinDow Pos: {} {} {} Unproject {} {} {}", win.x, win.y, win.z, unProject.x, unProject.y, unProject.z);
+//    LOG_DEBUG("WinDow Pos: {} {} {} Unproject {} {} {}", win.x, win.y, win.z, unProject.x, unProject.y, unProject.z);
     return unProject;
 }
 
@@ -232,10 +233,7 @@ glm::vec3 tfg::screenToColor(int x, int y) {
 
     if (win.x < viewport[0] || win.x > viewport[2] ||
         win.y < viewport[1] || win.y > viewport[3]) {
-        glm::vec4 clearColor;
-        LOG_TRACE("Mouse outside viewport");
-        glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(clearColor));
-        return glm::vec3{clearColor};
+        return glm::vec3{Injector::clearColor};
     }
 
     glm::vec3 color;
@@ -246,10 +244,8 @@ glm::vec3 tfg::screenToColor(int x, int y) {
 }
 
 int tfg::colorToId(glm::vec3 color) {
-    glm::vec4 clearColor;
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(clearColor));
 
-    if (color == glm::vec3{clearColor})
+    if (color == glm::vec3{Injector::clearColor})
         return -1;
 
     int id = std::round(color.r * 10) +
@@ -278,11 +274,17 @@ void tfg::setFreeCamera(bool isEnabled) {
         glfwSetInputMode(Injector::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
     glfwSetCursorPos(Injector::window, Injector::windowStruct->width / 2.0, Injector::windowStruct->height / 2.0);
-    Injector::camera->setFirstMove();
     Injector::camera->setFreeCamera(isEnabled);
     Injector::windowStruct->isFreeCamera = isEnabled;
 }
 
 int tfg::getEntityId() {
     return Injector::EntitySize++;
+}
+
+void tfg::setClearColor(glm::vec4 const &color) {
+    glm::vec4 c{};
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(c));
+    assert(c == color);
+    Injector::clearColor = color;
 }

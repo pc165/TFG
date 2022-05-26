@@ -4,13 +4,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include "Logger.h"
+#include "DataStructs.h"
 
 class Camera {
 public:
     glm::vec3 position_, center_, up_;
     glm::vec3 right, worldUp_;
     float yaw_{270}, pitch_{0};
-    float movementSpeed_{4};
+    float movementSpeed_{10};
     float mouseSensitivity_{0.1};
     float fov_{45};
     float width_{0}, height_{1};
@@ -39,10 +40,11 @@ public:
         return glm::ortho(0.0f, width_, height_, 0.0f, -1.0f, 1.0f);
     }
 
-    void onUpdate(double deltaTime) {
+    bool onUpdate(double deltaTime) {
         float velocity = movementSpeed_ * deltaTime;
-        if (eventState_->keyDown(GLFW_KEY_W))
+        if (eventState_->keyDown(GLFW_KEY_W)) {
             position_ += center_ * velocity;
+        }
 
         if (eventState_->keyDown(GLFW_KEY_S))
             position_ -= center_ * velocity;
@@ -68,26 +70,15 @@ public:
             }
         }
 
+        if (!isFreeCamera_ && eventState_->isMouseMoved() && !eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            lastMousePos_ = eventState_->getMousePosition();
+        }
+
         if (isFreeCamera_ || (eventState_->isMouseMoved() && eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))) {
             auto mouse = eventState_->getMousePosition();
 
-            if (firstMove_) {
-                lastX_ = mouse.x;
-                lastY_ = mouse.y;
-                firstMove_ = false;
-            }
-
-            auto xoffset = mouse.x - lastX_;
-            auto yoffset = lastY_ - mouse.y;
-
-            lastX_ = mouse.x;
-            lastY_ = mouse.y;
-
-            xoffset *= mouseSensitivity_;
-            yoffset *= mouseSensitivity_;
-
-            yaw_ += xoffset;
-            pitch_ += yoffset;
+            yaw_ += (mouse.x - lastMousePos_.x) * mouseSensitivity_;
+            pitch_ += (lastMousePos_.y - mouse.y) * mouseSensitivity_;
 
             if (yaw_ > 360.0f)
                 yaw_ = 0.0f;
@@ -99,6 +90,8 @@ public:
             if (pitch_ < -89.0f)
                 pitch_ = -89.0f;
 
+            lastMousePos_ = mouse;
+
             updateCameraVectors();
         }
 
@@ -107,6 +100,7 @@ public:
             width_ = window.x;
             height_ = window.y;
         }
+        return false;
     }
 
     void setFreeCamera(bool enabled) {
@@ -125,13 +119,20 @@ public:
         center_ = glm::normalize(front2);
         right = glm::normalize(glm::cross(center_, worldUp_));
         up_ = glm::normalize(glm::cross(right, center_));
+
+        // update plane
+        auto pos = position_;
+        pos.z -= 1;
+        plane_.setNormalVector(position_ - center_);
+        plane_.movePlaneToPoint(pos);
     }
 
 private:
     EventState *eventState_{nullptr};
-    float lastX_{0}, lastY_{0};
+    glm::vec2 lastMousePos_{0};
     bool firstMove_{true};
     bool isFreeCamera_{false};
+    tfg::Plane plane_;
 };
 
 #endif //TFG_CAMERA_H

@@ -71,7 +71,7 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> &sudoku, Board &board) {
             b.isReadOnly = number != 0;
         }
     }
-    board.setupBottomDrawer();
+    board.setupBoard();
 }
 
 Sudoku::Sudoku() {

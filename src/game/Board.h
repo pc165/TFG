@@ -3,6 +3,7 @@
 
 #include "Sphere.h"
 #include "Cube.h"
+#include "Plane.h"
 
 struct Tile : tfg::Entity {
     int numericalValue{0};
@@ -47,12 +48,11 @@ struct Tile : tfg::Entity {
         // bottom right
         sphere[5].position = glm::vec3{xOffset, -yOffset, zOffset} + pos;
     }
-
 };
 
 class Board {
 public:
-    explicit Board() : number2Braille_(), cube_(), sphere_() {
+    explicit Board() : number2Braille_(), cubeRender_(), planeRender_(), sphereRender_() {
         /***
           *      Braille numbers
           *  1     2     3     4     5
@@ -104,6 +104,9 @@ public:
     }
 
     void drawBoard(bool isPicking = false) {
+
+        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color);
+
         for (auto &tile: tileData_) {
             glm::vec3 cubeColor;
             if (isPicking)
@@ -112,13 +115,13 @@ public:
                 cubeColor = {0, 1, 1};
             else
                 cubeColor = tile.cube.color;
-            cube_.draw(tile.cube, cubeColor);
+            cubeRender_.draw(tile.cube, cubeColor);
 
             if (isPicking)
                 continue;
 
             for (auto i: number2Braille_[tile.numericalValue]) {
-                sphere_.draw(tile.sphere[i], tile.sphere[i].color);
+                sphereRender_.draw(tile.sphere[i], tile.sphere[i].color);
             }
         }
     }
@@ -134,14 +137,46 @@ public:
     void moveTile(int entityiD, glm::vec3 pos) {
         auto a = getTile(entityiD);
         pos.z = a->cube.position.z;
-        a->updatePosition(pos);
+        if (isInBoard(pos))
+            a->updatePosition(pos);
     }
 
-    void setupBottomDrawer() {
+
+    [[nodiscard]] bool isInBoard(glm::vec3 const &position) const {
+        if (!plane_.containsPoint(position)) return false;
+//        if (position.x > planeTransform.scale.z) return false;
+        return true;
+    }
+
+
+    void setupBoard() {
+        // center the plane
+        auto planeCenter = tileData_[(tileData_.size() - 1) / 2].cube.position;
+        planeCenter.z -= tileData_[0].cube.scale.z;
+        planeTransform.position = planeCenter;
+        planeTransform.scale = {40, 40, 1};
+        planeTransform.color = {0.6, 0.6, 0.6};
+
+        // Calculate plane from tile positions
+        auto p0 = tileData_[0].cube.position;
+        auto p1 = tileData_[10].cube.position;
+        auto p2 = tileData_[22].cube.position;
+        plane_.fromPoints(p0, p1, p2);
+        planeRender_.setPlane(plane_);
+
+        // sanity check
+        for (auto &t: tileData_) {
+            assert(plane_.containsPoint(t.cube.position));
+        }
+
+        // setup drawer
         for (int i = 0; i < 10; ++i) {
             glm::vec3 pos{i * offset_, -9 * offset_, 0};
             addTile(pos, i).cube.color = {0, 0, 1};
         }
+
+        LOG_INFO("{}", planeTransform.to_string().c_str());
+        plane_.log();
     }
 
     Tile *nearestTile(glm::vec3 pos, int selectedEntity = -1) {
@@ -157,7 +192,7 @@ public:
 
             auto d = glm::distance(i.cube.position, pos);
 
-            if (d < 5.0f && d < best) {
+            if (d < 2.0f && d < best) {
                 best = d;
                 nearest = &i;
             }
@@ -165,12 +200,20 @@ public:
         return nearest;
     }
 
+    [[nodiscard]] const tfg::Plane &getPlane() const {
+        return plane_;
+    }
+
     const float offset_{4.0f};
 private:
     std::vector<std::vector<size_t>> number2Braille_;
     std::vector<Tile> tileData_;
-    Cube cube_;
-    Sphere sphere_;
+    tfg::Transform planeTransform{};
+    tfg::Plane plane_;
+
+    Cube cubeRender_;
+    Plane planeRender_;
+    Sphere sphereRender_;
 };
 
 #endif //TFG_BOARD_H
