@@ -1,4 +1,5 @@
 #include "Sudoku.h"
+#include "Constants.h"
 
 bool Sudoku::setNumber(int row, int col, int num) {
     assert(col >= 0 && col < (int) board_.size());
@@ -46,6 +47,9 @@ bool Sudoku::isDone() const {
 
 
 void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &board) {
+    assert(!sudoku.empty());
+    assert(!sudoku[0].empty());
+
     board_.resize(9);
     for (auto &i: board_) {
         i.resize(9);
@@ -53,15 +57,17 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &boa
 
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
-            int number = sudoku[row][col];
+            int number = sudoku[col][row];
             auto &b = board_[row][col];
 
             glm::vec3 pos{row * board.offset_, -col * board.offset_, 0};
-            b.tile = &board.addTile(pos, number);
-
+            auto tile = board.getTile(board.addTile(pos, number));
+            assert(tile != nullptr);
+            b.tile = tile;
             b.tile->row = row;
             b.tile->col = col;
             b.value = number;
+            b.tile->cube.color = number == 0 ? CUBE_COLOR_DEFAULT : b.tile->cube.color;
             b.isReadOnly = number != 0;
         }
     }

@@ -12,9 +12,9 @@ namespace tfg {
     struct Transform {
         glm::vec3 position{0};
         glm::vec3 scale{1};
+        glm::vec3 color{0};
         glm::vec3 rotationAxis{1, 0, 0};
         float rotationDegress{0};
-        glm::vec3 color{};
 
         [[nodiscard]] std::string to_string() const {
             return fmt::format("position {} {} {}\nscale {} {} {}\n",
@@ -95,7 +95,7 @@ namespace tfg {
             assert(containsPoint(point));
         }
 
-        glm::vec3 getPointOnPlane(glm::vec2 const &point) const {
+        [[nodiscard]] glm::vec3 getPointOnPlane(glm::vec2 const &point) const {
             /***
              * p0 = Ax + By + Cz + D = 0
              *  x = -(By + Cz + D)/A
@@ -113,5 +113,58 @@ namespace tfg {
         glm::vec3 p0{0}, p1{0}, p2{0}, p3{0};
     };
 
+    struct Tile;
+
+    struct Cell {
+        int value{0};
+        int solution{0};
+        bool isReadOnly{false};
+        Tile *tile{nullptr};
+    };
+
+    struct Tile : tfg::Entity {
+        int numericalValue{0};
+        int row = -1, col = -1;
+        int hints{0};
+        bool isSelected{false};
+        bool isDeck{false};
+        tfg::Transform cube{};
+        std::vector<tfg::Transform> sphere{6};
+
+        Tile() = default;
+
+        void moveBack(float offset) {
+            glm::vec3 pos{row * offset, col * offset, cube.position.z};
+            updatePosition(pos);
+        }
+
+        void updatePosition(glm::vec3 pos) {
+            pos.z = cube.position.z;
+            cube.position = pos;
+
+            // sphere position offsets
+            auto xOffset = cube.scale.x / 3;
+            auto yOffset = cube.scale.y / 2;
+            auto zOffset = cube.scale.z;
+
+            // top left
+            sphere[0].position = glm::vec3{-xOffset, yOffset, zOffset} + pos;
+
+            // top right
+            sphere[1].position = glm::vec3{xOffset, yOffset, zOffset} + pos;
+
+            // middle left
+            sphere[2].position = glm::vec3{-xOffset, 0, zOffset} + pos;
+
+            // middle right
+            sphere[3].position = glm::vec3{xOffset, 0, zOffset} + pos;
+
+            // bottom left
+            sphere[4].position = glm::vec3{-xOffset, -yOffset, zOffset} + pos;
+
+            // bottom right
+            sphere[5].position = glm::vec3{xOffset, -yOffset, zOffset} + pos;
+        }
+    };
 }
 #endif //TFG_DATASTRUCTS_H

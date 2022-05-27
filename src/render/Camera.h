@@ -75,7 +75,6 @@ public:
         }
 
         if (!isFreeCamera_ && eventState_->isMouseMoved() && !eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            lastMousePos_ = eventState_->getMousePosition();
         }
 
         auto moveCamera = eventState_->isMouseMoved() && eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
@@ -100,6 +99,8 @@ public:
 
             updateCameraVectors();
             return true;
+        } else {
+            lastMousePos_ = eventState_->getMousePosition();
         }
         return false;
     }

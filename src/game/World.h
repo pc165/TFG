@@ -38,10 +38,12 @@ private:
     // Event state machine
     EventState *eventState_{Injector::eventState};
 
+    std::vector<std::vector<int>> sudokuValues_{};
+
     float frametime_{0};
-    Tile *hoveredTile_{nullptr};
-    Tile *selectedTile_{nullptr};
-    Tile *nearesTile_{nullptr};
+    tfg::Tile *hoveredTile_{nullptr};
+    tfg::Tile *selectedTile_{nullptr};
+    tfg::Tile *nearesTile_{nullptr};
     glm::vec3 screentoWorldPos_{};
     glm::vec3 screenColor_{};
 };

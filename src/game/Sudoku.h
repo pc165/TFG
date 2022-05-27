@@ -12,10 +12,13 @@ public:
     bool setNumber(int row, int col, int j);
 
     void restartSudoku(std::vector<std::vector<int>> const &sudoku) {
-        for (int col = 0; col < 9; col++) {
-            for (int row = 0; row < 9; row++) {
+        assert(!sudoku.empty());
+        assert(!sudoku[0].empty());
+
+        for (int row = 0; row < (int) sudoku.size(); row++) {
+            for (int col = 0; col < (int) sudoku[row].size(); col++) {
                 int number = sudoku[col][row];
-                auto &b = board_[col][row];
+                auto &b = board_[row][col];
                 b.value = number;
                 b.solution = 0;
                 b.tile->numericalValue = number;
@@ -25,10 +28,10 @@ public:
         updateSolutions();
     }
 
-    void randomSudokuGenerator() {
-        std::vector<std::vector<int>> s{};
-        s.resize(9);
-        for (auto &i: s) {
+    static void randomSudokuGenerator(std::vector<std::vector<int>> &array) {
+        array.clear();
+        array.resize(9);
+        for (auto &i: array) {
             i.resize(9);
         }
     }
@@ -94,13 +97,6 @@ public:
         return !repeatedIn3x3(row, col, num) && !repeatedInRow(row, num) && !repeatedInColumn(col, num);
     }
 
-    struct Cell {
-        int value{0};
-        int solution{0};
-        bool isReadOnly{false};
-        Tile *tile{nullptr};
-    };
-
 private:
-    std::vector<std::vector<Cell>> board_;
+    std::vector<std::vector<tfg::Cell>> board_;
 };

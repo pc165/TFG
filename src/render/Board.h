@@ -4,110 +4,66 @@
 #include "Sphere.h"
 #include "Cube.h"
 #include "Plane.h"
+#include "Constants.h"
 
-struct Tile : tfg::Entity {
-    int numericalValue{0};
-    int row = -1, col = -1;
-    bool isSelected{false};
-    bool isDeck{false};
-    tfg::Transform cube{};
-    std::vector<tfg::Transform> sphere{6};
+/***
+  *      Braille numbers
+  *  1     2     3     4     5
+  * 1 0   1 0   1 1   1 1   1 0
+  * 0 0   1 0   0 0   0 1   0 1
+  * 0 0   0 0   0 0   0 0   0 0
+  *
+  *  6     7     8     9     0
+  * 1 1   1 1   1 0   0 1   0 1
+  * 1 0   1 1   1 1   1 0   1 1
+  * 0 0   0 0   0 0   0 0   0 0
+  * */
 
-    void log() {
-        std::string a;
-        int j = 0;
-        for (auto &i: sphere) {
-            a += fmt::format("Sphere {}\n{}\n", j++, i.to_string());
-        }
-        LOG_DEBUG("\n{}\nCube\n{}\n{}\n", this->to_string(), cube.to_string(), "");
-    }
-
-    void moveBack(float offset) {
-        glm::vec3 pos{row * offset, col * offset, cube.position.z};
-        updatePosition(pos);
-    }
-
-
-    void updatePosition(glm::vec3 pos) {
-        pos.z = cube.position.z;
-        cube.position = pos;
-
-        // sphere position offsets
-        auto xOffset = cube.scale.x / 3;
-        auto yOffset = cube.scale.y / 2;
-        auto zOffset = cube.scale.z;
-
-        // top left
-        sphere[0].position = glm::vec3{-xOffset, yOffset, zOffset} + pos;
-
-        // top right
-        sphere[1].position = glm::vec3{xOffset, yOffset, zOffset} + pos;
-
-        // middle left
-        sphere[2].position = glm::vec3{-xOffset, 0, zOffset} + pos;
-
-        // middle right
-        sphere[3].position = glm::vec3{xOffset, 0, zOffset} + pos;
-
-        // bottom left
-        sphere[4].position = glm::vec3{-xOffset, -yOffset, zOffset} + pos;
-
-        // bottom right
-        sphere[5].position = glm::vec3{xOffset, -yOffset, zOffset} + pos;
-    }
+const std::vector<std::vector<int>> NUMBER_TO_BRAILLE = {
+//                {1, 2, 3}, // 0
+        {}, // 0
+        {0}, // 1
+        {0, 2}, // 2
+        {0, 1}, // 3
+        {0, 1, 3}, // 4
+        {0, 3}, // 5
+        {0, 1, 2}, // 6
+        {0, 1, 2, 3}, // 7
+        {0, 2, 3}, // 8
+        {1, 2}, // 9
+        {0, 1, 2, 3, 4, 5} // 10 draw everything
 };
 
 class Board {
 public:
-    explicit Board() : number2Braille_(), cubeRender_(), planeRender_(), sphereRender_() {
-        /***
-          *      Braille numbers
-          *  1     2     3     4     5
-          * 1 0   1 0   1 1   1 1   1 0
-          * 0 0   1 0   0 0   0 1   0 1
-          * 0 0   0 0   0 0   0 0   0 0
-          *
-          *  6     7     8     9     0
-          * 1 1   1 1   1 0   0 1   0 1
-          * 1 0   1 1   1 1   1 0   1 1
-          * 0 0   0 0   0 0   0 0   0 0
-          * */
-        number2Braille_ = {
-//                {1, 2, 3}, // 0
-                {}, // 0
-                {0}, // 1
-                {0, 2}, // 2
-                {0, 1}, // 3
-                {0, 1, 3}, // 4
-                {0, 3}, // 5
-                {0, 1, 2}, // 6
-                {0, 1, 2, 3}, // 7
-                {0, 2, 3}, // 8
-                {1, 2}, // 9
-                {0, 1, 2, 3, 4, 5} // 10 draw everything
-        };
+    using Tile = tfg::Tile;
+
+    Board() : cubeRender_(), planeRender_(), sphereRender_() {
+
     }
 
-    auto &addTile(glm::vec3 const &pos, int numericalValue) {
+    int addTile(glm::vec3 const &pos, int numericalValue) {
         Tile tile{};
+
+        // setup basic data
         tile.numericalValue = numericalValue;
         tile.entityId = tfg::getEntityId();
         tile.colorPick = tfg::genPickColor(tile.entityId);
         tile.isDeck = false;
+
         // Setup cube
-        tile.cube.scale = {1, 1, 0.375};
-        tile.cube.color = {1, 0, 0};
+        tile.cube.scale = CUBE_SCALE;
+        tile.cube.color = CUBE_COLOR_ASSIGNED;
         tile.updatePosition(pos);
 
         // Setup sphere
         for (auto &i: tile.sphere) {
-            i.scale = glm::vec3{0.2f};
-            i.color = {0, 1, 0};
+            i.scale = SPHERE_CUBE;
+            i.color = SPHERE_COLOR;
         }
 
-        tile.log();
         tileData_[tile.entityId] = tile;
-        return tileData_[tileData_.size() - 1];
+        return tile.entityId;
     }
 
     void drawBoard(bool isPicking = false) {
@@ -120,42 +76,34 @@ public:
             if (isPicking)
                 cubeColor = tile.colorPick;
             else if (tile.isSelected)
-                cubeColor = {0, 1, 1};
+                cubeColor = CUBE_COLOR_SELECTED;
             else
                 cubeColor = tile.cube.color;
             cubeRender_.draw(tile.cube, cubeColor);
 
+            // skip rendering spheres
             if (isPicking)
                 continue;
 
-            for (auto i: number2Braille_[tile.numericalValue]) {
-                sphereRender_.draw(tile.sphere[i], tile.sphere[i].color);
+            auto const &spherePositions = NUMBER_TO_BRAILLE[tile.numericalValue];
+
+            for (int i = 0; i < (int) spherePositions.size(); ++i) {
+                if (i >= tile.hints && tile.hints != 0)
+                    break;
+
+                int sphereIdx = spherePositions[i];
+                sphereRender_.draw(tile.sphere[sphereIdx], tile.sphere[sphereIdx].color);
             }
         }
     }
 
-    Tile *getTile(int entityId) {
-        auto it = tileData_.find(entityId);
-        if (it != tileData_.end())
-            return &it->second;
-
-        return nullptr;
-    }
-
-    [[nodiscard]] bool isInBoard(glm::vec3 const &position) const {
-        if (!plane_.containsPoint(position)) return false;
-//        if (position.x > planeTransform.scale.z) return false;
-        return true;
-    }
-
-
     void setupDeck() {
-        // center the plane
+        // setup plane
         auto planeCenter = tileData_[(tileData_.size() - 1) / 2].cube.position;
         planeCenter.z -= tileData_[0].cube.scale.z;
         planeTransform.position = planeCenter;
-        planeTransform.scale = {40, 40, 1};
-        planeTransform.color = {0.6, 0.6, 0.6};
+        planeTransform.scale = PLANE_SCALE;
+        planeTransform.color = PLANE_COLOR;
 
         // Calculate plane from tile positions
         auto p0 = tileData_[0].cube.position;
@@ -172,11 +120,15 @@ public:
         // setup deck
         for (int i = 0; i < 10; ++i) {
             glm::vec3 pos{i * offset_, -9 * offset_, 0};
-            auto &tile = addTile(pos, i);
-            tile.row = i;
-            tile.col = -9;
-            tile.cube.color = {0, 0, 1};
-            tile.isDeck = true;
+
+            auto tile = getTile(addTile(pos, i));
+
+            assert(tile != nullptr);
+
+            tile->row = i;
+            tile->col = -9;
+            tile->cube.color = CUBE_COLOR_DECK;
+            tile->isDeck = true;
         }
 
         LOG_INFO("{}", planeTransform.to_string().c_str());
@@ -187,11 +139,6 @@ public:
         Tile *nearest = nullptr;
         float best = INFINITY;
         for (auto &i: tileData_) {
-//            LOG_DEBUG("Nearest {} {} {} {}", i.entityId,
-//                      glm::to_string(pos).c_str(),
-//                      glm::to_string(i.cube.position).c_str(),
-//                      glm::distance(i.cube.position, pos));
-
             auto &tile = i.second;
             if (!predicate(tile)) continue;
 
@@ -205,13 +152,28 @@ public:
         return nearest;
     }
 
+
+    Tile *getTile(int entityId) {
+        auto it = tileData_.find(entityId);
+        if (it != tileData_.end())
+            return &it->second;
+
+        return nullptr;
+    }
+
+    [[nodiscard]] bool isInBoard(glm::vec3 const &position) const {
+        if (!plane_.containsPoint(position)) return false;
+//        if (position.x > planeTransform.scale.z) return false;
+        return true;
+    }
+
+
     [[nodiscard]] const tfg::Plane &getPlane() const {
         return plane_;
     }
 
     const float offset_{3.0f};
 private:
-    std::vector<std::vector<size_t>> number2Braille_;
     std::unordered_map<int, Tile> tileData_;
     tfg::Transform planeTransform{};
     tfg::Plane plane_;

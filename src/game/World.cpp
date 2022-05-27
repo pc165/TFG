@@ -8,7 +8,7 @@ World::World() {
     assert(Injector::window != nullptr);
 //        tfg::setFreeCamera(true);
 
-    std::vector<std::vector<int>> s = {
+    sudokuValues_ = {
             {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
             {5, 1, 3, 4, 8, 2, 9, 6, 7},
             {7, 2, 6, 1, 3, 9, 5, 4, 8},
@@ -19,7 +19,7 @@ World::World() {
             {3, 6, 8, 7, 9, 4, 1, 2, 5},
             {1, 4, 9, 8, 2, 5, 7, 3, 6},
     };
-    sudoku_.setupSudoku(s, board_);
+    sudoku_.setupSudoku(sudokuValues_, board_);
 
     eventState_->setCallback([this](float frameTime) {
         onUpdate(frameTime);
@@ -48,7 +48,7 @@ void World::gameLoop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         tfg::setClearColor({0.5f, 0.5f, 0.5f, 1.0f});
 
-        // draw boar and crosshair
+        // draw board
         board_.drawBoard();
         frametime_ = t1 - t0;
         t0 = t1;
@@ -74,24 +74,18 @@ void World::guiWindow() {
     }
 
     if (ImGui::BeginPopupModal("Congurations", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        auto tmp = Injector::isFreeCamera;
         tfg::setFreeCamera(false);
         ImGui::Text("Sudoku completed!");
         if (ImGui::Button("Restart")) {
-            tfg::setFreeCamera(tmp);
-            std::vector<std::vector<int>> s = {
-                    {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
-                    {5, 1, 3, 4, 8, 2, 9, 6, 7},
-                    {7, 2, 6, 1, 3, 9, 5, 4, 8},
-                    {6, 3, 1, 9, 4, 7, 8, 5, 2},
-                    {4, 9, 5, 2, 6, 8, 3, 7, 1},
-                    {8, 7, 2, 3, 5, 1, 6, 9, 4},
-                    {2, 5, 7, 6, 1, 3, 4, 8, 9},
-                    {3, 6, 8, 7, 9, 4, 1, 2, 5},
-                    {1, 4, 9, 8, 2, 5, 7, 3, 6},
-            };
-            sudoku_.restartSudoku(s);
+            sudoku_.restartSudoku(sudokuValues_);
             ImGui::CloseCurrentPopup();
+            tfg::setFreeCamera(true);
+        }
+
+        if (ImGui::Button("New Sudoku")) {
+            Sudoku::randomSudokuGenerator(sudokuValues_);
+            ImGui::CloseCurrentPopup();
+            tfg::setFreeCamera(true);
         }
         ImGui::EndPopup();
     }
@@ -111,6 +105,7 @@ void World::guiWindow() {
         ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y, hoveredTile_->cube.position.z);
         ImGui::Text("Cell (%d,%d)", row, col);
         ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
+        ImGui::Text("Hints %d ", hoveredTile_->hints);
     }
     if (nearesTile_) {
         ImGui::Separator();
@@ -143,21 +138,26 @@ bool World::onUpdate(float deltatme) {
         screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
         screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
 
+        // TODO Hide decimal number, show braille
         if (hoveredTile_) {
-            // TODO Hide decimal number, show braille
             hoveredTile_->isSelected = false;
         }
+
         hoveredTile_ = board_.getTile(tfg::colorToId(screenColor_));
+
+        // TODO Hide braille, show decimal
         if (hoveredTile_) {
-            // TODO Hide brailled, show decimal
             hoveredTile_->isSelected = true;
         }
 
-        // select a tile that is near the selected one
         if (selectedTile_) {
-            auto nearesTile = board_.nearestTile(screentoWorldPos_, [this](Tile const &tile) {
+
+            // skip the selected tile and the deck
+            auto nearesTile = board_.nearestTile(screentoWorldPos_, [this](tfg::Tile const &tile) {
                 return tile.entityId != selectedTile_->entityId && !tile.isDeck;
             });
+
+            // update nearest tile
             if (nearesTile != nearesTile_) {
                 if (nearesTile)
                     nearesTile->isSelected = true;
@@ -174,10 +174,26 @@ bool World::onUpdate(float deltatme) {
         }
     }
 
-    // select a deck tile
-    bool hoveredDeckTile = hoveredTile_ && hoveredTile_->isDeck;
-    if (eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && !selectedTile_ && hoveredDeckTile) {
-        selectedTile_ = hoveredTile_;
+    if (eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        // select a deck tile
+        if (!selectedTile_ && hoveredTile_ && hoveredTile_->isDeck) {
+            selectedTile_ = hoveredTile_;
+        }
+    }
+
+    // show hints on left click
+    if (eventState_->mouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && hoveredTile_ && !hoveredTile_->isDeck) {
+        int row = hoveredTile_->row, col = hoveredTile_->col;
+        auto solution = sudoku_.getSolution(row, col);
+
+        // if there's a solution update hints
+        if (solution) {
+            auto &tile = hoveredTile_;
+            tile->numericalValue = solution;
+            tile->hints++;
+            tile->hints %= NUMBER_TO_BRAILLE[solution].size();
+            if (tile->hints == 0) tile->numericalValue = 0;
+        }
     }
 
     // drop the selected tile
@@ -187,6 +203,7 @@ bool World::onUpdate(float deltatme) {
         if (nearesTile_ && !nearesTile_->isDeck) {
             assert(selectedTile_->isDeck);
             bool result = sudoku_.setNumber(nearesTile_->row, nearesTile_->col, selectedTile_->numericalValue);
+            selectedTile_->hints = 0;
             LOG_INFO("Set number {}", result);
         }
 
