@@ -105,11 +105,12 @@ void World::guiWindow() {
     ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
     ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
     camera_.updateCameraVectors();
-    auto data = hoveredTile_;
-    if (data) {
+    if (hoveredTile_) {
+        auto row = hoveredTile_->row, col = hoveredTile_->col;
         ImGui::Separator();
-        ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", data->cube.position.x, data->cube.position.y, data->cube.position.z);
-        ImGui::Text("Value %d (%d,%d)", data->numericalValue, data->row, data->col);
+        ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y, hoveredTile_->cube.position.z);
+        ImGui::Text("Cell (%d,%d)", row, col);
+        ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
     }
     if (nearesTile_) {
         ImGui::Separator();
@@ -141,7 +142,16 @@ bool World::onUpdate(float deltatme) {
         auto mouse = eventState_->getMousePosition();
         screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
         screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
+
+        if (hoveredTile_) {
+            // TODO Hide decimal number, show braille
+            hoveredTile_->isSelected = false;
+        }
         hoveredTile_ = board_.getTile(tfg::colorToId(screenColor_));
+        if (hoveredTile_) {
+            // TODO Hide brailled, show decimal
+            hoveredTile_->isSelected = true;
+        }
 
         // select a tile that is near the selected one
         if (selectedTile_) {
@@ -159,6 +169,7 @@ bool World::onUpdate(float deltatme) {
 
         // update position for the selected tile
         if (selectedTile_) {
+            selectedTile_->isSelected = false;
             selectedTile_->updatePosition(screentoWorldPos_);
         }
     }

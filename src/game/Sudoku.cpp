@@ -26,12 +26,10 @@ bool Sudoku::repeatedIn3x3(int row, int col, int num) const {
     return false;
 }
 
-bool Sudoku::repeatedInRowOrColumn(int row, int col, int num) const {
-    for (int i = 0; i < 9; ++i) {
-        for (int j = 0; j < 9; ++j) {
-            if (board_[row][j].value == num || board_[i][col].value == num)
-                return true;
-        }
+bool Sudoku::repeatedInRow(int row, int num) const {
+    for (int j = 0; j < 9; ++j) {
+        if (board_[row][j].value == num)
+            return true;
     }
     return false;
 }
@@ -67,6 +65,7 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &boa
             b.isReadOnly = number != 0;
         }
     }
+    updateSolutions();
     board.setupDeck();
 }
 

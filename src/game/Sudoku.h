@@ -17,10 +17,12 @@ public:
                 int number = sudoku[col][row];
                 auto &b = board_[col][row];
                 b.value = number;
+                b.solution = 0;
                 b.tile->numericalValue = number;
                 b.isReadOnly = number != 0;
             }
         }
+        updateSolutions();
     }
 
     void randomSudokuGenerator() {
@@ -31,12 +33,10 @@ public:
         }
     }
 
-    bool findUnsetColRow(int &row, int &col) {
-        for (size_t i = 0; i < board_.size(); ++i) {
-            for (size_t j = 0; j < board_[i].size(); ++j) {
-                if (board_[i][j].value == 0) {
-                    row = i;
-                    col = j;
+    bool findUnsetColRow(int &row, int &col) const {
+        for (row = 0; row < (int) board_.size(); ++row) {
+            for (col = 0; col < (int) board_[row].size(); ++col) {
+                if (board_[row][col].value == 0) {
                     return true;
                 }
             }
@@ -44,61 +44,63 @@ public:
         return false;
     }
 
-//    bool fillRemaining(int i, int j) {
-//        //  System.out.println(i+" "+j);
-//        const int SRN = 9;
-//        const int N = board_.size();
-//        if (j >= N && i < N - 1) {
-//            i = i + 1;
-//            j = 0;
-//        }
-//        if (i >= N && j >= N)
-//            return true;
-//
-//        if (i < SRN) {
-//            if (j < SRN)
-//                j = SRN;
-//        } else if (i < N - SRN) {
-//            if (j == (int) (i / SRN) * SRN)
-//                j = j + SRN;
-//        } else {
-//            if (j == N - SRN) {
-//                i = i + 1;
-//                j = 0;
-//                if (i >= N)
-//                    return true;
-//            }
-//        }
-//
-//        for (int num = 1; num <= N; num++) {
-//            if (isSafe(i, j, num)) {
-//                mat[i][j] = num;
-//                if (fillRemaining(i, j + 1))
-//                    return true;
-//
-//                mat[i][j] = 0;
-//            }
-//        }
-//        return false;
-//    }
+    bool updateSolutions() {
+        int row, col;
+        if (!findUnsetColRow(row, col))
+            return true;
+
+        assert(row >= 0 && row < (int) board_.size());
+        assert(col >= 0 && col < (int) board_[0].size());
+
+        for (int value = 1; value <= 9; value++) {
+            if (isSafe(row, col, value)) {
+                auto &cell = board_[row][col];
+                assert(cell.isReadOnly == 0);
+                assert(cell.solution == 0);
+                cell.value = value;
+                if (updateSolutions()) {
+                    cell.value = 0;
+                    cell.solution = value;
+                    return true;
+                }
+                board_[row][col].value = 0;
+            }
+        }
+        return false;
+    }
 
     [[nodiscard]] bool isDone() const;
 
     [[nodiscard]] bool repeatedIn3x3(int row, int col, int num) const;
 
-    [[nodiscard]] bool repeatedInRowOrColumn(int row, int col, int num) const;
+    [[nodiscard]] bool repeatedInRow(int row, int num) const;
 
-    bool isSafe(int row, int col, int num) {
-        return !repeatedIn3x3(row, col, num) && !repeatedInRowOrColumn(row, col, num);
+    [[nodiscard]] bool repeatedInColumn(int col, int num) const {
+        for (int i = 0; i < 9; ++i) {
+            if (board_[i][col].value == num)
+                return true;
+        }
+        return false;
+    }
+
+
+    [[nodiscard]] int getSolution(int row, int col) const {
+        assert(row >= 0 && row < (int) board_.size());
+        assert(col >= 0 && col < (int) board_[0].size());
+        return board_[row][col].solution;
+    }
+
+    [[nodiscard]]  bool isSafe(int row, int col, int num) const {
+        return !repeatedIn3x3(row, col, num) && !repeatedInRow(row, num) && !repeatedInColumn(col, num);
     }
 
     struct Cell {
         int value{0};
+        int solution{0};
         bool isReadOnly{false};
         Tile *tile{nullptr};
     };
 
 private:
-
     std::vector<std::vector<Cell>> board_;
 };
