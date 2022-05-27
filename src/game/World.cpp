@@ -64,8 +64,8 @@ void World::gameLoop() {
 void World::guiOverlay() const {
     ImGui::Text("World: (%0.2f,%0.2f,%0.2f)", screentoWorldPos_.x, screentoWorldPos_.y, screentoWorldPos_.z);
     ImGui::Text("Color: (%0.2f,%0.2f,%0.2f)", screenColor_.x, screenColor_.y, screenColor_.z);
-    ImGui::Text("Hovered entity: (%d)", hoveredTile_->entityId);
-    ImGui::Text("Selected entity: (%d)", selectedTile_->entityId);
+    ImGui::Text("Hovered entity: (%d)", hoveredTile_ ? hoveredTile_->entityId : -1);
+    ImGui::Text("Selected entity: (%d)", selectedTile_ ? selectedTile_->entityId : -1);
 }
 
 void World::guiWindow() {
@@ -136,6 +136,33 @@ bool World::onUpdate(float deltatme) {
         camera_.yaw_ = 270.0f;
     }
 
+    // update status
+    if (eventState_->isMouseMoved() && eventState_->isMouseInWindow()) {
+        auto mouse = eventState_->getMousePosition();
+        screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
+        screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
+        hoveredTile_ = board_.getTile(tfg::colorToId(screenColor_));
+
+        // select a tile that is near the selected one
+        if (selectedTile_) {
+            auto nearesTile = board_.nearestTile(screentoWorldPos_, [this](Tile const &tile) {
+                return tile.entityId != selectedTile_->entityId && !tile.isDeck;
+            });
+            if (nearesTile != nearesTile_) {
+                if (nearesTile)
+                    nearesTile->isSelected = true;
+                if (nearesTile_)
+                    nearesTile_->isSelected = false;
+                nearesTile_ = nearesTile;
+            }
+        }
+
+        // update position for the selected tile
+        if (selectedTile_) {
+            selectedTile_->updatePosition(screentoWorldPos_);
+        }
+    }
+
     // select a deck tile
     bool hoveredDeckTile = hoveredTile_ && hoveredTile_->isDeck;
     if (eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && !selectedTile_ && hoveredDeckTile) {
@@ -159,32 +186,6 @@ bool World::onUpdate(float deltatme) {
         if (nearesTile_) nearesTile_->isSelected = false;
         selectedTile_ = nullptr;
         hoveredTile_ = nullptr;
-    }
-
-    // update status
-    if (eventState_->isMouseMoved() && eventState_->isMouseInWindow()) {
-        auto mouse = eventState_->getMousePosition();
-        screentoWorldPos_ = tfg::screenToWorld(mouse.x, mouse.y);
-        screenColor_ = tfg::screenToColor(mouse.x, mouse.y);
-        hoveredTile_ = board_.getTile(tfg::colorToId(screenColor_));
-
-        // select a tile that is near the selected one
-        if (selectedTile_) {
-            auto nearesTile = board_.nearestTile(screentoWorldPos_, selectedTile_->entityId);
-            if (nearesTile != nearesTile_) {
-                if (nearesTile)
-                    nearesTile->isSelected = true;
-                if (nearesTile_)
-                    nearesTile_->isSelected = false;
-                nearesTile_ = nearesTile;
-            }
-        }
-
-        // update position for the selected tile
-        if (selectedTile_) {
-            selectedTile_->updatePosition(screentoWorldPos_);
-            return !Injector::isFreeCamera;
-        }
     }
     return false;
 }

@@ -183,7 +183,7 @@ public:
         plane_.log();
     }
 
-    Tile *nearestTile(glm::vec3 pos, int selectedEntity = -1) {
+    Tile *nearestTile(glm::vec3 pos, std::function<bool(Tile const &)> const &predicate) {
         Tile *nearest = nullptr;
         float best = INFINITY;
         for (auto &i: tileData_) {
@@ -193,7 +193,7 @@ public:
 //                      glm::distance(i.cube.position, pos));
 
             auto &tile = i.second;
-            if (tile.entityId == selectedEntity) continue;
+            if (!predicate(tile)) continue;
 
             auto d = glm::distance(tile.cube.position, pos);
 
