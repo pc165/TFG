@@ -1,5 +1,5 @@
-#ifndef TFG_OBJECT_HPP
-#define TFG_OBJECT_HPP
+#ifndef TFG_OBJECT_H
+#define TFG_OBJECT_H
 
 #include "Utils.h"
 #include "Shader.h"
@@ -89,4 +89,4 @@ protected:
     GLuint vertexArrayId_{0};
 };
 
-#endif //TFG_OBJECT_HPP
+#endif //TFG_OBJECT_H

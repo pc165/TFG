@@ -9,6 +9,7 @@ struct Tile : tfg::Entity {
     int numericalValue{0};
     int row = -1, col = -1;
     bool isSelected{false};
+    bool isDeck{false};
     tfg::Transform cube{};
     std::vector<tfg::Transform> sphere{6};
 
@@ -21,8 +22,14 @@ struct Tile : tfg::Entity {
         LOG_DEBUG("\n{}\nCube\n{}\n{}\n", this->to_string(), cube.to_string(), "");
     }
 
+    void moveBack(float offset) {
+        glm::vec3 pos{row * offset, col * offset, cube.position.z};
+        updatePosition(pos);
+    }
 
-    void updatePosition(glm::vec3 const &pos) {
+
+    void updatePosition(glm::vec3 pos) {
+        pos.z = cube.position.z;
         cube.position = pos;
 
         // sphere position offsets
@@ -86,7 +93,7 @@ public:
         tile.numericalValue = numericalValue;
         tile.entityId = tfg::getEntityId();
         tile.colorPick = tfg::genPickColor(tile.entityId);
-
+        tile.isDeck = false;
         // Setup cube
         tile.cube.scale = {1, 1, 0.375};
         tile.cube.color = {1, 0, 0};
@@ -99,7 +106,7 @@ public:
         }
 
         tile.log();
-        tileData_.emplace_back(tile);
+        tileData_[tile.entityId] = tile;
         return tileData_[tileData_.size() - 1];
     }
 
@@ -107,7 +114,8 @@ public:
 
         planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color);
 
-        for (auto &tile: tileData_) {
+        for (auto &p: tileData_) {
+            Tile &tile = p.second;
             glm::vec3 cubeColor;
             if (isPicking)
                 cubeColor = tile.colorPick;
@@ -127,21 +135,12 @@ public:
     }
 
     Tile *getTile(int entityId) {
-        for (auto &i: tileData_) {
-            if (i.entityId == entityId)
-                return &i;
-        }
+        auto it = tileData_.find(entityId);
+        if (it != tileData_.end())
+            return &it->second;
+
         return nullptr;
     }
-
-    void moveTile(int entityiD, glm::vec3 pos) {
-        auto a = getTile(entityiD);
-        if (!a) return;
-        pos.z = a->cube.position.z;
-        if (isInBoard(pos))
-            a->updatePosition(pos);
-    }
-
 
     [[nodiscard]] bool isInBoard(glm::vec3 const &position) const {
         if (!plane_.containsPoint(position)) return false;
@@ -150,7 +149,7 @@ public:
     }
 
 
-    void setupBoard() {
+    void setupDeck() {
         // center the plane
         auto planeCenter = tileData_[(tileData_.size() - 1) / 2].cube.position;
         planeCenter.z -= tileData_[0].cube.scale.z;
@@ -167,13 +166,17 @@ public:
 
         // sanity check
         for (auto &t: tileData_) {
-            assert(plane_.containsPoint(t.cube.position));
+            assert(plane_.containsPoint(t.second.cube.position));
         }
 
-        // setup drawer
+        // setup deck
         for (int i = 0; i < 10; ++i) {
             glm::vec3 pos{i * offset_, -9 * offset_, 0};
-            addTile(pos, i).cube.color = {0, 0, 1};
+            auto &tile = addTile(pos, i);
+            tile.row = i;
+            tile.col = -9;
+            tile.cube.color = {0, 0, 1};
+            tile.isDeck = true;
         }
 
         LOG_INFO("{}", planeTransform.to_string().c_str());
@@ -189,13 +192,14 @@ public:
 //                      glm::to_string(i.cube.position).c_str(),
 //                      glm::distance(i.cube.position, pos));
 
-            if (i.entityId == selectedEntity) continue;
+            auto &tile = i.second;
+            if (tile.entityId == selectedEntity) continue;
 
-            auto d = glm::distance(i.cube.position, pos);
+            auto d = glm::distance(tile.cube.position, pos);
 
-            if (d < 2.0f && d < best) {
+            if (d < 4.0f && d < best) {
                 best = d;
-                nearest = &i;
+                nearest = &tile;
             }
         }
         return nearest;
@@ -205,10 +209,10 @@ public:
         return plane_;
     }
 
-    const float offset_{4.0f};
+    const float offset_{3.0f};
 private:
     std::vector<std::vector<size_t>> number2Braille_;
-    std::vector<Tile> tileData_;
+    std::unordered_map<int, Tile> tileData_;
     tfg::Transform planeTransform{};
     tfg::Plane plane_;
 

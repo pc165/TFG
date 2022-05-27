@@ -1,23 +1,17 @@
 #include "Sudoku.h"
 
-bool Sudoku::removeNumber(int i, int j) {
-    if (board_[i][j].isReadOnly)
+bool Sudoku::setNumber(int row, int col, int num) {
+    assert(col >= 0 && col < (int) board_.size());
+    assert(row >= 0 && row < (int) board_[0].size());
+
+    if (board_[row][col].isReadOnly)
         return false;
 
-    board_[i][j].value = 0;
-    return true;
-}
-
-
-bool Sudoku::setNumber(int i, int j, int num) {
-    if (board_[i][j].isReadOnly)
+    if (num != 0 && !isSafe(row, col, num))
         return false;
 
-    if (repeatedInRowOrColumn(i, j, num) || repeatedIn3x3(i, j, num))
-        return false;
-
-    board_[i][j].value = num;
-    board_[i][j].tile->numericalValue = num;
+    board_[row][col].value = num;
+    board_[row][col].tile->numericalValue = num;
     return true;
 }
 
@@ -25,7 +19,7 @@ bool Sudoku::setNumber(int i, int j, int num) {
 bool Sudoku::repeatedIn3x3(int row, int col, int num) const {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            if (board_[i + col - col % 3][j + row - row % 3].value == num)
+            if (board_[i + row - row % 3][j + col - col % 3].value == num)
                 return true;
         }
     }
@@ -35,7 +29,7 @@ bool Sudoku::repeatedIn3x3(int row, int col, int num) const {
 bool Sudoku::repeatedInRowOrColumn(int row, int col, int num) const {
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            if (board_[col][i].value == num || board_[j][row].value == num)
+            if (board_[row][j].value == num || board_[i][col].value == num)
                 return true;
         }
     }
@@ -53,25 +47,27 @@ bool Sudoku::isDone() const {
 }
 
 
-void Sudoku::setupSudoku(std::vector<std::vector<int>> &sudoku, Board &board) {
+void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &board) {
     board_.resize(9);
     for (auto &i: board_) {
         i.resize(9);
     }
 
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            int number = sudoku[i][j];
-            auto &b = board_[i][j];
-            glm::vec3 pos{j * board.offset_, -i * board.offset_, 0};
+    for (int row = 0; row < 9; row++) {
+        for (int col = 0; col < 9; col++) {
+            int number = sudoku[row][col];
+            auto &b = board_[row][col];
+
+            glm::vec3 pos{row * board.offset_, -col * board.offset_, 0};
             b.tile = &board.addTile(pos, number);
-            b.tile->col = i;
-            b.tile->row = j;
+
+            b.tile->row = row;
+            b.tile->col = col;
             b.value = number;
             b.isReadOnly = number != 0;
         }
     }
-    board.setupBoard();
+    board.setupDeck();
 }
 
 Sudoku::Sudoku() {

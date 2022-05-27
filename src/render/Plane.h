@@ -1,7 +1,7 @@
 #ifndef TFG_PLANE_H
 #define TFG_PLANE_H
 
-#include "Object.hpp"
+#include "Object.h"
 
 class Plane : public Object {
 public:

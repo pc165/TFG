@@ -166,7 +166,7 @@ void tfg::ConfigureEvents() {
         if (io.WantCaptureMouse && !Injector::isFreeCamera)
             return;
 
-        Injector::eventState->mouseHandler(button, action);
+        Injector::eventState->mouseHandler(button, action, mods);
     });
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
@@ -183,6 +183,10 @@ void tfg::ConfigureEvents() {
             return;
 
         Injector::eventState->mouseMoveHandler(xPos, yPos);
+    });
+
+    glfwSetCursorEnterCallback(window, [](GLFWwindow *window, int entered) {
+        Injector::eventState->mouseEnterHandler(entered);
     });
 }
 
@@ -224,10 +228,6 @@ glm::vec3 tfg::screenToColor(int x, int y) {
         win.y = viewport[3] / 2.0;
     }
 
-    if (win.x < viewport[0] || win.x > viewport[2] ||
-        win.y < viewport[1] || win.y > viewport[3]) {
-        return glm::vec3{Injector::clearColor};
-    }
 
     glm::vec3 color;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -261,6 +261,8 @@ glm::vec3 tfg::genPickColor(int n) {
 }
 
 void tfg::setFreeCamera(bool isEnabled) {
+    if (glfwRawMouseMotionSupported())
+        glfwSetInputMode(Injector::window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSetInputMode(Injector::window, GLFW_CURSOR, isEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     Injector::camera->setFreeCamera(isEnabled);
     Injector::isFreeCamera = isEnabled;

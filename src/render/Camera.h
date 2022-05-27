@@ -40,7 +40,7 @@ public:
         return glm::ortho(0.0f, width_, height_, 0.0f, -1.0f, 1.0f);
     }
 
-    void onUpdate(double deltaTime) {
+    bool onUpdate(double deltaTime) {
         float velocity = movementSpeed_ * deltaTime;
         if (eventState_->keyDown(GLFW_KEY_W))
             position_ += center_ * velocity;
@@ -99,7 +99,9 @@ public:
             lastMousePos_ = mouse;
 
             updateCameraVectors();
+            return true;
         }
+        return false;
     }
 
     void setFreeCamera(bool enabled) {

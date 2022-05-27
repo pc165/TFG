@@ -1,7 +1,7 @@
 #ifndef TFG_CROSSHAIR_H
 #define TFG_CROSSHAIR_H
 
-#include "render/Object.hpp"
+#include "render/Object.h"
 
 class Crosshair : public Object {
 public:

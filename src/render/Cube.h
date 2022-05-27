@@ -1,7 +1,7 @@
 #ifndef TFG_CUBE_H
 #define TFG_CUBE_H
 
-#include "Object.hpp"
+#include "Object.h"
 
 class Cube : public Object {
 public:

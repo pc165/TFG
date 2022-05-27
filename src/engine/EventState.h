@@ -10,7 +10,7 @@
 
 class EventState {
 public:
-    typedef std::function<void  (float)> CallBackType;
+    typedef std::function<void(float)> CallBackType;
 
     EventState() : stateKeys_(KEYBOARD_SIZE, 0),
                    activeKeys_(KEYBOARD_SIZE, 0),
@@ -29,13 +29,17 @@ public:
         windowPositionChanged_ = false;
     }
 
-    void mouseHandler(int button, int action) {
+    void mouseHandler(int button, int action, int mods) {
         if (action == GLFW_PRESS) {
             activeMouseKeys_[button] = true;
         } else if (action == GLFW_RELEASE) {
             activeMouseKeys_[button] = false;
         }
         stateMouseKeys_[button] = action;
+    }
+
+    void mouseEnterHandler(int entered) {
+        isMouseInWindow_ = entered;
     }
 
     void mouseMoveHandler(float x, float y) {
@@ -123,6 +127,10 @@ public:
         return windowPositionChanged_;
     }
 
+    [[nodiscard]] bool isMouseInWindow() const {
+        return isMouseInWindow_;
+    }
+
     void setCallback(CallBackType const &callback) {
         callback_ = callback;
     }
@@ -142,6 +150,7 @@ private:
     bool mouseScrolled_{false};
     bool windowSizeChanged_{false};
     bool windowPositionChanged_{false};
+    bool isMouseInWindow_{false};
     CallBackType callback_{};
 };
 
