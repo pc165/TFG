@@ -12,10 +12,10 @@ World::World() {
             {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
             {5, 1, 3, 4, 8, 2, 9, 6, 7},
             {7, 2, 6, 1, 3, 9, 5, 4, 8},
-            {6, 3, 1, 9, 4, 7, 8, 5, 2},
+            {6, 3, 1, 9, 4, 7, 8, 0, 2},
             {4, 9, 5, 2, 6, 8, 3, 7, 1},
             {8, 7, 2, 3, 5, 1, 6, 9, 4},
-            {2, 5, 7, 6, 1, 3, 4, 8, 9},
+            {2, 5, 0, 6, 1, 3, 4, 8, 9},
             {3, 6, 8, 7, 9, 4, 1, 2, 5},
             {1, 4, 9, 8, 2, 5, 7, 3, 6},
     };
@@ -151,7 +151,6 @@ bool World::onUpdate(float deltatme) {
         }
 
         if (selectedTile_) {
-
             // skip the selected tile and the deck
             auto nearesTile = board_.nearestTile(screentoWorldPos_, [this](tfg::Tile const &tile) {
                 return tile.entityId != selectedTile_->entityId && !tile.isDeck;
@@ -183,12 +182,12 @@ bool World::onUpdate(float deltatme) {
 
     // show hints on left click
     if (eventState_->mouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && hoveredTile_ && !hoveredTile_->isDeck) {
-        int row = hoveredTile_->row, col = hoveredTile_->col;
-        auto solution = sudoku_.getSolution(row, col);
+        auto &tile = hoveredTile_;
 
         // if there's a solution update hints
-        if (solution) {
-            auto &tile = hoveredTile_;
+        if (tile->isHintsEnabled) {
+            int row = hoveredTile_->row, col = hoveredTile_->col;
+            auto solution = sudoku_.getSolution(row, col);
             tile->numericalValue = solution;
             tile->hints++;
             tile->hints %= NUMBER_TO_BRAILLE[solution].size();
@@ -200,11 +199,14 @@ bool World::onUpdate(float deltatme) {
     if (!eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && selectedTile_) {
 
         // set the sudoku value
-        if (nearesTile_ && !nearesTile_->isDeck) {
+        if (!nearesTile_->isDeck && !sudoku_.isReadOnly(nearesTile_->row, nearesTile_->col)) {
             assert(selectedTile_->isDeck);
             bool result = sudoku_.setNumber(nearesTile_->row, nearesTile_->col, selectedTile_->numericalValue);
-            selectedTile_->hints = 0;
-            LOG_INFO("Set number {}", result);
+            if (result) {
+                nearesTile_->isHintsEnabled = selectedTile_->numericalValue == 0;
+                nearesTile_->hints = 0;
+            }
+            LOG_INFO("Set number {} {}", selectedTile_->numericalValue, result);
         }
 
         // reset position

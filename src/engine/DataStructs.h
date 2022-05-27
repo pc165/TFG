@@ -126,6 +126,7 @@ namespace tfg {
         int numericalValue{0};
         int row = -1, col = -1;
         int hints{0};
+        bool isHintsEnabled{false};
         bool isSelected{false};
         bool isDeck{false};
         tfg::Transform cube{};

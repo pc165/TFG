@@ -21,8 +21,9 @@ public:
                 auto &b = board_[row][col];
                 b.value = number;
                 b.solution = 0;
-                b.tile->numericalValue = number;
                 b.isReadOnly = number != 0;
+                b.tile->numericalValue = number;
+                b.tile->isHintsEnabled = true;
             }
         }
         updateSolutions();
@@ -92,6 +93,13 @@ public:
         assert(col >= 0 && col < (int) board_[0].size());
         return board_[row][col].solution;
     }
+
+    [[nodiscard]] int isReadOnly(int row, int col) const {
+        assert(row >= 0 && row < (int) board_.size());
+        assert(col >= 0 && col < (int) board_[0].size());
+        return board_[row][col].isReadOnly;
+    }
+
 
     [[nodiscard]]  bool isSafe(int row, int col, int num) const {
         return !repeatedIn3x3(row, col, num) && !repeatedInRow(row, num) && !repeatedInColumn(col, num);

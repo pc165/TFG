@@ -8,7 +8,7 @@ bool Sudoku::setNumber(int row, int col, int num) {
     if (board_[row][col].isReadOnly)
         return false;
 
-    if (num != 0 && !isSafe(row, col, num))
+    if (!isSafe(row, col, num))
         return false;
 
     board_[row][col].value = num;
@@ -66,8 +66,10 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &boa
             b.tile = tile;
             b.tile->row = row;
             b.tile->col = col;
+            b.tile->col = col;
             b.value = number;
             b.tile->cube.color = number == 0 ? CUBE_COLOR_DEFAULT : b.tile->cube.color;
+            b.tile->isHintsEnabled = number == 0;
             b.isReadOnly = number != 0;
         }
     }
