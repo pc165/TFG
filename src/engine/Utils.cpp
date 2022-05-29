@@ -2,6 +2,7 @@
 #include "glbinding/glbinding.h"
 #include <glbinding-aux/debug.h>
 #include <iostream>
+#include <csignal>
 
 GLFWwindow *tfg::Injector::window = nullptr;
 glm::vec3 tfg::Injector::clearColor{0};
@@ -101,7 +102,7 @@ void tfg::errorOccurredGL(GLenum source,
         return;
     LOG_ERROR("{} : {} of {} severity, raised from {}: {}",
               id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
-    //raise(SIGTRAP);
+    raise(SIGTRAP);
     exit(1);
 }
 

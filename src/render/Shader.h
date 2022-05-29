@@ -9,14 +9,8 @@
 #include "Logger.h"
 #include "OpenGL.h"
 
-enum ShaderType {
-    Vertex, Fragment
-};
-
 class Shader {
 private:
-    std::string vertexCode{};
-    std::string fragmentCode{};
     GLuint programId{};
 public:
     Shader() = default;
@@ -77,9 +71,33 @@ public:
     }
 
 private:
-    static int parseCode(const char *shaderPath, std::string &outCode, const ShaderType &shaderType);
+    static int parseCode(const char *shaderPath, std::string &outCode, std::string const &token);
 
-    static GLuint compileSource(const std::string &vertexCode, const std::string &fragmentCode);
+    static GLuint compileShader(std::string const &code, GLenum type) {
+        if (code.empty())
+            return 0;
+
+        GLboolean result = GL_FALSE;
+        int length;
+        GLuint id = glCreateShader(type);
+
+        // Compile Vertex Shader
+        char const *vertexCodePtr = code.c_str();
+        glShaderSource(id, 1, &vertexCodePtr, nullptr);
+        glCompileShader(id);
+
+        // Check Vertex Shader
+        glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+
+        if (length > 0) {
+            std::vector<char> msg(length + 1);
+            glGetShaderInfoLog(id, length, nullptr, &msg[0]);
+            LOG_ERROR("{}", &msg[0]);
+        }
+
+        return id;
+    };
 };
 
 
