@@ -27,6 +27,12 @@ public:
 
     void loadSource(const char *path);
 
+
+    void setBoolean(const char *name, int ptrData) const {
+        auto location = glGetUniformLocation(programId, name);
+        glUniform1i(location, ptrData);
+    }
+
     void setMat4(const char *name, const float *ptrData) const {
         auto location = glGetUniformLocation(programId, name);
         glUniformMatrix4fv(location, 1, GL_FALSE, ptrData);

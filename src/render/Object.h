@@ -65,7 +65,7 @@ public:
         glBindVertexArray(vertexArrayId_);
     }
 
-    virtual void draw(tfg::Transform const &data, glm::vec3 const &color) const {
+    virtual void draw(tfg::Transform const &data, glm::vec3 const &color, bool isPicking) const {
         bind();
         basicShader.bind();
 
@@ -73,10 +73,17 @@ public:
         auto rotated = glm::rotate(translated, glm::radians(data.rotationDegress), data.rotationAxis);
         auto transform = glm::scale(rotated, data.scale);
 
-        basicShader.setMat4("model", glm::value_ptr(transform));
-        basicShader.setMat4("view", glm::value_ptr(Injector::camera->getViewMatrix()));
-        basicShader.setMat4("projection", glm::value_ptr(Injector::camera->getProjectionMatrix()));
-        basicShader.setVec3("colorIn", glm::value_ptr(color));
+        // vertex uniform
+        basicShader.setMat4("uModel", glm::value_ptr(transform));
+        basicShader.setMat4("uView", glm::value_ptr(Injector::camera->getViewMatrix()));
+        basicShader.setMat4("uProjection", glm::value_ptr(Injector::camera->getProjectionMatrix()));
+
+        // fragment uniform
+        basicShader.setVec3("uColor", glm::value_ptr(color));
+        basicShader.setVec3("uViewPos", glm::value_ptr(Injector::camera->position_));
+        basicShader.setVec3("uLightPos", glm::value_ptr(Injector::camera->position_));
+        basicShader.setInt("uIsPicking", isPicking);
+
         glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
     }
 

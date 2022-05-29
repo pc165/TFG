@@ -68,7 +68,7 @@ public:
 
     void drawBoard(bool isPicking = false) {
 
-        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color);
+        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color, isPicking);
 
         for (auto &p: tileData_) {
             Tile &tile = p.second;
@@ -79,7 +79,7 @@ public:
                 cubeColor = CUBE_COLOR_SELECTED;
             else
                 cubeColor = tile.cube.color;
-            cubeRender_.draw(tile.cube, cubeColor);
+            cubeRender_.draw(tile.cube, cubeColor, isPicking);
 
             // skip rendering spheres
             if (isPicking)
@@ -92,7 +92,7 @@ public:
                     break;
 
                 int sphereIdx = spherePositions[i];
-                sphereRender_.draw(tile.sphere[sphereIdx], tile.sphere[sphereIdx].color);
+                sphereRender_.draw(tile.sphere[sphereIdx], tile.sphere[sphereIdx].color, isPicking);
             }
         }
     }
