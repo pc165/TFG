@@ -9,6 +9,7 @@ public:
     explicit Sphere(float radius = 1.0f, int sectorCount = 36, int stackCount = 18) : Object() {
         std::vector<float> position;
         std::vector<float> normals;
+        std::vector<float> texCoords;
         std::vector<unsigned int> index;
 
         float x, y, z, xy;                              // vertex position
@@ -45,6 +46,11 @@ public:
                 normals.push_back(ny);
                 normals.push_back(nz);
 
+                // vertex tex coord (s, t) range between [0, 1]
+                s = (float) j / sectorCount;
+                t = (float) i / stackCount;
+                texCoords.push_back(s);
+                texCoords.push_back(t);
 
                 // 2 triangles per sector excluding first and last stacks
                 // k1 => k2 => k1+1
@@ -64,7 +70,7 @@ public:
             }
         }
 
-        setupVao(position, normals, index);
+        setupVao(position, normals, texCoords, index);
     }
 };
 

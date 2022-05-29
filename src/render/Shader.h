@@ -8,6 +8,7 @@
 #include <sstream>
 #include "Logger.h"
 #include "OpenGL.h"
+#include "DataStructs.h"
 
 class Shader {
 private:
@@ -60,6 +61,26 @@ public:
     void setInt(const char *name, int ptrData) const {
         auto location = glGetUniformLocation(programId, name);
         glUniform1i(location, ptrData);
+    }
+
+    void setLight(tfg::Light const &light) const {
+        setVec3("uLight.position", glm::value_ptr(light.position));
+        setVec3("uLight.direction", glm::value_ptr(light.direction));
+        setFloat("uLight.cutOff", light.cutOff);
+        setFloat("uLight.outerCutOff", light.outerCutOff);
+
+        setVec3("uLight.ambient", glm::value_ptr(light.ambient));
+        setVec3("uLight.diffuse", glm::value_ptr(light.diffuse));
+        setVec3("uLight.specular", glm::value_ptr(light.specular));
+        setFloat("uLight.constant", light.constant);
+        setFloat("uLight.linear", light.linear);
+        setFloat("uLight.quadratic", light.quadratic);
+    }
+
+    void setMaterial(tfg::Material const &material) const {
+        setFloat("uMaterial.shininess", material.shininess);
+        setInt("uMaterial.diffuse", material.diffuse);
+        setInt("uMaterial.specular", material.specular);
     }
 
     void bind() const {

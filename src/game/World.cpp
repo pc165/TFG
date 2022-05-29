@@ -7,7 +7,6 @@ World::World() {
     assert(Injector::window != nullptr);
 //        tfg::setFreeCamera(true);
 
-    GlobalOptions.ligthPosition = camera_.position_;
     sudokuValues_ = {
             {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
             {5, 1, 3, 4, 8, 2, 9, 6, 7},
@@ -26,6 +25,16 @@ World::World() {
         camera_.onUpdate(frameTime);
     });
 
+    GlobalOptions.light.position = camera_.position_;
+    GlobalOptions.light.direction = camera_.center_;
+    GlobalOptions.light.cutOff = glm::cos(glm::radians(cutoffDegress));
+    GlobalOptions.light.outerCutOff = glm::cos(glm::radians(outcutoffDegress));
+    GlobalOptions.light.ambient = {0.5f, 0.5f, 0.5f};
+    GlobalOptions.light.diffuse = {0.8f, 0.8f, 0.8f};
+    GlobalOptions.light.specular = {1.0f, 1.0f, 1.0f};
+    GlobalOptions.light.constant = 1.0f;
+    GlobalOptions.light.linear = 0.01f;
+    GlobalOptions.light.quadratic = 0.0f;
 }
 
 void World::gameLoop() {
@@ -99,12 +108,33 @@ void World::guiWindow() {
     ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
     ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
     camera_.updateCameraVectors();
+
+    ImGui::Text("Draw Normals");
+    ImGui::Checkbox("Cube normals", &GlobalOptions.drawCubeNormals);
+    ImGui::Checkbox("Sphere normals", &GlobalOptions.drawSphereNormals);
+    ImGui::Checkbox("Plane normals", &GlobalOptions.drawPlaneNormals);
+
+    ImGui::Text("Light");
+    ImGui::SliderFloat3("Position", &GlobalOptions.light.position.x, 0, 40);
+    ImGui::SliderFloat3("Ambient", &GlobalOptions.light.ambient.x, 0, 1);
+    ImGui::SliderFloat3("Direction", &GlobalOptions.light.direction.x, -1, 1);
+    ImGui::SliderFloat3("Specular", &GlobalOptions.light.specular.x, 0, 1);
+    ImGui::SliderFloat3("Diffuse", &GlobalOptions.light.diffuse.x, 0, 1);
+
+    ImGui::SliderFloat("Cutoff", &cutoffDegress, 0, 90);
+    ImGui::SliderFloat("OuterCutoff", &outcutoffDegress, 0, 90);
+    GlobalOptions.light.cutOff = glm::cos(glm::radians(cutoffDegress));
+    GlobalOptions.light.outerCutOff = glm::cos(glm::radians(outcutoffDegress));
+
+    ImGui::SliderFloat("Constant", &GlobalOptions.light.constant, 0, 0.1);
+    ImGui::SliderFloat("Liniear", &GlobalOptions.light.linear, 0, 0.1);
+    ImGui::SliderFloat("Quadratic", &GlobalOptions.light.quadratic, 0, 0.1);
+
     ImGui::Checkbox("Lock light to camera", &lockLightPosition);
     if (lockLightPosition) {
-        GlobalOptions.ligthPosition = GlobalOptions.camera->position_;
+        GlobalOptions.light.position = camera_.position_;
+        GlobalOptions.light.direction = camera_.center_;
     }
-    ImGui::SliderFloat3("Light Position", &GlobalOptions.ligthPosition.x, -40, 40);
-
 
     if (hoveredTile_) {
         auto row = hoveredTile_->row, col = hoveredTile_->col;

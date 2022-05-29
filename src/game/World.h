@@ -12,7 +12,7 @@ class World {
 public:
     explicit World();
 
-    void gameLoop();;
+    void gameLoop();
 
     void guiOverlay() const;
 
@@ -39,10 +39,13 @@ private:
     EventState *eventState_{Injector::eventState};
 
 
-    bool lockLightPosition{false};
     std::vector<std::vector<int>> sudokuValues_{};
 
     float frametime_{0};
+
+    bool lockLightPosition{true};
+    float cutoffDegress{12.0f};
+    float outcutoffDegress{90.0f};
     tfg::Tile *hoveredTile_{nullptr};
     tfg::Tile *selectedTile_{nullptr};
     tfg::Tile *nearesTile_{nullptr};

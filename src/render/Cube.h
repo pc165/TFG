@@ -34,12 +34,27 @@ public:
                 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,   // v4-v7-v6 (back)
                 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0}; // v6-v5-v4
 
+        std::vector<float> textures = {
+                1.0, 1.0, 1.0, 0.0, 0.0, 0.0,      // v0-v1-v2 (front)
+                0.0, 0.0, 0.0, 1.0, 1.0, 1.0,      // v2-v3-v0
+                1.0, 1.0, 0.0, 1.0, 0.0, 0.0,      // v0-v3-v4 (right)
+                0.0, 0.0, 1.0, 0.0, 1.0, 1.0,      // v4-v5-v0
+                0.0, 1.0, 0.0, 0.0, 1.0, 0.0,      // v0-v5-v6 (top)
+                1.0, 0.0, 1.0, 1.0, 0.0, 1.0,      // v6-v1-v0
+                0.0, 1.0, 0.0, 0.0, 1.0, 0.0,      // v1-v6-v7 (left)
+                1.0, 0.0, 1.0, 1.0, 0.0, 1.0,      // v7-v2-v1
+                0.0, 0.0, 1.0, 0.0, 1.0, 1.0,      // v7-v4-v3 (bottom)
+                1.0, 1.0, 0.0, 1.0, 0.0, 0.0,      // v3-v2-v7
+                0.0, 0.0, 1.0, 0.0, 1.0, 1.0,      // v4-v7-v6 (back)
+                1.0, 1.0, 0.0, 1.0, 0.0, 0.0};    // v6-v5-v4
+
         std::vector<unsigned int> index{};
 
-        for (int i = 0; i < (int)position.size(); ++i) {
+        for (int i = 0; i < (int) position.size(); ++i) {
             index.push_back(i);
         }
-        setupVao(position, normals, index);
+
+        setupVao(position, normals, textures, index);
     }
 };
 

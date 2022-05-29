@@ -19,11 +19,13 @@
 namespace tfg {
     struct Globals {
         glm::vec3 clearColor{0};
-        glm::vec3 ligthPosition{0};
         Camera *camera{nullptr};
         bool isFreeCamera{false};
         bool shouldClose{false};
-        bool drawNormals{false};
+        bool drawCubeNormals{false};
+        bool drawSphereNormals{false};
+        bool drawPlaneNormals{false};
+        Light light;
     };
 
     class Injector {
@@ -58,6 +60,8 @@ namespace tfg {
     glm::vec3 genPickColor(int n);
 
     void setFreeCamera(bool isEnabled);
+
+    unsigned int colorToTexture(glm::vec3 color, const int size);
 
     void glfw_error_callback(int error, const char *description);
 

@@ -16,6 +16,7 @@ public:
     float fov_{45};
     float width_{0}, height_{1};
     float zNear_{0.001f}, zFar_{100.0f};
+    tfg::Plane plane_;
 
     explicit Camera(EventState *eventState, glm::vec3 position = glm::vec3(0, 0, 0),
                     glm::vec3 up = glm::vec3(0, 1, 0),
@@ -129,7 +130,6 @@ private:
     EventState *eventState_{nullptr};
     glm::vec2 lastMousePos_{0};
     bool isFreeCamera_{false};
-    tfg::Plane plane_;
 };
 
 #endif //TFG_CAMERA_H

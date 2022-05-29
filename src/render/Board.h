@@ -39,7 +39,9 @@ public:
     using Tile = tfg::Tile;
 
     Board() : cubeRender_(), planeRender_(), sphereRender_() {
-
+        cubeRender_.setDiffuseMap(CUBE_COLOR_DEFAULT);
+        planeRender_.setDiffuseMap(PLANE_COLOR);
+        sphereRender_.setDiffuseMap(SPHERE_COLOR);
     }
 
     int addTile(glm::vec3 const &pos, int numericalValue) {
@@ -68,7 +70,7 @@ public:
 
     void drawBoard(bool isPicking = false) {
 
-        planeRender_.draw(planeTransform, isPicking ? GlobalOptions.clearColor : planeTransform.color, isPicking, true);
+        planeRender_.draw(planeTransform, isPicking ? GlobalOptions.clearColor : planeTransform.color, isPicking, GlobalOptions.drawPlaneNormals);
 
         for (auto &p: tileData_) {
             Tile &tile = p.second;
@@ -79,7 +81,7 @@ public:
                 cubeColor = CUBE_COLOR_SELECTED;
             else
                 cubeColor = tile.cube.color;
-            cubeRender_.draw(tile.cube, cubeColor, isPicking, true);
+            cubeRender_.draw(tile.cube, cubeColor, isPicking, GlobalOptions.drawCubeNormals);
 
             // skip rendering spheres
             if (isPicking)
@@ -92,7 +94,7 @@ public:
                     break;
 
                 int sphereIdx = spherePositions[i];
-                sphereRender_.draw(tile.sphere[sphereIdx], tile.sphere[sphereIdx].color, isPicking);
+                sphereRender_.draw(tile.sphere[sphereIdx], tile.sphere[sphereIdx].color, isPicking, GlobalOptions.drawSphereNormals);
             }
         }
     }

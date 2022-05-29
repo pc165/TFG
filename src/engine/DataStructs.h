@@ -167,5 +167,25 @@ namespace tfg {
             sphere[5].position = glm::vec3{xOffset, -yOffset, zOffset} + pos;
         }
     };
+
+    struct Light {
+        glm::vec3 position{};
+        glm::vec3 direction{};
+        float cutOff{};
+        float outerCutOff{};
+        glm::vec3 ambient{};
+        glm::vec3 diffuse{};
+        glm::vec3 specular{};
+        float constant{};
+        float linear{};
+        float quadratic{};
+    };
+
+    struct Material {
+        int diffuse{1};
+        int specular{1};
+        float shininess{32.0f};
+    };
+
 }
 #endif //TFG_DATASTRUCTS_H

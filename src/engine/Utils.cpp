@@ -295,3 +295,31 @@ void tfg::setClearColor(glm::vec4 const &color) {
     assert(c == color);
     GlobalOptions.clearColor = color;
 }
+
+unsigned int tfg::colorToTexture(glm::vec3 color, const int size) {
+    // Create id for texture
+    unsigned int tex;
+    // generate and bind texture
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    // set texture wrap parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filter parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // set image data
+    auto *data = new unsigned char[3 * size * size * sizeof(unsigned char)];
+    for (unsigned int i = 0; i < size * size; i++) {
+        data[i * 3] = (unsigned char) (color.x * 255.0f);
+        data[i * 3 + 1] = (unsigned char) (color.y * 255.0f);
+        data[i * 3 + 2] = (unsigned char) (color.z * 255.0f);
+    }
+
+    // set texture data and generate mipmaps
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // free image memory
+    delete[] data;
+    return tex;
+}

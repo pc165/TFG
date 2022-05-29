@@ -26,7 +26,7 @@ public:
 
         std::vector<unsigned int> index = {
                 0, 1, 2,
-                0, 3, 2
+                2, 3, 0
         };
 
         std::vector<float> normals = {
@@ -36,7 +36,12 @@ public:
                 0, 0, 1,
         };
 
-        setupVao(position, normals, index);
+        std::vector<float> texture = {
+                1.0, 1.0, 1.0, 0.0, 0.0, 0.0,   // v0-v1-v2 (front)
+                0.0, 0.0, 0.0, 1.0, 1.0, 1.0    // v2-v3-v0
+        };
+
+        setupVao(position, normals, texture, index);
     };
 };
 
