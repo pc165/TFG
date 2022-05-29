@@ -68,7 +68,7 @@ public:
 
     void drawBoard(bool isPicking = false) {
 
-        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color, isPicking);
+        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color, isPicking, true);
 
         for (auto &p: tileData_) {
             Tile &tile = p.second;
@@ -79,7 +79,7 @@ public:
                 cubeColor = CUBE_COLOR_SELECTED;
             else
                 cubeColor = tile.cube.color;
-            cubeRender_.draw(tile.cube, cubeColor, isPicking);
+            cubeRender_.draw(tile.cube, cubeColor, isPicking, true);
 
             // skip rendering spheres
             if (isPicking)

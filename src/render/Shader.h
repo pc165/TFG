@@ -94,6 +94,7 @@ private:
             std::vector<char> msg(length + 1);
             glGetShaderInfoLog(id, length, nullptr, &msg[0]);
             LOG_ERROR("{}", &msg[0]);
+            exit(0);
         }
 
         return id;

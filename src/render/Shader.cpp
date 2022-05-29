@@ -4,20 +4,22 @@ GLuint Shader::getProgramId() const { return programId; }
 
 Shader::~Shader() { glDeleteProgram(programId); }
 
-void Shader::loadSource(const char *path) {
-
+void Shader::   loadSource(const char *path) {
+    assert(programId == 0);
     std::string vertexCode{};
     std::string fragmentCode{};
     std::string geometricCode{};
 
+    LOG_INFO("Loading {}", path);
+
     if (parseCode(path, vertexCode, "vertex"))
-        LOG_ERROR("Cannot create vertex shader");
+        LOG_ERROR("Cannot parse vertex shader");
 
     if (parseCode(path, fragmentCode, "fragment"))
-        LOG_ERROR("Cannot create fragment shader");
+        LOG_ERROR("Cannot parse fragment shader");
 
     if (parseCode(path, geometricCode, "geometric"))
-        LOG_ERROR("Cannot create geometric shader");
+        LOG_ERROR("Cannot parse geometric shader");
 
 
     // Create the shaders

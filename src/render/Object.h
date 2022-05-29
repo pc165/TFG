@@ -41,6 +41,7 @@ public:
 
     void setupVao(std::vector<float> const &position, std::vector<float> const &normals, std::vector<unsigned int> const &index) {
         basicShader.loadSource("basicShader.glsl");
+        normalShader.loadSource("normalShader.glsl");
         glBindVertexArray(vertexArrayId_);
 
         // Indices
@@ -65,7 +66,7 @@ public:
         glBindVertexArray(vertexArrayId_);
     }
 
-    virtual void draw(tfg::Transform const &data, glm::vec3 const &color, bool isPicking) const {
+    void draw(tfg::Transform const &data, glm::vec3 const &color, bool isPicking, bool drawNormals = false) const {
         bind();
         basicShader.bind();
 
@@ -85,10 +86,19 @@ public:
         basicShader.setInt("uIsPicking", isPicking);
 
         glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
+
+        if (drawNormals) {
+            normalShader.bind();
+            normalShader.setMat4("uModel", glm::value_ptr(transform));
+            normalShader.setMat4("uView", glm::value_ptr(Injector::camera->getViewMatrix()));
+            normalShader.setMat4("uProjection", glm::value_ptr(Injector::camera->getProjectionMatrix()));
+            glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
+        }
     }
 
 protected:
     Shader basicShader{};
+    Shader normalShader{};
     uint32_t indexCount_{0};
     GLuint indexBufferId_{0};
     GLuint positionId_{0};
