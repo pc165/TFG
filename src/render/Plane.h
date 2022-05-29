@@ -30,7 +30,10 @@ public:
         };
 
         std::vector<float> normals = {
-                0, 0, 1
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1,
         };
 
         setupVao(position, normals, index);

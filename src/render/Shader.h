@@ -6,9 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
 #include "Logger.h"
+#include "OpenGL.h"
 
 enum ShaderType {
     Vertex, Fragment

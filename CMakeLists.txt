@@ -62,18 +62,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
-#glad
+#glbinding
 FetchContent_Declare(
-        glad
+        glbinding
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
-        GIT_REPOSITORY https://github.com/Dav1dde/glad/
-        GIT_TAG 5bf3eda
+        GIT_REPOSITORY https://github.com/cginternals/glbinding
+        GIT_TAG master
 )
-FetchContent_MakeAvailable(glad)
+FetchContent_MakeAvailable(glbinding)
 
-#glad
+#stb
 FetchContent_Declare(
         stb
         GIT_SHALLOW TRUE
@@ -88,18 +88,16 @@ set(IMGUI_DIR
         ${imgui_SOURCE_DIR})
 
 FILE(GLOB LIBRARY_SOURCES
-        ${glad_SOURCE_DIR}/src/glad.c
         ${IMGUI_DIR}/*.cpp
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
 
 include_directories(
         ${glfw_INCLUDE_DIRS}
-        ${glad_INCLUDE_DIRS}
+        ${glbinding_INCLUDE_DIRS}
         ${glm_SOURCE_DIR}
         ${imgui_SOURCE_DIR}
         ${stb_SOURCE_DIR}
-        ${glad_SOURCE_DIR}/include/
         src/game
         src/engine
         src/
@@ -118,11 +116,15 @@ file(GLOB_RECURSE SRC_FILES
 
 
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
-target_link_libraries(TFG PRIVATE spdlog::spdlog glfw ${OPENGL_gl_LIBRARY})
+target_link_libraries(TFG PRIVATE
+        spdlog::spdlog glfw
+        glbinding::glbinding
+        glbinding::glbinding-aux
+        ${OPENGL_gl_LIBRARY})
 
 # warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Weverything")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-variable")
+    set_target_properties(TFG PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-variable -Wno-deprecated-declarations")
 endif ()

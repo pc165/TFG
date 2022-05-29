@@ -1,7 +1,7 @@
 #ifndef TFG_UTILS_H
 #define TFG_UTILS_H
 
-#include <glad/glad.h>
+#include "OpenGL.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

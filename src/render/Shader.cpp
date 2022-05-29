@@ -48,7 +48,7 @@ GLuint Shader::compileSource(const std::string &vertexCode, const std::string &f
     GLuint vertexId = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
 
-    GLint result = GL_FALSE;
+    GLboolean result = GL_FALSE;
     int length;
 
     // Compile Vertex Shader

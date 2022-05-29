@@ -1,4 +1,7 @@
 #include "Utils.h"
+#include "glbinding/glbinding.h"
+#include <glbinding-aux/debug.h>
+#include <iostream>
 
 GLFWwindow *tfg::Injector::window = nullptr;
 glm::vec3 tfg::Injector::clearColor{0};
@@ -111,7 +114,7 @@ void tfg::InitWindow(const char *title, int width, int height) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
     LOG_DEBUG("Window created {}", fmt::ptr(window));
@@ -121,10 +124,26 @@ void tfg::InitWindow(const char *title, int width, int height) {
     glfwMakeContextCurrent(window);
 
     // Initialize GLAD
-    if (!gladLoadGL()) {
-        LOG_CRITICAL("Failed to initialize GLEW");
-        glfwTerminate();
-    }
+    glbinding::Binding::initialize(glfwGetProcAddress);
+
+    glbinding::aux::enableGetErrorCallback();
+    glbinding::setCallbackMask(glbinding::CallbackMask::None | glbinding::CallbackMask::ParametersAndReturnValue);
+    glbinding::setAfterCallback([](const glbinding::FunctionCall &call) {
+        std::string s;
+        for (unsigned i = 0; i < call.parameters.size(); ++i) {
+            s += fmt::format("{}", (void *) (call.parameters[i].get()));
+            if (i < call.parameters.size() - 1)
+                s += ", ";
+        }
+
+        LOG_TRACE("{} ({}) -> {}", call.function->name(), s, (void *) call.returnValue.get());
+    });
+
+
+    auto shaderVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    auto glVersion = glGetString(GL_VERSION);
+    LOG_DEBUG("OpenGL {}, GLSL {}", glVersion, shaderVersion);
+
     glDebugMessageCallback(errorOccurredGL, nullptr);
 
     // enable Z-test
