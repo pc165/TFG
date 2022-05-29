@@ -199,7 +199,7 @@ bool World::onUpdate(float deltatme) {
     if (!eventState_->mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && selectedTile_) {
 
         // set the sudoku value
-        if (!nearesTile_->isDeck && !sudoku_.isReadOnly(nearesTile_->row, nearesTile_->col)) {
+        if (nearesTile_ && !nearesTile_->isDeck && !sudoku_.isReadOnly(nearesTile_->row, nearesTile_->col)) {
             assert(selectedTile_->isDeck);
             bool result = sudoku_.setNumber(nearesTile_->row, nearesTile_->col, selectedTile_->numericalValue);
             if (result) {
