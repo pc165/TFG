@@ -66,7 +66,7 @@ public:
         glBindVertexArray(vertexArrayId_);
     }
 
-    void draw(tfg::Transform const &data, glm::vec3 const &color, bool isPicking, bool drawNormals = false) const {
+    void draw(tfg::Transform const &data, glm::vec3 const &color, bool isLightEnabled, bool drawNormals = false) const {
         bind();
         basicShader.bind();
 
@@ -76,22 +76,22 @@ public:
 
         // vertex uniform
         basicShader.setMat4("uModel", glm::value_ptr(transform));
-        basicShader.setMat4("uView", glm::value_ptr(Injector::camera->getViewMatrix()));
-        basicShader.setMat4("uProjection", glm::value_ptr(Injector::camera->getProjectionMatrix()));
+        basicShader.setMat4("uView", glm::value_ptr(GlobalOptions.camera->getViewMatrix()));
+        basicShader.setMat4("uProjection", glm::value_ptr(GlobalOptions.camera->getProjectionMatrix()));
 
         // fragment uniform
         basicShader.setVec3("uColor", glm::value_ptr(color));
-        basicShader.setVec3("uViewPos", glm::value_ptr(Injector::camera->position_));
-        basicShader.setVec3("uLightPos", glm::value_ptr(Injector::camera->position_));
-        basicShader.setInt("uIsPicking", isPicking);
+        basicShader.setVec3("uViewPos", glm::value_ptr(GlobalOptions.camera->position_));
+        basicShader.setVec3("uLightPos", glm::value_ptr(GlobalOptions.ligthPosition));
+        basicShader.setInt("uIsLightEnabled", isLightEnabled);
 
         glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
 
         if (drawNormals) {
             normalShader.bind();
             normalShader.setMat4("uModel", glm::value_ptr(transform));
-            normalShader.setMat4("uView", glm::value_ptr(Injector::camera->getViewMatrix()));
-            normalShader.setMat4("uProjection", glm::value_ptr(Injector::camera->getProjectionMatrix()));
+            normalShader.setMat4("uView", glm::value_ptr(GlobalOptions.camera->getViewMatrix()));
+            normalShader.setMat4("uProjection", glm::value_ptr(GlobalOptions.camera->getProjectionMatrix()));
             glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
         }
     }

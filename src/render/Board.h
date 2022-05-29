@@ -68,7 +68,7 @@ public:
 
     void drawBoard(bool isPicking = false) {
 
-        planeRender_.draw(planeTransform, isPicking ? Injector::clearColor : planeTransform.color, isPicking, true);
+        planeRender_.draw(planeTransform, isPicking ? GlobalOptions.clearColor : planeTransform.color, isPicking, true);
 
         for (auto &p: tileData_) {
             Tile &tile = p.second;

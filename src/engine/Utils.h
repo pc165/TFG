@@ -17,18 +17,23 @@
 
 
 namespace tfg {
+    struct Globals {
+        glm::vec3 clearColor{0};
+        glm::vec3 ligthPosition{0};
+        Camera *camera{nullptr};
+        bool isFreeCamera{false};
+        bool shouldClose{false};
+        bool drawNormals{false};
+    };
 
     class Injector {
     public:
         Injector() = delete;
 
-        static glm::vec3 clearColor;
         static GLFWwindow *window;
         static EventState *eventState;
-        static Camera *camera;
-        static bool shouldClose;
-        static bool isFreeCamera;
         static int EntitySize;
+        static struct Globals globals;
     };
 
 
@@ -60,6 +65,6 @@ namespace tfg {
 }
 
 typedef tfg::Injector Injector;
-
+static auto &GlobalOptions = Injector::globals;
 
 #endif //TFG_UTILS_H

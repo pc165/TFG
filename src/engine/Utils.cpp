@@ -5,12 +5,9 @@
 #include <csignal>
 
 GLFWwindow *tfg::Injector::window = nullptr;
-glm::vec3 tfg::Injector::clearColor{0};
-EventState *tfg::Injector::eventState = nullptr;
-Camera *tfg::Injector::camera = nullptr;
-bool tfg::Injector::shouldClose = false;
-bool tfg::Injector::isFreeCamera = false;
+struct tfg::Globals tfg::Injector::globals{};
 int tfg::Injector::EntitySize = 0;
+EventState *tfg::Injector::eventState = nullptr;
 
 void tfg::InitLogger() {
     spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%s:%#:%!] %v");
@@ -170,7 +167,7 @@ void tfg::ConfigureEvents() {
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow *window) {
-        Injector::shouldClose = true;
+        GlobalOptions.shouldClose = true;
     });
 
     glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -183,7 +180,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::isFreeCamera)
+        if (io.WantCaptureMouse && !GlobalOptions.isFreeCamera)
             return;
 
         Injector::eventState->mouseHandler(button, action, mods);
@@ -191,7 +188,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetScrollCallback(window, [](GLFWwindow *window, double xOffset, double yOffset) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::isFreeCamera)
+        if (io.WantCaptureMouse && !GlobalOptions.isFreeCamera)
             return;
 
         Injector::eventState->mouseScrollHandler(xOffset, yOffset);
@@ -199,7 +196,7 @@ void tfg::ConfigureEvents() {
 
     glfwSetCursorPosCallback(window, [](GLFWwindow *window, double xPos, double yPos) {
         ImGuiIO &io = ImGui::GetIO();
-        if (io.WantCaptureMouse && !Injector::isFreeCamera)
+        if (io.WantCaptureMouse && !GlobalOptions.isFreeCamera)
             return;
 
         Injector::eventState->mouseMoveHandler(xPos, yPos);
@@ -218,20 +215,20 @@ void tfg::DestroyWindow() {
 }
 
 glm::vec3 tfg::screenToWorld(int x, int y) {
-    assert(Injector::camera != nullptr);
+    assert(GlobalOptions.camera != nullptr);
 
     glm::vec<4, int> viewport{0};
     glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport));
 
     glm::vec3 win;
-    if (Injector::isFreeCamera)
+    if (GlobalOptions.isFreeCamera)
         win = {(float) viewport[2] / 2.0f, viewport[3] / 2.0f, 0};
     else
         win = {(float) x, viewport[3] - (float) y, 0};
 
     glReadPixels((int) win.x, (int) win.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win.z);
 
-    glm::vec3 unProject = glm::unProject(win, Injector::camera->getViewMatrix(), Injector::camera->getProjectionMatrix(), viewport);
+    glm::vec3 unProject = glm::unProject(win, GlobalOptions.camera->getViewMatrix(), GlobalOptions.camera->getProjectionMatrix(), viewport);
 
 //    LOG_DEBUG("WinDow Pos: {} {} {} Unproject {} {} {}", win.x, win.y, win.z, unProject.x, unProject.y, unProject.z);
     return unProject;
@@ -243,7 +240,7 @@ glm::vec3 tfg::screenToColor(int x, int y) {
 
     glm::vec3 win{(float) x, viewport[3] - (float) y, 0};
 
-    if (Injector::isFreeCamera) {
+    if (GlobalOptions.isFreeCamera) {
         win.x = viewport[2] / 2.0;
         win.y = viewport[3] / 2.0;
     }
@@ -258,7 +255,7 @@ glm::vec3 tfg::screenToColor(int x, int y) {
 
 int tfg::colorToId(glm::vec3 color) {
 
-    if (color == glm::vec3{Injector::clearColor})
+    if (color == glm::vec3{GlobalOptions.clearColor})
         return -1;
 
     int id = std::round(color.r * 10) +
@@ -284,8 +281,8 @@ void tfg::setFreeCamera(bool isEnabled) {
     if (glfwRawMouseMotionSupported())
         glfwSetInputMode(Injector::window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSetInputMode(Injector::window, GLFW_CURSOR, isEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-    Injector::camera->setFreeCamera(isEnabled);
-    Injector::isFreeCamera = isEnabled;
+    GlobalOptions.camera->setFreeCamera(isEnabled);
+    GlobalOptions.isFreeCamera = isEnabled;
 }
 
 int tfg::getEntityId() {
@@ -296,5 +293,5 @@ void tfg::setClearColor(glm::vec4 const &color) {
     glm::vec4 c{};
     glGetFloatv(GL_COLOR_CLEAR_VALUE, glm::value_ptr(c));
     assert(c == color);
-    Injector::clearColor = color;
+    GlobalOptions.clearColor = color;
 }

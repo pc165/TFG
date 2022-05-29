@@ -1,13 +1,13 @@
 #include "World.h"
 
 World::World() {
-    Injector::camera = &this->camera_;
-
-    assert(Injector::camera != nullptr);
+    GlobalOptions.camera = &this->camera_;
+    assert(GlobalOptions.camera != nullptr);
     assert(Injector::eventState != nullptr);
     assert(Injector::window != nullptr);
 //        tfg::setFreeCamera(true);
 
+    GlobalOptions.ligthPosition = camera_.position_;
     sudokuValues_ = {
             {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
             {5, 1, 3, 4, 8, 2, 9, 6, 7},
@@ -30,7 +30,7 @@ World::World() {
 
 void World::gameLoop() {
     float t0 = 0;
-    while (!Injector::shouldClose) {
+    while (!GlobalOptions.shouldClose) {
 
         // Picking object
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -44,9 +44,9 @@ void World::gameLoop() {
         // normal rendering
         glfwPollEvents();
         auto t1 = glfwGetTime();
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        tfg::setClearColor({0.5f, 0.5f, 0.5f, 1.0f});
+        tfg::setClearColor({0.0f, 0.0f, 0.0f, 1.0f});
 
         // draw board
         board_.drawBoard();
@@ -99,6 +99,13 @@ void World::guiWindow() {
     ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
     ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
     camera_.updateCameraVectors();
+    ImGui::Checkbox("Lock light to camera", &lockLightPosition);
+    if (lockLightPosition) {
+        GlobalOptions.ligthPosition = GlobalOptions.camera->position_;
+    }
+    ImGui::SliderFloat3("Light Position", &GlobalOptions.ligthPosition.x, -40, 40);
+
+
     if (hoveredTile_) {
         auto row = hoveredTile_->row, col = hoveredTile_->col;
         ImGui::Separator();
@@ -117,12 +124,12 @@ void World::guiWindow() {
 bool World::onUpdate(float deltatme) {
     // close window
     if (eventState_->keyPressed(GLFW_KEY_ESCAPE)) {
-        Injector::shouldClose = true;
+        GlobalOptions.shouldClose = true;
     }
 
     // toogle camera mode
     if (eventState_->keyPressed(GLFW_KEY_F1)) {
-        tfg::setFreeCamera(!Injector::isFreeCamera);
+        tfg::setFreeCamera(!GlobalOptions.isFreeCamera);
     }
 
     // reset camera position

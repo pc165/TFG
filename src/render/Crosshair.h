@@ -52,11 +52,11 @@ public:
         bind();
         basicShader.bind();
 
-        auto translated = glm::translate(glm::mat4(1.0f), {Injector::camera->width_ / 2, Injector::camera->height_ / 2, 0});
+        auto translated = glm::translate(glm::mat4(1.0f), {GlobalOptions.camera->width_ / 2, GlobalOptions.camera->height_ / 2, 0});
         auto model = glm::scale(translated, scale_);
 
         basicShader.setMat4("model", glm::value_ptr(model));
-        basicShader.setMat4("projection", glm::value_ptr(Injector::camera->getOrthoMatrix()));
+        basicShader.setMat4("projection", glm::value_ptr(GlobalOptions.camera->getOrthoMatrix()));
         basicShader.setVec3("colorIn", glm::value_ptr(color_));
         glDrawElements(GL_TRIANGLES, (GLsizei) indexCount_, GL_UNSIGNED_INT, nullptr);
     };

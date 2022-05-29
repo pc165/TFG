@@ -38,6 +38,8 @@ private:
     // Event state machine
     EventState *eventState_{Injector::eventState};
 
+
+    bool lockLightPosition{false};
     std::vector<std::vector<int>> sudokuValues_{};
 
     float frametime_{0};

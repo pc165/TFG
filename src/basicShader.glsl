@@ -28,11 +28,11 @@ out vec4 outColor;
 uniform vec3 uColor;
 uniform vec3 uLightPos;
 uniform vec3 uViewPos;
-uniform bool uIsPicking;
+uniform bool uIsLightEnabled;
 
 void main(){
 
-    if(uIsPicking){
+    if(uIsLightEnabled){
         outColor = vec4(uColor,1.0);
         return;
     }
@@ -52,10 +52,9 @@ void main(){
     float spec = 0.0;
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
     vec3 specular = vec3(0.3) * spec;
     outColor = vec4(ambient + diffuse + specular, 1.0);
-//    outColor = vec4(fragNormal,1.0);
 }
 #end fragment
