@@ -92,13 +92,38 @@ void World::guiWindow() {
         }
 
         if (ImGui::Button("New Sudoku")) {
-            Sudoku::randomSudokuGenerator(sudokuValues_);
+            sudoku_.randomSudokuGenerator();
             ImGui::CloseCurrentPopup();
             tfg::setFreeCamera(true);
         }
         ImGui::EndPopup();
     }
+
+    ImGui::Begin("Status");
+    ImGui::Text("Neares entity %d", nearesTile_ ? nearesTile_->entityId : -1);
+    if (hoveredTile_) {
+        auto row = hoveredTile_->row, col = hoveredTile_->col;
+        ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y, hoveredTile_->cube.position.z);
+        ImGui::Text("Cell (%d,%d)", row, col);
+        ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
+        ImGui::Text("Hints %d ", hoveredTile_->hints);
+    } else {
+        ImGui::Text("Position (null)");
+        ImGui::Text("Cell (-1,-1)");
+        ImGui::Text("Value -1 (-1)");
+        ImGui::Text("Hints -1");
+    }
+    ImGui::End();
+
+
     ImGui::Begin("Controls");
+
+    if (ImGui::Button("New Sudoku")) {
+        sudoku_.randomSudokuGenerator(difficulty);
+    }
+    ImGui::SliderInt("Difficulty", &difficulty, 0, 2);
+
+    ImGui::Text("Camera");
     ImGui::SliderFloat("zNear", &camera_.zNear_, 0.001f, 200);
     ImGui::SliderFloat("zFar", &camera_.zFar_, 0.001f, 200);
     ImGui::InputFloat("FoV", &camera_.fov_);
@@ -125,7 +150,6 @@ void World::guiWindow() {
     ImGui::SliderFloat("OuterCutoff", &outcutoffDegress, 0, 90);
     GlobalOptions.light.cutOff = glm::cos(glm::radians(cutoffDegress));
     GlobalOptions.light.outerCutOff = glm::cos(glm::radians(outcutoffDegress));
-
     ImGui::SliderFloat("Constant", &GlobalOptions.light.constant, 0, 0.1);
     ImGui::SliderFloat("Liniear", &GlobalOptions.light.linear, 0, 0.1);
     ImGui::SliderFloat("Quadratic", &GlobalOptions.light.quadratic, 0, 0.1);
@@ -134,19 +158,6 @@ void World::guiWindow() {
     if (lockLightPosition) {
         GlobalOptions.light.position = camera_.position_;
         GlobalOptions.light.direction = camera_.center_;
-    }
-
-    if (hoveredTile_) {
-        auto row = hoveredTile_->row, col = hoveredTile_->col;
-        ImGui::Separator();
-        ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y, hoveredTile_->cube.position.z);
-        ImGui::Text("Cell (%d,%d)", row, col);
-        ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
-        ImGui::Text("Hints %d ", hoveredTile_->hints);
-    }
-    if (nearesTile_) {
-        ImGui::Separator();
-        ImGui::Text("Neares entity %d", nearesTile_->entityId);
     }
     ImGui::End();
 }

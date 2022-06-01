@@ -36,12 +36,15 @@ bool Sudoku::repeatedInRow(int row, int num) const {
 }
 
 bool Sudoku::isDone() const {
+    int sum = 0;
     for (auto &i: board_) {
         for (auto &j: i) {
-            if (j.value == 0)
-                return false;
+            sum += j.value;
         }
     }
+
+    if (sum != 405) // sum of a 9 x 9 sudoku (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9)* 9= 117
+        return false;
     return true;
 }
 
@@ -68,15 +71,11 @@ void Sudoku::setupSudoku(std::vector<std::vector<int>> const &sudoku, Board &boa
             b.tile->col = col;
             b.tile->col = col;
             b.value = number;
-            b.tile->cube.color = number == 0 ? CUBE_COLOR_DEFAULT : b.tile->cube.color;
+            b.tile->cube.color = number == 0 ? CUBE_COLOR_DEFAULT : CUBE_COLOR_ASSIGNED;
             b.tile->isHintsEnabled = number == 0;
             b.isReadOnly = number != 0;
         }
     }
     updateSolutions();
     board.setupDeck();
-}
-
-Sudoku::Sudoku() {
-
 }

@@ -42,7 +42,7 @@ private:
     std::vector<std::vector<int>> sudokuValues_{};
 
     float frametime_{0};
-
+    int difficulty{0};
     bool lockLightPosition{true};
     float cutoffDegress{12.0f};
     float outcutoffDegress{90.0f};
