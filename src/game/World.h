@@ -41,6 +41,7 @@ private:
 
     std::vector<std::vector<int>> sudokuValues_{};
 
+    std::string sudokuPath_{};
     float frametime_{0};
     int difficulty{0};
     bool lockLightPosition{true};
