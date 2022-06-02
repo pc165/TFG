@@ -3,6 +3,7 @@
 \usepackage[catalan]{babel}
 \usepackage{multicol}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{fancyhdr}
 \usepackage{times}
 \usepackage{titlesec}
@@ -53,24 +54,20 @@
 
     \thispagestyle{primerapagina}
     \begin{center}
-      \parbox{0.915\textwidth} {\sffamily \textbf{Resum--} Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-        línies.\\Resum del projecte, màxim 10 línies.\\ \textbf{Paraules clau-- }
-        Paraules clau del treball, màxim 2 línies\\ \\ \bigskip \\ \textbf{Abstract--}
-        Versió en anglès del resum Resum del projecte, màxim 10 línies.\\Resum del
-        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ projecte,
-        màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ \\ \\
-        \textbf{Keywords-- } Versió en anglès de les paraules clau.
-        \\}
+      \parbox{0.915\textwidth} {\sffamily \textbf{Resum--} Resum del projecte, màxim 10 línies.\\Resum del
+        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
+        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
+        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
+        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
+        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
+        línies.\\ \textbf{Paraules clau-- } Paraules clau del treball, màxim 2 línies\\ \\ \bigskip \\
+        \textbf{Abstract--} Versió en anglès del resum Resum del projecte, màxim 10 línies.\\Resum del
+        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
+        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
+        projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
+        línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ projecte,
+        màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ \\ \\ \textbf{Keywords-- } Versió en
+        anglès de les paraules clau. \\}
 
       \bigskip
 
@@ -98,9 +95,8 @@ cada fila, columna i subgraella contingui els números només una vegada. El
 sudoku modern va ser popularitzat en el 2004 quan Wayne Gould va desenvolupar
 un programa informàtic per produir trencaclosques únics ràpidament.
 
-Per una altra banda, el braille és un sistema d'escriptura i lectura tàctil
-basat en 6 punts disposats en una graella de 3 $\times$ 3 utilitzat per a
-persones cegues o amb mala visió.
+Per una altra banda, el braille és un sistema d'escriptura i lectura tàctil basat en 6 punts
+disposats en una graella de 3 $\times$ 3 utilitzat per a persones cegues o amb mala visió.
 
 % TODO EXPLICAR BRAILE
 
@@ -108,23 +104,21 @@ persones cegues o amb mala visió.
 % TODO EXPLICAR BRAILE
 
 \section{Objectiu}\label{sec:objective}
-L'objectiu principal del projecte consisteix en desenvolupar un sudoku en 3D
-des de zero. El joc tracta d'una graella de 9 $\times$ 9 fitxes on es
-visualitzarà el valor numèric amb l'alfabet braille. Per una altra banda,
-mitjançant el teclat i el ratolí, el jugador podrà interactuar amb les caselles
-i les fitxes per veure el valor numèric de la fitxa. Concretament, es volen
-aconseguir els següents objectius:
+L'objectiu principal del projecte consisteix en desenvolupar un sudoku en 3D des de zero. El joc
+tracta d'una graella de 9 $\times$ 9 fitxes on es visualitzarà el valor numèric amb l'alfabet
+braille. Per una altra banda, mitjançant el teclat i el ratolí, el jugador podrà interactuar amb
+les caselles i les fitxes per veure el valor numèric de la fitxa. Concretament, es volen aconseguir
+els següents objectius:
 \begin{itemize}
   \item Desenvolupar un model en 3D del sudoku.
   \item Incorporar ajudes per aprendre els números o l'alfabet en braille.
 \end{itemize}
 
-Per aconseguir-lo, es desenvoluparà un petit conjunt de classes que permetrà
-renderitzar objectes en la pantalla i tractar els esdeveniments dels
-perifèrics.
+Per aconseguir-lo, es desenvoluparà un petit conjunt de classes que permetrà renderitzar objectes
+en la pantalla i tractar els esdeveniments dels perifèrics.
 
-El joc haurà de gestionar els següents esdeveniments dels perifèrics i
-renderitzar les següents formes geomètriques:
+El joc haurà de gestionar els següents esdeveniments dels perifèrics i renderitzar les següents
+formes geomètriques:
 \begin{itemize}
   \item Pulsacions del teclat.
   \item Pulsacions del ratolí, un clic.
@@ -152,50 +146,109 @@ El joc haurà d'implementar les següents funcionalitats:
 % Conclusiones: presente
 
 \section{Metodologia}\label{sec:methodology}
-A continuació s'expliquen la metodologia seguida i les eines utilitzades al
-llarg d'aquest projecte.
+A continuació s'expliquen la metodologia seguida i les eines utilitzades al llarg d'aquest
+projecte.
 
 \subsection{Kanban}
-Per a poder optimitzar al màxim els recursos necessaris, s'ha seguit una
-metodologia àgil, celebrant revisions periòdiques generals en finalitzar cada
-sprint on es van veure els resultats de la fase anterior, es van valorar els
-avenços i es va planificar el següent sprint, concretament, s'ha utilitzat una
-tècnica anomenada Kanban, es van dividir les tasques en diferents subtasques i
-es van col·locar cada tasca segons el progrés (to do, in progress, done). En
-particular, s'ha fet servir KanbanFlow per gestionar les subtasques.
+Per a poder optimitzar al màxim els recursos necessaris, s'ha seguit una metodologia àgil,
+celebrant revisions periòdiques generals en finalitzar cada sprint on es van veure els resultats de
+la fase anterior, es van valorar els avenços i es va planificar el següent sprint, concretament,
+s'ha utilitzat una tècnica anomenada Kanban, es van dividir les tasques en diferents subtasques i
+es van col·locar cada tasca segons el progrés (to do, in progress, done). En particular, s'ha fet
+servir KanbanFlow per gestionar les subtasques.
 
-Finalment, per a gestionar el codi font, s'ha creat un repositori a GitHub on
-s'ha anat pujant a ells els avenços fets.
+Finalment, per a gestionar el codi font, s'ha creat un repositori a GitHub on s'ha anat pujant a
+ells els avenços fets.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{img/kanban}
+  \caption{Un tauler Kanban.}
+  \label{kanban}
+\end{figure}
 
 \subsection{Eines}
 
-Respecte a les eines i llibreries de desenvolupament, s'ha utilitzat
-principalment, l'entorn de desenvolupament multiplataforma CLion per C/C++ per
-poder desenvolupar el joc tant en Windows com en Linux, Renderdoc per a
-diagnosticar problemes de renderització. Respecte a les llibreries, s'ha fet
-servir ImGUI per generar la interfície d'usuari, GLFW per gestionar la
-inicialització de la finestra i obtenir els estats dels perifèrics, OpenGL per
-interactuar amb la GPU, la llibreria glbinding per carregar les funcions
-d'OpenGL i, finalment, GLM per realitzar els càlculs amb matrius i vectors.
+Respecte a les eines i llibreries de desenvolupament, s'ha utilitzat principalment, l'entorn de
+desenvolupament multiplataforma \textit{CLion} per C/C++ per poder desenvolupar el joc tant en
+Windows com en Linux, \textit{RenderDoc} per a diagnosticar problemes de renderització. Respecte a
+les llibreries, s'ha fet servir \textit{ImGUI} per generar la interfície d'usuari, \textit{GLFW}
+per gestionar la inicialització de la finestra i obtenir els estats dels perifèrics,
+\textit{OpenGL} per interactuar amb la GPU, la llibreria \textit{glbinding} per carregar les
+funcions d'OpenGL \textit{GLM} com a llibreria matemàtica i, finalment, \textit{CMAKE} per al
+sistema de compilació multiplataforma.
 
 \section{Desenvolupament}\label{sec:development}
 
-\subsection{Classes de renderització}
-\subsubsection{Cub}
-\subsubsection{Esfera}
-\subsubsection{Pla}
-\subsubsection{Punter}
-\subsection{Classes d'esdeveniments}
-\subsection{Classe càmera}
-\subsection{Entitat principal}
-\subsection{Sudoku}
-\subsection{Classe de control de l'estat}
-\subsection{Procediments auxiliars}
+Per desenvolupar un joc, normalment, s'utilitza un motor de joc que prové les eines necessàries per
+al ràpid desenvolupament del videojoc com per exemple \textit{Unreal Engine (UE)} o \textit{Godot}.
+La funcionalitat bàsica que normalment proporciona un motor de joc pot incloure entre altres: un
+motor de renderització per a gràfics en 2D o 3D, un motor físic per a la detecció de col·lisions i
+la simulació de físiques i un sistema de gestió d'entitats. En el nostre cas, com que no hem
+implementat un joc molt complex, no ha fet falta desenvolupar un motor de renderització ni un motor
+de física; només s'ha implementat certes funcionalitats claus per al desenvolupament del nostre
+joc. És a dir un sistema per renderitzar objectes, un sistema d'esdeveniments per gestionar la E/S
+de l'usuari i diverses estructures de dades per a la gestió de l'estat.
 
-\section{Resultats}\label{sec:results}
-\section{Conclusions}\label{sec:conclusion}
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img/godot}
+  \caption{L'entorn de desenvolupament de Godot.}
+\end{figure*}
 
-\section*{Agraïments}
+\subsection{Inicialització}
+Abans de res, necessitem una finestra i un context OpenGL per a poder renderitzar els objectes a la
+pantalla. Hi ha diverses funcions que s'encarreguen de la creació i de la destrucció del context
+OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per als perifèrics.
+
+\begin{itemize}
+  \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textit{width $\times$ height} amb el títol \textit{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
+  \item \textbf{ConfigureEvents()}: Insta-la els \textit{callback} a la finestra creada i configura la classe \textit{EventState.}
+  \item \textbf{DestroyWindow()}: Destrueix la finestra i allibera la memòria assignada per \textit{InitWindow.}
+\end{itemize}
+
+\subsection{Sistema de renderització}
+El sistema de renderització està compost per dues classes:
+
+\begin{itemize}
+  \item La classe \textit{Object}, és la classe que és heretada per a qualsevol objecte que es dibuixa a
+        pantalla. Té dos mètodes principals:
+        \begin{itemize}
+          \item \textbf{setupVao(position, normals, texture, index)}: Inicialitza les estructura de dades i els \textit{shaders} necessàris per al dibuixat amb \textit{OpenGL}.
+          \item \textbf{draw(transform, color, isLightEnabled, drawNormals)}: El mètode principal amb el qual es dibuixa a la pantalla. El mètode aplica l'escalat, la rotació i la translació segons el primer argument.
+        \end{itemize}
+
+  \item La classe \textit{Shader}, s'encarrega de compilar i generar els programa \textit{shader} a partir
+        d'un codi font i assignar les variables \textit{uniforms} del programa. Entre altres mètodes es
+        troben:
+        \begin{itemize}
+          \item \textbf{loadShader(path)}: Compila els shaders indicat per l'argument \textit{path} i crea el programa \textit{shader}, també realitza una comprovació d'errors.
+          \item \textbf{setLight(light)}:  Si el programa \textit{shader} suporta il·luminació, configurarà la il·luminació amb l'argument. Si no donarà error.
+          \item \textbf{setMaterial(material)}: Si el programa \textit{shader} suporta materials, configurarà el material amb l'argument i almenys hi ha dues textures. Si no donarà error.
+        \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/placeholder}
+  \caption{Diagrama de classes del sistema de renderització.}
+\end{figure}
+
+
+% \subsubsection{Pla}
+% \subsubsection{Esfera}
+% \subsubsection{Mira}
+% \subsection{Classes d'esdeveniments}
+% \subsection{Classe càmera}
+% \subsection{Entitat principal}
+% \subsection{Sudoku}
+% \subsection{Classe de control de l'estat}
+% \subsection{Procediments auxiliars}
+
+% \section{Resultats}\label{sec:results}
+% \section{Conclusions}\label{sec:conclusion}
+
+% \section*{Agraïments}
 
 \begin{thebibliography}{11}
   \bibitem{latex}
