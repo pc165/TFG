@@ -8,10 +8,13 @@
 \usepackage{times}
 \usepackage{titlesec}
 \usepackage{multirow}
+\usepackage{cleveref}
 \usepackage{lettrine}
 \usepackage[top=2cm, bottom=1.5cm, left=2cm, right=2cm]{geometry}
 \usepackage[figurename=Fig.,tablename=TAULA]{caption}
 \captionsetup[table]{textfont=sc}
+
+\newcommand\pref[1]{[\ref{#1}]}
 
 \author{\LARGE\sffamily Pablo Chen}
 \title{\Huge{\sffamily Disseny i implementació d'un joc de puzle tipus Sudoku per a aprendre els números en braille incorporant dispositius d'interacció gestual}}
@@ -117,6 +120,8 @@ els següents objectius:
 Per aconseguir-lo, es desenvoluparà un petit conjunt de classes que permetrà renderitzar objectes
 en la pantalla i tractar els esdeveniments dels perifèrics.
 
+\subsection{Requisits funcionals}
+
 El joc haurà de gestionar els següents esdeveniments dels perifèrics i renderitzar les següents
 formes geomètriques:
 \begin{itemize}
@@ -139,11 +144,34 @@ El joc haurà d'implementar les següents funcionalitats:
   \item Donar pistes en la resolució del sudoku de manera interactiva.
   \item Aconseguir l'execució en diverses plataformes, principalment Windows i Linux.
 \end{itemize}
+
 % Resumen: presente (también pasado)
 % Introducción: presente
 % Materiales, metodología, procedimientos: pasado
 % Resultados: pasado (o presente)
 % Conclusiones: presente
+
+\subsection{Requisits de software}
+Pel que fa a les llibreries, s'ha utilitzat les següents dependències:
+\begin{itemize}
+  \item \textit{ImGUI} Per generar la interfície d'usuari, s'ha utilitzat la versió amb viewports (branca anomenada \textit{docking}).\@
+  \item \textit{GLFW} Per gestionar la inicialització de la finestra i obtenir els estats dels perifèrics.\@
+  \item \textit{OpenGL} API interactuar amb la GPU.\@
+  \item \textit{glbinding} Per carregar les funcions d'OpenGL.\@
+  \item \textit{GLM} Una llibreria matemàtica adaptada per OpenGL.\@
+\end{itemize}
+
+Els sistemes operatius amb els quals s'ha compilat i executat el joc són Windows 10 i Fedora 35.
+
+\subsection{Requisits de hardware}
+Per a executar el joc el sistema ha de comptar amb una GPU (pot ser integrada) que suporti OpenGL
+v3.3 o major.
+
+\subsection{Eines}
+Respecte a les eines i llibreries de desenvolupament, s'ha utilitzat principalment, l'entorn de
+desenvolupament multiplataforma \textit{CLion} per C/C++ per poder desenvolupar el joc tant en
+Windows com en Linux, \textit{RenderDoc} per a diagnosticar problemes de renderització i
+\textit{CMAKE} per al sistema de compilació multiplataforma.
 
 \section{Metodologia}\label{sec:methodology}
 A continuació s'expliquen la metodologia seguida i les eines utilitzades al llarg d'aquest
@@ -164,19 +192,28 @@ ells els avenços fets.
   \centering
   \includegraphics[width=0.4\textwidth]{img/kanban}
   \caption{Un tauler Kanban.}
-  \label{kanban}
 \end{figure}
 
-\subsection{Eines}
+\subsection{Planificació}
+La planificació del projecte s'ha dividit en 7 tasques llistades a la taula~\pref{tablePlan}.
 
-Respecte a les eines i llibreries de desenvolupament, s'ha utilitzat principalment, l'entorn de
-desenvolupament multiplataforma \textit{CLion} per C/C++ per poder desenvolupar el joc tant en
-Windows com en Linux, \textit{RenderDoc} per a diagnosticar problemes de renderització. Respecte a
-les llibreries, s'ha fet servir \textit{ImGUI} per generar la interfície d'usuari, \textit{GLFW}
-per gestionar la inicialització de la finestra i obtenir els estats dels perifèrics,
-\textit{OpenGL} per interactuar amb la GPU, la llibreria \textit{glbinding} per carregar les
-funcions d'OpenGL \textit{GLM} com a llibreria matemàtica i, finalment, \textit{CMAKE} per al
-sistema de compilació multiplataforma.
+\begin{table}
+  \centering
+  \caption{Tasques amb la descripció}
+  \begin{tabular}{|c|c|}
+    \hline
+    \begin{tabular}[c]{@{}c@{}}Disseny de les\\classes principals\end{tabular}                            & \begin{tabular}[c]{@{}c@{}}Dissenyar les classes de\\renderització i els altres\\components del joc.\end{tabular}       \\
+    \hline
+    \begin{tabular}[c]{@{}c@{}}Disseny de la\\interfície del sudoku\end{tabular}                          & \begin{tabular}[c]{@{}c@{}}Dissenyar les diferents\\pantalles del joc: la pantalla\\d'inici, els controls del\\sudoku\ldots\end{tabular}    \\
+    \hline
+    \begin{tabular}[c]{@{}c@{}}Desenvolupament de\\les classes principals\\del joc\end{tabular} & \begin{tabular}[c]{@{}c@{}}Implementar en la classe de\\renderització amb OpenGL,\\implementar les rutines de\\tractament de les accions\\dels perifèrics.\end{tabular}     \\
+    \hline
+    \begin{tabular}[c]{@{}c@{}}Desenvolupament del\\joc\end{tabular}                                      & \begin{tabular}[c]{@{}c@{}}Implementar la lògica i les\\funcionalitats principals del\\joc.\end{tabular} \\
+    \hline
+    \begin{tabular}[c]{@{}c@{}}Tests\end{tabular}                                                         & \begin{tabular}[c]{@{}c@{}}Tests per a cada component\\implementat.\end{tabular}
+    \hrulefill
+  \end{tabular}\label{tablePlan}\\
+\end{table}
 
 \section{Desenvolupament}\label{sec:development}
 
@@ -190,11 +227,11 @@ de física; només s'ha implementat certes funcionalitats claus per al desenvolu
 joc. És a dir un sistema per renderitzar objectes, un sistema d'esdeveniments per gestionar la E/S
 de l'usuari i diverses estructures de dades per a la gestió de l'estat.
 
-\begin{figure*}[!h]
+\begin{figure}[!h]
   \centering
-  \includegraphics[width=0.9\textwidth]{img/godot}
-  \caption{L'entorn de desenvolupament de Godot.}
-\end{figure*}
+  \includegraphics[width=0.5\textwidth]{img/godot}
+  \caption{L'entorn de desenvolupament del motor de joc \textit{Godot}.}
+\end{figure}
 
 \subsection{Inicialització}
 Abans de res, necessitem una finestra i un context OpenGL per a poder renderitzar els objectes a la
@@ -202,7 +239,7 @@ pantalla. Hi ha diverses funcions que s'encarreguen de la creació i de la destr
 OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per als perifèrics.
 
 \begin{itemize}
-  \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textit{width $\times$ height} amb el títol \textit{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
+  \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textbf{width $\times$ height} amb el títol \textbf{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
   \item \textbf{ConfigureEvents()}: Insta-la els \textit{callback} a la finestra creada i configura la classe \textit{EventState.}
   \item \textbf{DestroyWindow()}: Destrueix la finestra i allibera la memòria assignada per \textit{InitWindow.}
 \end{itemize}
@@ -215,7 +252,7 @@ El sistema de renderització està compost per dues classes:
         pantalla. Té dos mètodes principals:
         \begin{itemize}
           \item \textbf{setupVao(position, normals, texture, index)}: Inicialitza les estructura de dades i els \textit{shaders} necessàris per al dibuixat amb \textit{OpenGL}.
-          \item \textbf{draw(transform, color, isLightEnabled, drawNormals)}: El mètode principal amb el qual es dibuixa a la pantalla. El mètode aplica l'escalat, la rotació i la translació segons el primer argument.
+          \item \textbf{draw(transform, color, isLightEnabled, drawNormals)}: El mètode amb el qual es dibuixa a la pantalla. El mètode aplica l'escalat, la rotació, la translació i el segons els arguments. Els arguments \textbf{isLightEnabled} i \textbf{drawNormals} permeten activar la il·luminació i dibuixar les normals del objecte.
         \end{itemize}
 
   \item La classe \textit{Shader}, s'encarrega de compilar i generar els programa \textit{shader} a partir
@@ -228,27 +265,25 @@ El sistema de renderització està compost per dues classes:
         \end{itemize}
 \end{itemize}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.5\textwidth]{img/placeholder}
-  \caption{Diagrama de classes del sistema de renderització.}
-\end{figure}
+% TODO UML Diagram
 
+\subsubsection{Cub}
 
-% \subsubsection{Pla}
-% \subsubsection{Esfera}
-% \subsubsection{Mira}
-% \subsection{Classes d'esdeveniments}
-% \subsection{Classe càmera}
-% \subsection{Entitat principal}
-% \subsection{Sudoku}
-% \subsection{Classe de control de l'estat}
-% \subsection{Procediments auxiliars}
+\subsubsection{Esfera}
+\subsubsection{Pla}
+\subsubsection{Mira}
+\subsection{Classes d'esdeveniments}
+\subsection{Classe càmera}
+\subsection{\textit{Picking Object}}
+\subsection{Entitat principal}
+\subsection{Sudoku}
+\subsection{Classe de control de l'estat}
+\subsection{Funcions auxiliars}
 
-% \section{Resultats}\label{sec:results}
-% \section{Conclusions}\label{sec:conclusion}
+\section{Resultats}\label{sec:results}
+\section{Conclusions}\label{sec:conclusion}
 
-% \section*{Agraïments}
+\section*{Agraïments}
 
 \begin{thebibliography}{11}
   \bibitem{latex}
@@ -267,7 +302,6 @@ El sistema de renderització està compost per dues classes:
 \section*{Apèndix}
 
 \setcounter{section}{1}
-
-\subsection{Secció d'Apèndix}
+\subsection{Il·luminació}
 
 \end{document}
