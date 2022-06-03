@@ -1,13 +1,12 @@
 #pragma once
 
 #include <vector>
-#include <random>
 #include "render/Board.h"
 
 class Sudoku {
 public:
     Sudoku() {
-        srandom(0);
+        srand(0);
     }
 
     void setupSudoku(std::vector<std::vector<int>> const &, Board &);

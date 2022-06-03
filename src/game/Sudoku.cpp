@@ -99,7 +99,7 @@ void Sudoku::randomSudokuGenerator(int difficulty) {
         for (int j = row; j < 3 + row; ++j) {
             for (int l = col; l < 3 + col; ++l) {
                 do {
-                    num = random() % 10;
+                    num = rand() % 10;
                 } while (num == 0 || repeatedIn3x3(j, l, num));
                 board_[j][l].value = num;
                 board_[j][l].solution = num;
@@ -129,8 +129,8 @@ void Sudoku::randomSudokuGenerator(int difficulty) {
         int row, col;
         tfg::Cell *b;
         do {
-            row = random() % 9;
-            col = random() % 9;
+            row = rand() % 9;
+            col = rand() % 9;
             assert(row >= 0 && row < (int) board_.size());
             assert(col >= 0 && col < (int) board_[0].size());
             b = &board_[row][col];
