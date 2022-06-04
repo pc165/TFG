@@ -103,7 +103,7 @@ Board::Tile *Board::nearestTile(glm::vec3 pos, const std::function<bool(const Ti
 
         auto d = glm::distance(tile.cube.position, pos);
 
-        if (d < 4.0f && d < best) {
+        if (d < 10.0f && d < best) {
             best = d;
             nearest = &tile;
         }

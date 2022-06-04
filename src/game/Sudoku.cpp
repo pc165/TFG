@@ -8,7 +8,7 @@ bool Sudoku::setNumber(int row, int col, int num) {
     if (board_[row][col].isReadOnly)
         return false;
 
-    if (!isSafe(row, col, num))
+    if (num != 0 && !isSafe(row, col, num))
         return false;
 
     board_[row][col].value = num;

@@ -45,6 +45,8 @@ private:
     float frametime_{0};
     int difficulty{0};
     bool lockLightPosition{true};
+    bool controls{false};
+    bool gameStatus{false};
     float cutoffDegress{12.0f};
     float outcutoffDegress{90.0f};
     tfg::Tile *hoveredTile_{nullptr};

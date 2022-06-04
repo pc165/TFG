@@ -5,7 +5,7 @@ World::World() {
     assert(GlobalOptions.camera != nullptr);
     assert(Injector::eventState != nullptr);
     assert(Injector::window != nullptr);
-//        tfg::setFreeCamera(true);
+    tfg::setFreeCamera(GlobalOptions.isFreeCamera);
 
     sudokuValues_ = {
             {9, 0, 4, 5, 7, 6, 2, 1, 3}, // 8
@@ -93,71 +93,92 @@ void World::guiWindow() {
         ImGui::EndPopup();
     }
 
-    ImGui::Begin("Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("Neares entity %d", nearesTile_ ? nearesTile_->entityId : -1);
-    if (hoveredTile_) {
-        auto row = hoveredTile_->row, col = hoveredTile_->col;
-        ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y, hoveredTile_->cube.position.z);
-        ImGui::Text("Cell (%d,%d)", row, col);
-        ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
-        ImGui::Text("Hints %d ", hoveredTile_->hints);
-    } else {
-        ImGui::Text("Position (null)");
-        ImGui::Text("Cell (-1,-1)");
-        ImGui::Text("Value -1 (-1)");
-        ImGui::Text("Hints -1");
-    }
-    ImGui::End();
-
     ImGui::Begin("Game menu", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::Button("New Sudoku")) {
-        sudoku_.randomSudokuGenerator(difficulty);
-    }
-    ImGui::SliderInt("Difficulty", &difficulty, 0, 2);
-    ImGui::InputText("File path", sudokuPath_.data(), sudokuPath_.capacity());
-    if (ImGui::Button("Load sudoku")) {
-        sudoku_.loadSudoku(sudokuPath_);
-    }
+    {
+        if (ImGui::Button("Load sudoku")) {
+            sudoku_.loadSudoku(sudokuPath_);
+        }
+        ImGui::SameLine();
+        ImGui::InputText("Path", sudokuPath_.data(), sudokuPath_.capacity());
+        if (ImGui::Button("New Sudoku")) {
+            sudoku_.randomSudokuGenerator(difficulty);
+        }
+        ImGui::SameLine();
+        ImGui::SliderInt("Difficulty", &difficulty, 0, 2);
 
+
+        if (ImGui::Checkbox("Lock cursor (F1)", &GlobalOptions.isFreeCamera)) {
+            tfg::setFreeCamera(GlobalOptions.isFreeCamera);
+            if (GlobalOptions.isFreeCamera)
+                ImGui::SetWindowFocus();
+        }
+        if (ImGui::Button("Reset camera position")) {
+            camera_.position_ = {4 * board_.offset_, -4 * board_.offset_, 35};
+            camera_.pitch_ = 0.0f;
+            camera_.yaw_ = 270.0f;
+        }
+        ImGui::Checkbox("Show game status", &gameStatus);
+        ImGui::Checkbox("Show Controls", &controls);
+    }
     ImGui::End();
 
-    ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("Camera");
-    ImGui::SliderFloat("Yaw", &camera_.yaw_, 0, 360);
-    ImGui::SliderFloat("Pitch", &camera_.pitch_, -89, 89);
-    ImGui::SliderFloat3("Position", &camera_.position_.x, -10, 10);
-    ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
-    ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
-    ImGui::SliderFloat("zNear", &camera_.zNear_, 0.001f, 200);
-    ImGui::SliderFloat("zFar", &camera_.zFar_, 0.001f, 200);
-    ImGui::InputFloat("FoV", &camera_.fov_);
-    camera_.updateCameraVectors();
-
-    ImGui::Text("Draw Normals");
-    ImGui::Checkbox("Cube normals", &GlobalOptions.drawCubeNormals);
-    ImGui::Checkbox("Sphere normals", &GlobalOptions.drawSphereNormals);
-    ImGui::Checkbox("Plane normals", &GlobalOptions.drawPlaneNormals);
-
-    ImGui::Text("Light");
-    ImGui::Checkbox("Lock light to camera", &lockLightPosition);
-    if (lockLightPosition) {
-        GlobalOptions.light.position = camera_.position_;
-        GlobalOptions.light.direction = camera_.center_;
+    if (gameStatus) {
+        ImGui::Begin("Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Text("Neares entity %d", nearesTile_ ? nearesTile_->entityId : -1);
+        if (hoveredTile_) {
+            auto row = hoveredTile_->row, col = hoveredTile_->col;
+            ImGui::Text("Position (%0.2f,%0.2f,%0.2f)", hoveredTile_->cube.position.x, hoveredTile_->cube.position.y,
+                        hoveredTile_->cube.position.z);
+            ImGui::Text("Cell (%d,%d)", row, col);
+            ImGui::Text("Value %d (%d)", hoveredTile_->numericalValue, !hoveredTile_->isDeck ? sudoku_.getSolution(row, col) : 0);
+            ImGui::Text("Hints %d ", hoveredTile_->hints);
+        } else {
+            ImGui::Text("Position (null)");
+            ImGui::Text("Cell (-1,-1)");
+            ImGui::Text("Value -1 (-1)");
+            ImGui::Text("Hints -1");
+        }
+        ImGui::End();
     }
-    ImGui::SliderFloat3("Position", &GlobalOptions.light.position.x, 0, 40);
-    ImGui::SliderFloat3("Ambient", &GlobalOptions.light.ambient.x, 0, 1);
-    ImGui::SliderFloat3("Direction", &GlobalOptions.light.direction.x, -1, 1);
-    ImGui::SliderFloat3("Specular", &GlobalOptions.light.specular.x, 0, 1);
-    ImGui::SliderFloat3("Diffuse", &GlobalOptions.light.diffuse.x, 0, 1);
-    ImGui::SliderFloat("Cutoff", &cutoffDegress, 0, 90);
-    ImGui::SliderFloat("OuterCutoff", &outcutoffDegress, 0, 90);
-    GlobalOptions.light.cutOff = glm::cos(glm::radians(cutoffDegress));
-    GlobalOptions.light.outerCutOff = glm::cos(glm::radians(outcutoffDegress));
-    ImGui::SliderFloat("Constant", &GlobalOptions.light.constant, 0, 0.1);
-    ImGui::SliderFloat("Liniear", &GlobalOptions.light.linear, 0, 0.1);
-    ImGui::SliderFloat("Quadratic", &GlobalOptions.light.quadratic, 0, 0.1);
 
-    ImGui::End();
+    if (controls) {
+        ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Text("Camera");
+        ImGui::SliderFloat("Yaw", &camera_.yaw_, 0, 360);
+        ImGui::SliderFloat("Pitch", &camera_.pitch_, -89, 89);
+        ImGui::SliderFloat3("Position", &camera_.position_.x, -10, 10);
+        ImGui::SliderFloat3("Center", &camera_.center_.x, -10, 10);
+        ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
+        ImGui::SliderFloat("zNear", &camera_.zNear_, 0.001f, 200);
+        ImGui::SliderFloat("zFar", &camera_.zFar_, 0.001f, 200);
+        ImGui::InputFloat("FoV", &camera_.fov_);
+        camera_.updateCameraVectors();
+
+        ImGui::Text("Draw Normals");
+        ImGui::Checkbox("Cube normals", &GlobalOptions.drawCubeNormals);
+        ImGui::Checkbox("Sphere normals", &GlobalOptions.drawSphereNormals);
+        ImGui::Checkbox("Plane normals", &GlobalOptions.drawPlaneNormals);
+
+        ImGui::Text("Light");
+        ImGui::Checkbox("Lock light to camera", &lockLightPosition);
+        if (lockLightPosition) {
+            GlobalOptions.light.position = camera_.position_;
+            GlobalOptions.light.direction = camera_.center_;
+        }
+        ImGui::SliderFloat3("Position", &GlobalOptions.light.position.x, 0, 40);
+        ImGui::SliderFloat3("Ambient", &GlobalOptions.light.ambient.x, 0, 1);
+        ImGui::SliderFloat3("Direction", &GlobalOptions.light.direction.x, -1, 1);
+        ImGui::SliderFloat3("Specular", &GlobalOptions.light.specular.x, 0, 1);
+        ImGui::SliderFloat3("Diffuse", &GlobalOptions.light.diffuse.x, 0, 1);
+        ImGui::SliderFloat("Cutoff", &cutoffDegress, 0, 90);
+        ImGui::SliderFloat("OuterCutoff", &outcutoffDegress, 0, 90);
+        GlobalOptions.light.cutOff = glm::cos(glm::radians(cutoffDegress));
+        GlobalOptions.light.outerCutOff = glm::cos(glm::radians(outcutoffDegress));
+        ImGui::SliderFloat("Constant", &GlobalOptions.light.constant, 0, 0.1);
+        ImGui::SliderFloat("Liniear", &GlobalOptions.light.linear, 0, 0.1);
+        ImGui::SliderFloat("Quadratic", &GlobalOptions.light.quadratic, 0, 0.1);
+        ImGui::End();
+    }
 }
 
 bool World::onUpdate(float deltatme) {
