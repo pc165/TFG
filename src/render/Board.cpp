@@ -125,7 +125,7 @@ bool Board::isInBoard(const glm::vec3 &position) const {
 }
 
 Board::Board() : cubeRender_(), planeRender_(), sphereRender_() {
-    cubeRender_.setDiffuseMap(CUBE_COLOR_DEFAULT);
-    planeRender_.setDiffuseMap(PLANE_COLOR);
-    sphereRender_.setDiffuseMap(SPHERE_COLOR);
+//    cubeRender_.setDiffuseMap(CUBE_COLOR_DEFAULT);
+//    planeRender_.setDiffuseMap(PLANE_COLOR);
+//    sphereRender_.setDiffuseMap(SPHERE_COLOR);
 }

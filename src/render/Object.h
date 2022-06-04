@@ -36,15 +36,15 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId_);
     }
 
-    void bindTextures() const {
-        // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
-    }
+//    void bindTextures() const {
+//        // bind diffuse map
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+//
+//        // bind specular map
+//        glActiveTexture(GL_TEXTURE1);
+//        glBindTexture(GL_TEXTURE_2D, specularMap);
+//    }
 
     static void unBindAll() {
         glBindVertexArray(0);
@@ -88,11 +88,7 @@ public:
     }
 
     void draw(tfg::Transform const &data, glm::vec3 const &color, bool isLightEnabled, bool drawNormals = false) const {
-        assert(diffuseMap != 0);
-        assert(specularMap != 0);
-
         bind();
-        bindTextures();
         basicShader.bind();
 
         auto translated = glm::translate(glm::mat4(1.0f), data.position);
@@ -123,10 +119,10 @@ public:
         }
     }
 
-    void setDiffuseMap(glm::vec3 const &color) {
-        diffuseMap = tfg::colorToTexture(color, 256);
-        specularMap = tfg::colorToTexture(color, 256);
-    }
+//    void setDiffuseMap(glm::vec3 const &color) {
+//        diffuseMap = tfg::colorToTexture(color, 32);
+//        specularMap = tfg::colorToTexture(color, 32);
+//    }
 
 
 protected:
@@ -138,8 +134,8 @@ protected:
     GLuint normalId_{0};
     GLuint textureId_{0};
     GLuint vertexArrayId_{0};
-    GLuint diffuseMap{0};
-    GLuint specularMap{0};
+//    GLuint diffuseMap{0};
+//    GLuint specularMap{0};
     tfg::Material material;
 };
 

@@ -94,16 +94,16 @@ void tfg::errorOccurredGL(GLenum source,
             _severity = "UNKNOWN";
             break;
     }
-    if (_severity == "NOTIFICATION" || _severity == "LOW" || _severity == "PERFORMANCE")
-        return;
     LOG_ERROR("{} : {} of {} severity, raised from {}: {}",
               id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+    if (_severity == "NOTIFICATION" || _severity == "LOW" || _severity == "PERFORMANCE")
+        return;
     raise(SIGINT);
     exit(1);
 }
 
 
-void tfg::InitWindow(const char *title, int width, int height) {
+void tfg::InitWindow(const char *title, int width, int height, bool fullscreen) {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         LOG_CRITICAL("Failed to initialize GLFW");
@@ -112,7 +112,21 @@ void tfg::InitWindow(const char *title, int width, int height) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-    GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+
+
+    auto monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+    GLFWwindow *window = glfwCreateWindow(fullscreen ? mode->width : width,
+                                          fullscreen ? mode->height : height,
+                                          title,
+                                          fullscreen ? monitor : nullptr,
+                                          nullptr);
 
     LOG_DEBUG("Window created {}", fmt::ptr(window));
     if (window == nullptr) {

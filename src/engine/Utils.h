@@ -41,7 +41,7 @@ namespace tfg {
 
     void InitLogger();
 
-    void InitWindow(const char *title, int width = 1080, int height = 720);
+    void InitWindow(const char *title, int width = 1080, int height = 720, bool fullscreen = true);
 
     void ConfigureEvents();
 

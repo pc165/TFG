@@ -93,7 +93,7 @@ void World::guiWindow() {
         ImGui::EndPopup();
     }
 
-    ImGui::Begin("Status");
+    ImGui::Begin("Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Neares entity %d", nearesTile_ ? nearesTile_->entityId : -1);
     if (hoveredTile_) {
         auto row = hoveredTile_->row, col = hoveredTile_->col;
@@ -109,7 +109,7 @@ void World::guiWindow() {
     }
     ImGui::End();
 
-    ImGui::Begin("Game menu");
+    ImGui::Begin("Game menu", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     if (ImGui::Button("New Sudoku")) {
         sudoku_.randomSudokuGenerator(difficulty);
     }
@@ -121,7 +121,7 @@ void World::guiWindow() {
 
     ImGui::End();
 
-    ImGui::Begin("Controls");
+    ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Camera");
     ImGui::SliderFloat("Yaw", &camera_.yaw_, 0, 360);
     ImGui::SliderFloat("Pitch", &camera_.pitch_, -89, 89);
