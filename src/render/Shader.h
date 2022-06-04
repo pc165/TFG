@@ -13,6 +13,7 @@
 class Shader {
 private:
     GLuint programId{};
+    std::unordered_map<std::string, int> location;
 public:
     Shader() = default;
 
@@ -22,45 +23,42 @@ public:
 
     void loadSource(const char *path);
 
-
-    void setBoolean(const char *name, int ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform1i(location, ptrData);
+    int getLocation(std::string const &name) const {
+        auto a = location.find(name);
+        assert(a != location.end());
+        return a->second;
     }
 
-    void setMat4(const char *name, const float *ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniformMatrix4fv(location, 1, GL_FALSE, ptrData);
+    void setBoolean(std::string const &name, int ptrData) const {
+        glUniform1i(getLocation(name), ptrData);
     }
 
-    void setMat3(const char *name, const float *ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniformMatrix3fv(location, 1, GL_FALSE, ptrData);
+    void setMat4(std::string const &name, const float *ptrData) const {
+        glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, ptrData);
     }
 
-    void setVec4(const char *name, const float *ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform4fv(location, 1, ptrData);
+    void setMat3(std::string const &name, const float *ptrData) const {
+        glUniformMatrix3fv(getLocation(name), 1, GL_FALSE, ptrData);
     }
 
-    void setVec3(const char *name, const float *ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform3fv(location, 1, ptrData);
+    void setVec4(std::string const &name, const float *ptrData) const {
+        glUniform4fv(getLocation(name), 1, ptrData);
     }
 
-    void setVec2(const char *name, const float *ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform2fv(location, 1, ptrData);
+    void setVec3(std::string const &name, const float *ptrData) const {
+        glUniform3fv(getLocation(name), 1, ptrData);
     }
 
-    void setFloat(const char *name, float ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform1f(location, ptrData);
+    void setVec2(std::string const &name, const float *ptrData) const {
+        glUniform2fv(getLocation(name), 1, ptrData);
     }
 
-    void setInt(const char *name, int ptrData) const {
-        auto location = glGetUniformLocation(programId, name);
-        glUniform1i(location, ptrData);
+    void setFloat(std::string const &name, float ptrData) const {
+        glUniform1f(getLocation(name), ptrData);
+    }
+
+    void setInt(std::string const &name, int ptrData) const {
+        glUniform1i(getLocation(name), ptrData);
     }
 
     void setLight(tfg::Light const &light) const {

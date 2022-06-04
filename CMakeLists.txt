@@ -58,7 +58,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG 2fa60be
+        GIT_TAG docking
 )
 FetchContent_MakeAvailable(imgui)
 
@@ -80,7 +80,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_REPOSITORY https://github.com/nothings/stb
-        GIT_TAG af1a5bc
+        GIT_TAG master
 )
 FetchContent_MakeAvailable(stb)
 

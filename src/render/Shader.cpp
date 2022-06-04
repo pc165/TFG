@@ -4,7 +4,7 @@ GLuint Shader::getProgramId() const { return programId; }
 
 Shader::~Shader() { glDeleteProgram(programId); }
 
-void Shader::   loadSource(const char *path) {
+void Shader::loadSource(const char *path) {
     assert(programId == 0);
     std::string vertexCode{};
     std::string fragmentCode{};
@@ -55,6 +55,26 @@ void Shader::   loadSource(const char *path) {
 
     glDeleteShader(vertexId);
     glDeleteShader(fragmentId);
+
+
+    // get shader uniforms
+    int numUniforms;
+    int maxCharLength;
+    glGetProgramiv(programId, GL_ACTIVE_UNIFORMS, &numUniforms);
+    glGetProgramiv(programId, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxCharLength);
+    if (numUniforms > 0 && maxCharLength > 0) {
+        LOG_INFO("Found {} uniforms", numUniforms);
+        char *buffer = (char *) new char[maxCharLength];
+        for (int i = 0; i < numUniforms; i++) {
+            int size;
+            GLenum dataType;
+            glGetActiveUniform(programId, i, maxCharLength, &length, &size, &dataType, buffer);
+            location[buffer] = glGetUniformLocation(programId, buffer);
+            LOG_INFO("{} {}", buffer, location[buffer]);
+        }
+        delete[]buffer;
+    }
+
 
     LOG_INFO("Created program {}", programId);
 }
