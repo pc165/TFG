@@ -86,15 +86,11 @@ public:
             yaw_ += (mouse.x - lastMousePos_.x) * mouseSensitivity_;
             pitch_ += (lastMousePos_.y - mouse.y) * mouseSensitivity_;
 
-            if (yaw_ > 360.0f)
-                yaw_ = 0.0f;
-            if (yaw_ < 0)
-                yaw_ = 360.f;
+            yaw_ = yaw_ > 360.0f ? 0.0f : yaw_;
+            yaw_ = yaw_ < 0 ? 360.f : yaw_;
 
-            if (pitch_ > 89.0f)
-                pitch_ = 89.0f;
-            if (pitch_ < -89.0f)
-                pitch_ = -89.0f;
+            pitch_ = fmin(pitch_, 89.9);
+            pitch_ = fmax(pitch_, -89.9);
 
             lastMousePos_ = mouse;
 
