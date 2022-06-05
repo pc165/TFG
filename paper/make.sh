@@ -1,2 +1,2 @@
 #!/bin/bash
-pdflatex -output-directory=./build  main.tex
+pdflatex -output-directory=./  main.tex

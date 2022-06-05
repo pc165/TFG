@@ -192,7 +192,7 @@ ells els avenços fets.
 \end{figure}
 
 \subsection{Planificació}\label{subsec:planificacio}
-La planificació del projecte s'ha dividit en 7 tasques llistades a la taula~\pref{tablePlan}.
+La planificació del projecte s'ha dividit en 7 tasques llistades a la taula.\pref{tableplan}
 
 \begin{table}
     \centering
@@ -229,7 +229,7 @@ La planificació del projecte s'ha dividit en 7 tasques llistades a la taula~\pr
                                                                Tests per a cada component \\implementat.
                                                            \end{tabular}
         \hrulefill
-    \end{tabular}\label{tab:tableplan}\\
+    \end{tabular}\label{tab:tableplan}
 \end{table}
 
 \section{Desenvolupament}\label{sec:development}
@@ -265,8 +265,8 @@ OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per
 El sistema de renderització està compost per dues classes:
 
 \begin{itemize}
-    \item La classe \textit{Object}, és la classe que és heretada per a qualsevol objecte que es dibuixa a
-          pantalla (\textit{Cube, Sphere, Plane, Crosshair}). Té dos mètodes principals:
+    \item La classe \textit{Object}, és la classe base per a qualsevol objecte que es dibuixa a pantalla
+          (\textit{Cube, Sphere, Plane, Crosshair}). Té dos mètodes principals:
           \begin{itemize}
               \item \textbf{setupVao(position, normals, texture, index)}: Inicialitza les estructura de dades i els \textit{shaders} necessàris per al dibuixat amb \textit{OpenGL}.
               \item \textbf{draw(transform, color, isLightEnabled, drawNormals)}: El mètode amb el qual es dibuixa a la pantalla.
@@ -291,12 +291,12 @@ El sistema de renderització està compost per dues classes:
 \subsubsection{Cub}
 La renderització d'un cub es fa partir de triangles, primer es defineix la posició dels vèrtexs
 dels triangles que el conformen, a més de les normals i de les coordenades de la textura i
-s'utilitza el mètode \textbf{setupVao} de la classe base per enviar les dades dels vertex a la
+s'utilitza el mètode \textbf{setupVao} de la classe base per enviar les dades dels vèrtex a la
 GPU.\@
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.5\textwidth]{img/cube}
+    \includegraphics[width=0.4\textwidth]{img/cube}
     \caption{Renderització d'un cub amb il·luminació i les seves normals.}\label{fig:cube}
 \end{figure}
 
@@ -307,30 +307,36 @@ aquest cas per construir una esfera amb triangles primer s'ha de particionar la 
 diferents sectors i estacs, ja que no podem dibuixar tots els punts de l'esfera en pantalla.
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.5\textwidth]{img/sphere}
+    \includegraphics[width=0.4\textwidth]{img/sphere}
     \caption{Renderització d'esferes amb diferents sectors i estacs.}\label{fig:sphere}
 \end{figure}
 
 \subsubsection{Fitxa del sudoku}
-Amb un cub i una esfera es pot renderitzar l'entitat principal del joc. És necessari un cub i sis
+Amb un cub i una esfera es pot renderitzar l'entitat principal del joc, és necessari un cub i sis
 esferes (encara que només s'utilitza 4 esferes pels números del 0 al 9). El dibuixat de les esferes
 es fa amb un mapajat entre els valors numèrics i les posicions de les esferes en la fitxa.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.5\textwidth]{img/tile}
+    \includegraphics[width=0.4\textwidth]{img/tile}
     \caption{El numero 7 i 2 en braille.}\label{fig:tile}
 \end{figure}
 
 \subsubsection{Pla}
 
-Aquest objecte és necessari per seleccionar el pla que es vol en la funció \textit{glUnproject} per
+Aquest objecte l'utilitzem per seleccionar el pla que es vol en la funció \textit{glUnproject} per
 convertir la posició del ratolí en la finestra a coordenades món. Si no s'utilitza un pla, la
 posició del món que s'obtindria seria la del pla \textit{zFar}.
 
 \subsubsection{Mira}
 La mira, a diferència dels objectes anteriors, és una figura 2D per això la classe té un mètode per
 renderitzar especial que fa l'ús de la projecció ortogràfica i desactiva la il·luminació.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/crosshair}
+    \caption{Visualitzats amb RenderDoc dels vèrtexs enviats al \textit{shader}.}\label{fig:pers}
+\end{figure}
 
 \subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
 La classe \textit{EventState} gestiona l'estat dels perifèrics, aquesta classe és necessari perquè
@@ -369,22 +375,81 @@ mètodes que s'utilitzen per actualitzar l'estat.
 \end{itemize}
 
 \subsection{Càmera}\label{subsec:classe-camera}
-La classe \textit{Camera} conté les matrius que serveixen per transformar les geometries dels objectes de les coordenades locals a coordenades món. Aquesta classe proveeix la matriu ortogràfica i la matriu perspectiva a les classes que la necessitin.
+La classe \textit{Camera} conté les matrius que s'utilitzen per posicionar i transformar els
+objectes al món, més concretament, proveeix dues matrius dependentment si es vol una projecció
+ortogràfica o una projecció perspectiva. Si l'objecte que es vol dibuixar en pantalla és una figura
+3D, com ara l'esfera o el cub, s'utilitza la projecció perspectiva i si no, s'utilitza la projecció
+ortogràfica per dibuixar els objectes a pantalla.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/transforms}
+    \includegraphics[width=0.4\textwidth]{img/pers}
+    \caption{Per a una geometria 3D és necessari 3 matrius que transformen les coordenades locals a coordenades món, si fos un element del HUD (com és el cas de la mira) només seria necessari la matriu \textit{uModel} (per transformar els vèrtexs) i la \textit{uProjection}.}\label{fig:pers}
+\end{figure}
+
+\subsection{Selecció d'objectes}\label{subsec:picking-object}
+Una de les funcions més importants de qualsevol joc és la selecció d'objectes, una manera
+d'implementar la selecció és utilitzant una tècnica anomenada \textit{Picking Object}. La idea
+principal és codificar l'identificador de l'objecte en un color únic i pintar els objectes amb
+aquest color, després, es recupera el color que està sota el ratolí i obtenim l'identificador a
+partir del color. Una de l'avantatge d'aquest mètode és la seva simplicitat comparada amb altres
+tècniques que utilitzen un motor físic per projectar una recta en la posició ratolí i buscar
+col·lisions amb els objectes. Però l'inconvenient que té aquesta tècnica és que disminueix molt els
+fotogrames per segon pel fet que s'ha de dibuixar l'escena dues vegades (una pel \textit{picking
+    object} i una per l'escena normal).
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.5\textwidth]{img/pers}
-    \caption{projecció perspectiva a l'esquerra i la projecció ortogràfica a la dreta.}\label{fig:pers}
+    \includegraphics[width=0.4\textwidth]{img/drawPick}
+    \caption{Visualització dels colors assignats als objectes.}\label{fig:pick}
 \end{figure}
 
+\subsubsection{Implementacó}\label{subsec:sudoku}
 
-\subsection{Picking Object}\label{subsec:picking-object}
+Com s'ha explicat en l'apartat anterior, per utilitzar la tècnica del \textit{picking object} es
+necessari un transformar un identificar a un color únic. Per desenvolupament del projecte s'ha
+optat per utilitzar una transformació que associa cada identificador amb un color RGB amb
+l'algoritme de la figura \pref{gencolor}.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/genColor}
+    \caption{Funció de generació del color.}\label{fig:gencolor}
+\end{figure}
+
+La funció \textbf{colorToId(color)} \pref{getColor} obté l'identificador a partir del color.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/getColor}
+    \caption{Funció de obtenció del identificador.}\label{fig:getColor}
+\end{figure}
+
+A més a més de les transformacions, s'utilitza la funció \textbf{glReadPixels(x, y, type, dataType,
+    out)} per obtenir el color en la posició x, y del ratolí. Amb aquesta funció es pot obtenir, a més
+del color, la posició de la coordenada Z que s'utilitza per saber on col·locar l'objecte
+seleccionat.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/glRead}
+    \caption{Utilització de la funció glReadPixels.}\label{fig:getColor}
+\end{figure}
 
 \subsection{Sudoku}\label{subsec:sudoku}
 
+\subsection{Generació de sudokus}\label{subsec:sudoku}
+generacio del sudoku
+
 \subsection{Classe Món}\label{subsec:classe-de-control}
+interacció entre usuari i joc
+
+\subsection{Selecció de fitxes}\label{subsec:selecció}
+
+\subsection{Pistes de resolució}\label{subsec:pistes}
 
 \subsection{Funcions auxiliars}\label{subsec:funcions-auxiliars}
+
+\subsubsection{Registre d'accions}\label{subsec:logging}
 
 \subsection{Il·luminació}\label{subsec:iluminacio}
 
