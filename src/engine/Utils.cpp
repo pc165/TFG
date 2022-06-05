@@ -258,25 +258,20 @@ glm::vec3 tfg::screenToColor(int x, int y) {
         win.y = viewport[3] / 2.0;
     }
 
-
     glm::vec3 color;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glReadPixels((int) win.x, (int) win.y, 1, 1, GL_RGB, GL_FLOAT, glm::value_ptr(color));
 
     return color;
 }
 
 int tfg::colorToId(glm::vec3 color) {
-
     if (color == glm::vec3{GlobalOptions.clearColor})
         return -1;
 
     int id = std::round(color.r * 10) +
              std::round(color.g * 100) +
              std::round(color.b * 1000);
-
-//    assert(id < Injector::EntitySize);
-
+    assert(id < Injector::EntitySize);
     return id;
 }
 

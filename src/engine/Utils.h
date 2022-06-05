@@ -25,6 +25,10 @@ namespace tfg {
         bool drawCubeNormals{false};
         bool drawSphereNormals{false};
         bool drawPlaneNormals{false};
+        bool drawPickingObject{false};
+        bool lockLightPosition{true};
+        bool controls{false};
+        bool gameStatus{false};
         Light light;
     };
 

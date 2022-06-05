@@ -53,12 +53,12 @@ void World::gameLoop() {
         // normal rendering
         glfwPollEvents();
         auto t1 = glfwGetTime();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        tfg::setClearColor({0.0f, 0.0f, 0.0f, 1.0f});
+        tfg::setClearColor({0.1f, 0.1f, 0.1f, 1.0f});
 
         // draw board
-        board_.drawBoard();
+        board_.drawBoard(GlobalOptions.drawPickingObject);
         frametime_ = t1 - t0;
         t0 = t1;
 
@@ -117,12 +117,13 @@ void World::guiWindow() {
             camera_.pitch_ = 0.0f;
             camera_.yaw_ = 270.0f;
         }
-        ImGui::Checkbox("Show game status", &gameStatus);
-        ImGui::Checkbox("Show Controls", &controls);
+        ImGui::Checkbox("Show game status", &GlobalOptions.gameStatus);
+        ImGui::Checkbox("Draw Picking object", &GlobalOptions.drawPickingObject);
+        ImGui::Checkbox("Show Controls", &GlobalOptions.controls);
     }
     ImGui::End();
 
-    if (gameStatus) {
+    if (GlobalOptions.gameStatus) {
         ImGui::Begin("Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("Neares entity %d", nearesTile_ ? nearesTile_->entityId : -1);
         if (hoveredTile_) {
@@ -141,7 +142,7 @@ void World::guiWindow() {
         ImGui::End();
     }
 
-    if (controls) {
+    if (GlobalOptions.controls) {
         ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("Camera");
         ImGui::SliderFloat("Yaw", &camera_.yaw_, 0, 360);
@@ -160,8 +161,8 @@ void World::guiWindow() {
         ImGui::Checkbox("Plane normals", &GlobalOptions.drawPlaneNormals);
 
         ImGui::Text("Light");
-        ImGui::Checkbox("Lock light to camera", &lockLightPosition);
-        if (lockLightPosition) {
+        ImGui::Checkbox("Lock light to camera", &GlobalOptions.lockLightPosition);
+        if (GlobalOptions.lockLightPosition) {
             GlobalOptions.light.position = camera_.position_;
             GlobalOptions.light.direction = camera_.center_;
         }
