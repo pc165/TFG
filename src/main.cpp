@@ -1,7 +1,12 @@
 #include "Utils.h"
 #include "World.h"
+#include "Audio.h"
 
-int main(int, char *[]) {
+int main() {
+    tfg::LoadAudioFiles("sound0.wav");
+    if (tfg::InitAudio()) {
+        LOG_INFO("Audio Thread created");
+    }
     tfg::InitLogger();
     tfg::InitWindow("TFG");
     tfg::ConfigureEvents();
@@ -10,5 +15,6 @@ int main(int, char *[]) {
         game.gameLoop();
     }
     tfg::DestroyWindow();
+    tfg::DestroyAudio();
     return 0;
 }

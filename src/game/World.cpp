@@ -1,4 +1,5 @@
 #include "World.h"
+#include "Audio.h"
 
 World::World() {
     GlobalOptions.camera = &this->camera_;
