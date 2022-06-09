@@ -76,6 +76,7 @@ struct UserData {
     struct pw_stream *stream;
     AudioData *audio;
     bool finished;
+    bool quit;
 };
 
 struct ThreadData {
@@ -85,7 +86,7 @@ struct ThreadData {
 
 static struct AudioData audios[MAX_AUDIOS];
 static int audio_size = 0;
-static struct UserData user_data = {.loop= nullptr, .stream= nullptr, .audio=nullptr};
+static struct UserData user_data = {.loop= nullptr, .stream= nullptr, .audio=nullptr, .finished=true, .quit=false};
 static struct ThreadData thread_data;
 
 
@@ -93,15 +94,23 @@ static struct ThreadData thread_data;
 
 static void on_process(void *dataPtr) {
     auto *data = static_cast<struct UserData *>(dataPtr);
+    pthread_mutex_lock(&thread_data.lock);
 
-    if (data->finished)
+    if (data->quit) {
+        LOG_DEBUG("Event audio quit");
+        pthread_mutex_unlock(&thread_data.lock);
+        pw_main_loop_quit(data->loop);
         return;
+    }
 
-    if (data->audio == nullptr)
+    if (data->finished || data->audio == nullptr) {
+        pthread_mutex_unlock(&thread_data.lock);
         return;
+    }
 
     struct pw_buffer *pw_buffer = pw_stream_dequeue_buffer(data->stream);
     if (pw_buffer == nullptr) {
+        pthread_mutex_unlock(&thread_data.lock);
         LOG_ERROR("Out of buffers");
         return;
     }
@@ -109,11 +118,12 @@ static void on_process(void *dataPtr) {
     struct spa_buffer *spa_buffer = pw_buffer->buffer;
     auto *buffer = static_cast<int16_t *>(spa_buffer->datas[0].data);
 
-    if (buffer == nullptr)
+    if (buffer == nullptr) {
+        pthread_mutex_unlock(&thread_data.lock);
         return;
+    }
 
     memset(buffer, 0, spa_buffer->datas[0].maxsize);
-    pthread_mutex_lock(&thread_data.lock);
 
     AudioData *audio = data->audio;
 
@@ -121,21 +131,20 @@ static void on_process(void *dataPtr) {
     int n_frames = spa_buffer->datas[0].maxsize / stride;
     int remaining_frames = audio->total_frames - audio->frames_played;
 
-    n_frames = MIN(n_frames, remaining_frames);
+    if (n_frames > remaining_frames)
+        n_frames = remaining_frames;
 
-    for (int i = 0; i < n_frames; i++) {
-        int32_t sample = reinterpret_cast<int16_t *>(audio->buffer)[audio->frames_played + i];
+    for (int i = 0; i < n_frames * TOTAL_CHANNELS; i++) {
+        int32_t sample = reinterpret_cast<int16_t *>(audio->buffer)[audio->frames_played * TOTAL_CHANNELS + i];
 
         if (sample < INT16_MIN) sample = INT16_MIN;
         if (sample > INT16_MAX) sample = INT16_MAX;
 
-        for (int j = 0; j < TOTAL_CHANNELS; ++j) {
-            *buffer++ = sample;
-        }
+        *buffer++ = sample;
     }
 
     audio->frames_played += n_frames;
-    if (audio->frames_played >= audios[0].total_frames) {
+    if (audio->frames_played >= audio->total_frames) {
         audio->frames_played = 0;
         data->finished = true;
     }
@@ -154,13 +163,9 @@ static const struct pw_stream_events stream_events = {
         .process = on_process,
 };
 
-static void do_quit(void *userdata, int signal_number) {
-    auto *data = static_cast<struct UserData *>(userdata);
-    pw_main_loop_quit(data->loop);
-}
 
 static void *audio_main_thread(void *) {
-    LOG_INFO("Audio thread");
+    LOG_INFO("Audio thread main");
     const struct spa_pod *params[1];
     uint8_t buffer[1024];
     struct spa_pod_builder b = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
@@ -170,9 +175,6 @@ static void *audio_main_thread(void *) {
     /* make a main loop. If you already have another main loop, you can add
      * the fd of this pipewire mainloop to it. */
     user_data.loop = pw_main_loop_new(nullptr);
-    user_data.finished = true;
-    pw_loop_add_signal(pw_main_loop_get_loop(user_data.loop), SIGINT, do_quit, &user_data);
-    pw_loop_add_signal(pw_main_loop_get_loop(user_data.loop), SIGTERM, do_quit, &user_data);
 
     /* Create a simple stream, the simple stream manages the core and remote
      * objects for you if you don't need to deal with them.
@@ -221,39 +223,40 @@ static void *audio_main_thread(void *) {
     pw_stream_destroy(user_data.stream);
     pw_main_loop_destroy(user_data.loop);
     pw_deinit();
+    LOG_DEBUG("Audio thread exit");
     return nullptr;
 }
 
-void tfg::LoadAudioFiles(char const *path) {
+int tfg::LoadAudioFiles(char const *path) {
     int fd = open(path, O_RDONLY);
     LOG_INFO("Load audio {}", path);
 
     if (audio_size >= MAX_AUDIOS) {
         LOG_ERROR("Too manu audios");
-        return;
+        return -1;
     }
 
     if (fd == -1) {
         LOG_ERROR("Cannot open file {}", path);
-        return;
+        return -1;
     }
 
     int size = lseek(fd, 0, SEEK_END);
 
     if (size == -1) {
         LOG_ERROR("Cannot find file size");
-        return;
+        return -1;
     }
 
     if (lseek(fd, 0, SEEK_SET) == -1) {
         LOG_ERROR("Cannot reset cursor");
-        return;
+        return -1;
     }
 
     void *data = (void *) malloc(size);
     if (read(fd, data, size) == -1) {
         LOG_ERROR("Cannot read");
-        return;
+        return -1;
     }
 
     close(fd);
@@ -262,7 +265,8 @@ void tfg::LoadAudioFiles(char const *path) {
 
     assert(wav_file->sample_rate == SAMPLE_RATE);
     assert(wav_file->num_channels == TOTAL_CHANNELS);
-    assert(wav_file->format == 1);
+    assert(wav_file->bit_depth == 16); // 16
+    assert(wav_file->format == 1); // PCM
     assert(wav_file->wave_header[0] == 'W');
     assert(wav_file->wave_header[1] == 'A');
     assert(wav_file->wave_header[2] == 'V');
@@ -282,23 +286,31 @@ void tfg::LoadAudioFiles(char const *path) {
     LOG_INFO("Created {}", path);
 
     free(wav_file);
+    return 0;
 }
 
-bool tfg::InitAudio() {
+int tfg::InitAudio() {
     if (pthread_mutex_init(&thread_data.lock, nullptr)) {
         LOG_ERROR("Cannot create mutex");
-        return false;
+        return -1;
     }
 
     if (pthread_create(&thread_data.handle, nullptr, audio_main_thread, nullptr)) {
         LOG_ERROR("Cannot create thread");
-        return false;
+        return -1;
     }
-    return true;
+
+    LOG_INFO("Audio Thread created");
+
+    return 0;
 }
 
 void tfg::PlayNumberAudio(int number) {
-    LOG_INFO("Play {}", number);
+    LOG_DEBUG("Play {}", number);
+    assert(number < audio_size);
+    if (!user_data.finished)
+        return;
+
     pthread_mutex_lock(&thread_data.lock);
 
     user_data.audio = &audios[number];
@@ -309,12 +321,20 @@ void tfg::PlayNumberAudio(int number) {
 }
 
 void tfg::DestroyAudio() {
-//    pthread_mutex_lock(&thread_data.lock);
-//    user_data.audio = nullptr;
-//    user_data.finished = true;
-//    do_quit(user_data.loop, SIGTERM);
-//    pthread_join(thread_data.handle, nullptr);
-//    pthread_mutex_unlock(&thread_data.lock);
+    LOG_DEBUG("Destroy audio");
+
+    for (int i = 0; i < audio_size; ++i) {
+        LOG_INFO("Free audio {}", i);
+        free(audios[i].buffer);
+    }
+
+    pthread_mutex_lock(&thread_data.lock);
+    user_data.audio = nullptr;
+    user_data.finished = true;
+    user_data.quit = true;
+    pthread_mutex_unlock(&thread_data.lock);
+
+    pthread_join(thread_data.handle, nullptr);
 }
 
 #endif

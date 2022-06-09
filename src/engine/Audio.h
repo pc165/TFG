@@ -3,9 +3,9 @@
 
 
 namespace tfg {
-    void LoadAudioFiles(char const *path);
+    int LoadAudioFiles(char const *path);
 
-    bool InitAudio();
+    int InitAudio();
 
     void PlayNumberAudio(int number);
 
