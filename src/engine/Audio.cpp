@@ -308,8 +308,6 @@ int tfg::InitAudio() {
 void tfg::PlayNumberAudio(int number) {
     LOG_DEBUG("Play {}", number);
     assert(number < audio_size);
-    if (!user_data.finished)
-        return;
 
     pthread_mutex_lock(&thread_data.lock);
 

@@ -273,7 +273,10 @@ int tfg::colorToId(glm::vec3 color) {
     int id = std::round(color.r * 10) +
              std::round(color.g * 100) +
              std::round(color.b * 1000);
-    assert(id < Injector::EntitySize);
+    if (id >= Injector::EntitySize) {
+        LOG_WARN("Unknown entity {}", id);
+        return -1;
+    }
     return id;
 }
 

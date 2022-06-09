@@ -106,6 +106,7 @@ void World::guiWindow() {
         }
         ImGui::SameLine();
         ImGui::SliderInt("Difficulty", &difficulty, 0, 2);
+        ImGui::Checkbox("Enable sound", &GlobalOptions.isSoundEnabled);
 
 
         if (ImGui::Checkbox("Lock cursor (F1)", &GlobalOptions.isFreeCamera)) {
@@ -252,19 +253,18 @@ bool World::onUpdate(float deltatme) {
     if (eventState_->mouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && hoveredTile_) {
         auto &tile = hoveredTile_;
 
-        tfg::PlayNumberAudio(tile->numericalValue);
+        // play sound on left click, play zero if hints are enabled
+        if (GlobalOptions.isSoundEnabled)
+            tfg::PlayNumberAudio(tile->isHintsEnabled ? 0 : tile->numericalValue);
 
         // show hints on left click
-        if (hoveredTile_->isDeck) {
-            // if there's a solution update hints
-            if (tile->isHintsEnabled) {
-                int row = hoveredTile_->row, col = hoveredTile_->col;
-                auto solution = sudoku_.getSolution(row, col);
-                tile->numericalValue = solution;
-                tile->hints++;
-                tile->hints %= NUMBER_TO_BRAILLE[solution].size();
-                if (tile->hints == 0) tile->numericalValue = 0;
-            }
+        if (!hoveredTile_->isDeck && tile->isHintsEnabled) {
+            int row = hoveredTile_->row, col = hoveredTile_->col;
+            auto solution = sudoku_.getSolution(row, col);
+            tile->numericalValue = solution;
+            tile->hints++;
+            tile->hints %= NUMBER_TO_BRAILLE[solution].size();
+            if (tile->hints == 0) tile->numericalValue = 0;
         }
     }
 

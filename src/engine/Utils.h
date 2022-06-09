@@ -29,6 +29,7 @@ namespace tfg {
         bool lockLightPosition{true};
         bool controls{false};
         bool gameStatus{false};
+        bool isSoundEnabled{true};
         Light light;
     };
 

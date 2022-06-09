@@ -55,8 +55,8 @@ public:
 
     void setupVao(std::vector<float> const &position, std::vector<float> const &normals, std::vector<float> const &texture,
                   std::vector<unsigned int> const &index) {
-        basicShader.loadSource("basicShader.glsl");
-        normalShader.loadSource("normalShader.glsl");
+        basicShader.loadSource("res/basicShader.glsl");
+        normalShader.loadSource("res/normalShader.glsl");
         glBindVertexArray(vertexArrayId_);
 
         // Indices

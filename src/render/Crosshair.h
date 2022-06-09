@@ -33,7 +33,7 @@ public:
     }
 
     void setupVao(std::vector<float> const &position, std::vector<unsigned int> const &index) {
-        basicShader.loadSource("crosshair.glsl");
+        basicShader.loadSource("res/crosshair.glsl");
         glBindVertexArray(vertexArrayId_);
 
         // Indices
