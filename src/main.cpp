@@ -3,11 +3,16 @@
 #include "Audio.h"
 
 int main() {
-    tfg::LoadAudioFiles("sound0.wav");
-    if (tfg::InitAudio()) {
-        LOG_INFO("Audio Thread created");
-    }
     tfg::InitLogger();
+
+    char buffer[20] = {0};
+    for (int i = 0; i < 10; i++) {
+        sprintf(buffer, "res/%d.wav", i);
+        if (tfg::LoadAudioFiles(buffer))
+            return 1;
+    }
+
+    tfg::InitAudio();
     tfg::InitWindow("TFG");
     tfg::ConfigureEvents();
     {

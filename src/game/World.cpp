@@ -249,18 +249,22 @@ bool World::onUpdate(float deltatme) {
         }
     }
 
-    // show hints on left click
-    if (eventState_->mouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && hoveredTile_ && !hoveredTile_->isDeck) {
+    if (eventState_->mouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && hoveredTile_) {
         auto &tile = hoveredTile_;
 
-        // if there's a solution update hints
-        if (tile->isHintsEnabled) {
-            int row = hoveredTile_->row, col = hoveredTile_->col;
-            auto solution = sudoku_.getSolution(row, col);
-            tile->numericalValue = solution;
-            tile->hints++;
-            tile->hints %= NUMBER_TO_BRAILLE[solution].size();
-            if (tile->hints == 0) tile->numericalValue = 0;
+        tfg::PlayNumberAudio(tile->numericalValue);
+
+        // show hints on left click
+        if (hoveredTile_->isDeck) {
+            // if there's a solution update hints
+            if (tile->isHintsEnabled) {
+                int row = hoveredTile_->row, col = hoveredTile_->col;
+                auto solution = sudoku_.getSolution(row, col);
+                tile->numericalValue = solution;
+                tile->hints++;
+                tile->hints %= NUMBER_TO_BRAILLE[solution].size();
+                if (tile->hints == 0) tile->numericalValue = 0;
+            }
         }
     }
 

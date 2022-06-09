@@ -94,10 +94,12 @@ void tfg::errorOccurredGL(GLenum source,
             _severity = "UNKNOWN";
             break;
     }
-    LOG_ERROR("{} : {} of {} severity, raised from {}: {}",
-              id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+
     if (_severity == "NOTIFICATION" || _severity == "LOW" || _severity == "PERFORMANCE")
         return;
+
+    LOG_ERROR("{} : {} of {} severity, raised from {}: {}",
+              id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
     raise(SIGINT);
     exit(1);
 }
