@@ -192,7 +192,7 @@ ells els avenços fets.
 \end{figure}
 
 \subsection{Planificació}\label{subsec:planificacio}
-La planificació del projecte s'ha dividit en 7 tasques llistades a la taula.\pref{tableplan}
+La planificació del projecte s'ha dividit en 7 tasques llistades a la taula.\pref{tab:tableplan}
 
 \begin{table}
     \centering
@@ -335,7 +335,7 @@ renderitzar especial que fa l'ús de la projecció ortogràfica i desactiva la i
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/crosshair}
-    \caption{Visualitzats amb RenderDoc dels vèrtexs enviats al \textit{shader}.}\label{fig:pers}
+    \caption{Visualitzats amb RenderDoc dels vèrtexs enviats al \textit{shader}.}\label{fig:crosshair}
 \end{figure}
 
 \subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
@@ -404,20 +404,20 @@ fotogrames per segon pel fet que s'ha de dibuixar l'escena dues vegades (una pel
     \caption{Visualització dels colors assignats als objectes.}\label{fig:pick}
 \end{figure}
 
-\subsubsection{Implementacó}\label{subsec:sudoku}
-
-Com s'ha explicat en l'apartat anterior, per utilitzar la tècnica del \textit{picking object} es
-necessari un transformar un identificar a un color únic. Per desenvolupament del projecte s'ha
-optat per utilitzar una transformació que associa cada identificador amb un color RGB amb
-l'algoritme de la figura \pref{gencolor}.
+\subsubsection{Implementacó}\label{subsec:implementacio}
 
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/genColor}
-    \caption{Funció de generació del color.}\label{fig:gencolor}
+    \caption{Funció de generació del color.}\label{fig:genColor}
 \end{figure}
 
-La funció \textbf{colorToId(color)} \pref{getColor} obté l'identificador a partir del color.
+Com s'ha explicat en l'apartat anterior, per utilitzar la tècnica del \textit{picking object} es
+necessari un transformar un identificar a un color únic. Per desenvolupament del projecte s'ha
+optat per utilitzar una transformació que associa cada identificador amb un color RGB amb
+l'algoritme de la figura \pref{fig:genColor}.
+
+La funció \textbf{colorToId(color)} \pref{fig:getColor} obté l'identificador a partir del color.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/getColor}
@@ -425,25 +425,41 @@ La funció \textbf{colorToId(color)} \pref{getColor} obté l'identificador a par
 \end{figure}
 
 A més a més de les transformacions, s'utilitza la funció \textbf{glReadPixels(x, y, type, dataType,
-    out)} per obtenir el color en la posició x, y del ratolí. Amb aquesta funció es pot obtenir, a més
-del color, la posició de la coordenada Z que s'utilitza per saber on col·locar l'objecte
-seleccionat.
+    out)} per obtenir el color en la posició del ratolí. Amb aquesta funció es pot obtenir, a més del
+color, la posició de la coordenada Z que s'utilitza per saber a quin pla s'ha de col·locar
+l'objecte seleccionat.
 
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/glRead}
-    \caption{Utilització de la funció glReadPixels.}\label{fig:getColor}
+    \caption{Utilització de la funció glReadPixels.}\label{fig:glRead}
 \end{figure}
 
 \subsection{Sudoku}\label{subsec:sudoku}
+Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'estat del joc és
+vàlid, generar i carregar sudokus. La inicialització col·loca les fitxes en la posició correcta i
+inicialitza l'estructura de dades \textit{Tile} que conté Informació relativa a la posició i el
+valor de la fitxa. Per comprovar que el joc s'ha completat correctament, sumem totes les cel·les i
+es comprova que igual a 405 ($(1+2+...+9) * 9$). La classe permet generar sudokus amb tres nivells
+de dificultat (3, 5 i 7 caselles buides); per generar un sudoku, primer, emplenem les subgraelles
+de la diagonal que són independents entre si, després, utilitzem un algoritme de backtracking per
+arribar a una solució i trèiem valors d'una fila i columna aleatòria fins a arribar a la dificultat
+desitjada.
 
-\subsection{Generació de sudokus}\label{subsec:sudoku}
-generacio del sudoku
+\subsection{Classe Món}\label{subsec:world}
+És la classe que conté el bucle del joc i les accions permeses del jugador. LA classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem implementar totes les accions requerides pel jugador.
+\\
+La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix per ometre fitxes que compleixin una certa condició (com ara ometre la fitxa seleccionada, ja que és sempre la més propera). La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la posició del ratolí i representa la fitxa que se seleccionarà si es fa clic. Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa pel pla del si es manté el botó del ratolí polsat. Amb la fitxa seleccionada deixar-la anar en la fitxa indicada per la variable nearesTile que es permetrà assignar números (si és correcte)  als llocs buits. Les fitxes permeten donar pistes en fer un clic, mostra la solució parcial en braille fins a un màxim de 3 esferes, a més a més, diu el número en angles.
+\\
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/tauler.png}
+    \caption{Estat inicial de joc.}\label{fig:tauler}
+\end{figure}
 
-\subsection{Classe Món}\label{subsec:classe-de-control}
-interacció entre usuari i joc
 
-\subsection{Selecció de fitxes}\label{subsec:selecció}
+La interfície està dibuixada amb ImGUI, una llibreria que permet crear GUI de forma declarativa de
+la mateixa forma que el framework Flutter,
 
 \subsection{Pistes de resolució}\label{subsec:pistes}
 
