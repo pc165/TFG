@@ -10,6 +10,7 @@
 \usepackage{multirow}
 \usepackage{cleveref}
 \usepackage{lettrine}
+\usepackage{lscape}
 \usepackage[top=2cm, bottom=1.5cm, left=2cm, right=2cm]{geometry}
 \usepackage[figurename=Fig.,tablename=TAULA]{caption}
 \captionsetup[table]{textfont=sc}
@@ -96,12 +97,15 @@ parcialment emplenada de 9 $\times$ 9 caselles dividida en subgraelles de 3 $\ti
 El sudoku modern va ser popularitzat en el 2004 quan Wayne Gould va desenvolupar un programa informàtic per produir trencaclosques únics ràpidament.
 
 Per una altra banda, el braille és un sistema d'escriptura i lectura tàctil basat en 6 punts
-disposats en una graella de 3 $\times$ 3 utilitzat per a persones cegues o amb mala visió.
-
-% TODO EXPLICAR BRAILE
+disposats en una graella de 3 $\times$ 3 utilitzat per a persones cegues o amb visió reduïda.
 
 \section{Estat de l'art}\label{sec:stateOftheArt}
-% TODO EXPLICAR BRAILE
+
+En l'actualitat, podem trobar sudokus en moltes parts: en els diaris, en llibres que recopilen
+sudokus per resoldre, en aplicacions per al mòbil o ordinador i fins sudokus amb peces en braille.
+Tot i això, no s'ha pogut trobar un sudoku 3D en braille per a ordinador que permeti aprendre els
+números en braille. És per això que s'ha proposat a realitzar aquest TFG. A més a més, estic
+interessat en el funcionament dels gràfics 3D.
 
 \section{Objectiu}\label{sec:objective}
 L'objectiu principal del projecte consisteix en desenvolupar un sudoku en 3D des de zero. El joc
@@ -234,6 +238,13 @@ La planificació del projecte s'ha dividit en 7 tasques llistades a la taula.\pr
 
 \section{Desenvolupament}\label{sec:development}
 
+\begin{figure*}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/uml}
+    \includegraphics[width=0.9\textwidth]{img/uml2}
+    \caption{Diagrama UML del projecte.}
+\end{figure*}
+
 Per desenvolupar un joc, normalment, s'utilitza un motor de joc que prové les eines necessàries per
 al ràpid desenvolupament del videojoc com per exemple \textit{Unreal Engine (UE)} o \textit{Godot}.
 La funcionalitat bàsica que normalment proporciona un motor de joc pot incloure entre altres: un
@@ -286,8 +297,6 @@ El sistema de renderització està compost per dues classes:
           \end{itemize}
 \end{itemize}
 
-% TODO UML Diagram
-
 \subsubsection{Cub}
 La renderització d'un cub es fa partir de triangles, primer es defineix la posició dels vèrtexs
 dels triangles que el conformen, a més de les normals i de les coordenades de la textura i
@@ -297,7 +306,8 @@ GPU.\@
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/cube}
-    \caption{Renderització d'un cub amb il·luminació i les seves normals.}\label{fig:cube}
+    \includegraphics[width=0.4\textwidth]{img/sphere}
+    \caption{Renderització d'un cub i una esfera amb il·luminació i les seves normals.}\label{fig:cube}
 \end{figure}
 
 \subsubsection{Esfera}
@@ -305,11 +315,6 @@ GPU.\@
 De la mateixa manera que el cub, és necessari les posicions dels vèrtexs i les normals, però en
 aquest cas per construir una esfera amb triangles primer s'ha de particionar la superfície en
 diferents sectors i estacs, ja que no podem dibuixar tots els punts de l'esfera en pantalla.
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.4\textwidth]{img/sphere}
-    \caption{Renderització d'esferes amb diferents sectors i estacs.}\label{fig:sphere}
-\end{figure}
 
 \subsubsection{Fitxa del sudoku}
 Amb un cub i una esfera es pot renderitzar l'entitat principal del joc, és necessari un cub i sis
@@ -447,31 +452,48 @@ arribar a una solució i trèiem valors d'una fila i columna aleatòria fins a a
 desitjada.
 
 \subsection{Classe Món}\label{subsec:world}
-És la classe que conté el bucle del joc i les accions permeses del jugador. LA classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem implementar totes les accions requerides pel jugador.
+És la classe que conté el bucle del joc i les accions permeses del jugador. La classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem implementar totes les accions requerides pel jugador.
 \\
-La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix per ometre fitxes que compleixin una certa condició (com ara ometre la fitxa seleccionada, ja que és sempre la més propera). La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la posició del ratolí i representa la fitxa que se seleccionarà si es fa clic. Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa pel pla del si es manté el botó del ratolí polsat. Amb la fitxa seleccionada deixar-la anar en la fitxa indicada per la variable nearesTile que es permetrà assignar números (si és correcte)  als llocs buits. Les fitxes permeten donar pistes en fer un clic, mostra la solució parcial en braille fins a un màxim de 3 esferes, a més a més, diu el número en angles.
+La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix per ometre fitxes que compleixin una certa condició (com ara ometre la fitxa seleccionada, ja que és sempre la més propera).
+\\
+La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la posició del ratolí i representa la fitxa que se seleccionarà si es fa clic.
+\\
+Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa pel pla del si es manté el botó del ratolí polsat. Amb la fitxa seleccionada deixar-la anar en la fitxa indicada per la variable nearesTile que es permetrà assignar números (si és correcte)  als llocs buits.
+\\
+Les fitxes permeten donar pistes en fer un clic (mostra la solució parcial en braille fins a un màxim de 3 esferes) i reprodueix el número en anglès. L'àudio és reprodueix fent servir un thread a part del main, només s'ha implementat en Linux utilitzant l'API de baix nivell de Pipewire. La funció \textbf{LoadAudioFile(path)} pot carregar fitxers WAV amb dos canals a 44,1 kHz a causa de la implementació de la reproducció d'àudio.
 \\
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/tauler.png}
+    \includegraphics[width=0.4\textwidth]{img/tauler}
     \caption{Estat inicial de joc.}\label{fig:tauler}
 \end{figure}
 
+La interfície està implemetada amb ImGUI, una llibreria que permet crear GUI de forma declarativa
+de la mateixa manera que el framework Flutter o Android Compose. La llibreria té varis widgets com
+ara: checkboxes, sliders per a scalars i vectors, modal popups \ldots que permeten la creació
+d'interfície fàcilment.
 
-La interfície està dibuixada amb ImGUI, una llibreria que permet crear GUI de forma declarativa de
-la mateixa forma que el framework Flutter,
+El menú principal conté botons per a carregar sudokus i generar sudokus de diferents dificultats i
+diversos checkboxes per a activar i desactivar opcions i finestres de control (control de la
+càmera, de la il·luminació \ldots) del joc.
 
-\subsection{Pistes de resolució}\label{subsec:pistes}
-
-\subsection{Funcions auxiliars}\label{subsec:funcions-auxiliars}
-
-\subsubsection{Registre d'accions}\label{subsec:logging}
-
-\subsection{Il·luminació}\label{subsec:iluminacio}
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/menu}
+    \includegraphics[width=0.4\textwidth]{img/overlay}
+    \caption{Menú i overlay del joc.}\label{fig:menu}
+\end{figure}
 
 \section{Resultats}\label{sec:results}
 
+Com a resultats d'aquest projecte, s'ha completat exitosament el desenvolupament del sudoku 3D i
+dels objectius proposats inicialment. El joc pot ser compilat utilitzant CMake en les dues
+plataformes proposades i el joc arriba als 60 fps mínims per a jugar.
+
 \section{Conclusions}\label{sec:conclusion}
+Aquest projecte ha sigut una primera experiència al desenvolupament de jocs amb OpenGL amb la
+utilització de shaders, s'ha pogut expandir el coneixement sobre els gràfics 3D i al
+desenvolupament de programes en diferents plataformes.
 
 \section*{Agraïments}
 
@@ -487,10 +509,8 @@ la mateixa forma que el framework Flutter,
 
 \end{thebibliography}
 
-\appendix
-
-\section*{Apèndix}
-
-\setcounter{section}{1}
+% \appendix
+% \setcounter{section}{1}
+% \section*{Apèndix}
 
 \end{document}
