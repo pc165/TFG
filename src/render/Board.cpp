@@ -129,3 +129,7 @@ Board::Board() : cubeRender_(), planeRender_(), sphereRender_() {
 //    planeRender_.setDiffuseMap(PLANE_COLOR);
 //    sphereRender_.setDiffuseMap(SPHERE_COLOR);
 }
+
+const tfg::Plane &Board::getPlane() const {
+    return plane_;
+}

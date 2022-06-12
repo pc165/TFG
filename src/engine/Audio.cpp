@@ -1,12 +1,11 @@
 #include "Audio.h"
-#include <cstdint>
 #include "Logger.h"
+#include <cstdint>
 
 #ifdef _WIN32
 #include <windows.h>
 
 void tfg::LoadAudioFiles(char const *path) {
-
 }
 
 bool tfg::InitAudio() {
@@ -25,13 +24,13 @@ void tfg::DestroyAudio() {
 #include <csignal>
 #include <thread>
 
-#include <pipewire/pipewire.h>
-#include <spa/param/audio/format.h>
-#include <spa/param/audio/format-utils.h>
 #include <fcntl.h>
+#include <pipewire/pipewire.h>
+#include <spa/param/audio/format-utils.h>
+#include <spa/param/audio/format.h>
 
-#define MIN(a, b) (((a)<(b))?(a):(b))
-#define MAX(a, b) (((a)>(b))?(a):(b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #define SAMPLE_RATE 44100
 #define TOTAL_CHANNELS 2
@@ -44,23 +43,23 @@ void tfg::DestroyAudio() {
 struct __attribute__((packed)) WavFile {
     // RIFF Header
     int8_t riff_header[4]; // Contains "RIFF"
-    int32_t wav_size; // Size of the wav portion of the file, which follows the first 8 bytes. File size - 8
+    int32_t wav_size;      // Size of the wav portion of the file, which follows the first 8 bytes. File size - 8
     int8_t wave_header[4]; // Contains "WAVE"
 
     // Format Header
-    int8_t fmt_header[4]; // Contains "fmt " (includes trailing space)
+    int8_t fmt_header[4];   // Contains "fmt " (includes trailing space)
     int32_t fmt_chunk_size; // Should be 16 for PCM
-    int16_t format; // Should be 1 for PCM. 3 for IEEE Float
+    int16_t format;         // Should be 1 for PCM. 3 for IEEE Float
     int16_t num_channels;
     int32_t sample_rate;
-    int32_t byte_rate; // Number of bytes per second. sample_rate * num_channels * Bytes Per Sample
+    int32_t byte_rate;        // Number of bytes per second. sample_rate * num_channels * Bytes Per Sample
     int16_t sample_alignment; // num_channels * Bytes Per Sample
-    int16_t bit_depth; // Number of bits per sample
+    int16_t bit_depth;        // Number of bits per sample
 
     // Data
     int8_t data_header[4]; // Contains "data"
-    int32_t data_bytes; // Number of bytes in data. Number of samples * num_channels * sample byte size
-    void *bytes; // Remainder of wave file is bytes
+    int32_t data_bytes;    // Number of bytes in data. Number of samples * num_channels * sample byte size
+    void *bytes;           // Remainder of wave file is bytes
 };
 
 struct AudioData {
@@ -69,7 +68,6 @@ struct AudioData {
     uint32_t total_frames;
     uint32_t frames_played;
 };
-
 
 struct UserData {
     struct pw_main_loop *loop;
@@ -86,9 +84,8 @@ struct ThreadData {
 
 static struct AudioData audios[MAX_AUDIOS];
 static int audio_size = 0;
-static struct UserData user_data = {.loop= nullptr, .stream= nullptr, .audio=nullptr, .finished=true, .quit=false};
+static struct UserData user_data = {.loop = nullptr, .stream = nullptr, .audio = nullptr, .finished = true, .quit = false};
 static struct ThreadData thread_data;
-
 
 //https://docs.pipewire.org/tutorial4_8c-example.html
 
@@ -159,10 +156,9 @@ static void on_process(void *dataPtr) {
 }
 
 static const struct pw_stream_events stream_events = {
-        .version = PW_VERSION_STREAM_EVENTS,
-        .process = on_process,
+    .version = PW_VERSION_STREAM_EVENTS,
+    .process = on_process,
 };
-
 
 static void *audio_main_thread(void *) {
     LOG_INFO("Audio thread main");
@@ -188,22 +184,22 @@ static void *audio_main_thread(void *) {
      * the data.
      */
     user_data.stream = pw_stream_new_simple(
-            pw_main_loop_get_loop(user_data.loop),
-            "audio-src",
-            pw_properties_new(
-                    PW_KEY_MEDIA_TYPE, "Audio",
-                    PW_KEY_MEDIA_CATEGORY, "Playback",
-                    PW_KEY_MEDIA_ROLE, "Music",
-                    nullptr),
-            &stream_events,
-            &user_data);
+        pw_main_loop_get_loop(user_data.loop),
+        "audio-src",
+        pw_properties_new(
+            PW_KEY_MEDIA_TYPE, "Audio",
+            PW_KEY_MEDIA_CATEGORY, "Playback",
+            PW_KEY_MEDIA_ROLE, "Music",
+            nullptr),
+        &stream_events,
+        &user_data);
 
     /* Make one parameter with the supported formats. The SPA_PARAM_EnumFormat
      * id means that this is a format enumeration (of 1 value). */
     struct spa_audio_info_raw info = {
-            .format= SPA_AUDIO_FORMAT_S16_LE,
-            .rate = SAMPLE_RATE,
-            .channels = TOTAL_CHANNELS};
+        .format = SPA_AUDIO_FORMAT_S16_LE,
+        .rate = SAMPLE_RATE,
+        .channels = TOTAL_CHANNELS};
 
     params[0] = spa_format_audio_raw_build(&b, SPA_PARAM_EnumFormat, &info);
 
@@ -253,7 +249,7 @@ int tfg::LoadAudioFiles(char const *path) {
         return -1;
     }
 
-    void *data = (void *) malloc(size);
+    void *data = (void *)malloc(size);
     if (read(fd, data, size) == -1) {
         LOG_ERROR("Cannot read");
         return -1;
@@ -262,11 +258,16 @@ int tfg::LoadAudioFiles(char const *path) {
     close(fd);
 
     auto wav_file = static_cast<struct WavFile *>(data);
+    if (wav_file->sample_rate != SAMPLE_RATE ||
+        wav_file->num_channels != TOTAL_CHANNELS ||
+        wav_file->bit_depth != 16 ||
+        wav_file->format != 1)
+        LOG_ERROR("Couldn't load audio file");
 
     assert(wav_file->sample_rate == SAMPLE_RATE);
     assert(wav_file->num_channels == TOTAL_CHANNELS);
     assert(wav_file->bit_depth == 16); // 16
-    assert(wav_file->format == 1); // PCM
+    assert(wav_file->format == 1);     // PCM
     assert(wav_file->wave_header[0] == 'W');
     assert(wav_file->wave_header[1] == 'A');
     assert(wav_file->wave_header[2] == 'V');

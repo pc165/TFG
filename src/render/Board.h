@@ -52,9 +52,7 @@ public:
 
     [[nodiscard]] bool isInBoard(glm::vec3 const &position) const;
 
-    [[nodiscard]] const tfg::Plane &getPlane() const {
-        return plane_;
-    }
+    [[nodiscard]] const tfg::Plane &getPlane() const;
 
     const float offset_{3.0f};
 private:

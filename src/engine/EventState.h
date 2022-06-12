@@ -12,128 +12,55 @@ class EventState {
 public:
     typedef std::function<void(float)> CallBackType;
 
-    EventState() : stateKeys_(KEYBOARD_SIZE, 0),
-                   activeKeys_(KEYBOARD_SIZE, 0),
-                   stateMouseKeys_(MOUSE_KEY_SIZE, 0),
-                   activeMouseKeys_(MOUSE_KEY_SIZE, 0),
-                   mousePosition_(0, 0) {
-    }
+    EventState();
 
-    void onUpdate(float frameTime) {
-        callback_(frameTime);
-        for (auto &i: stateKeys_) i = 0;
-        for (auto &i: stateMouseKeys_) i = 0;
-        mouseMoved_ = false;
-        mouseScrolled_ = false;
-        windowSizeChanged_ = false;
-        windowPositionChanged_ = false;
-    }
+    void onUpdate(float frameTime);
 
-    void mouseHandler(int button, int action, int mods) {
-        if (action == GLFW_PRESS) {
-            activeMouseKeys_[button] = true;
-        } else if (action == GLFW_RELEASE) {
-            activeMouseKeys_[button] = false;
-        }
-        stateMouseKeys_[button] = action;
-    }
+    void mouseHandler(int button, int action, int mods);
 
-    void mouseEnterHandler(int entered) {
-        isMouseInWindow_ = entered;
-    }
+    void mouseEnterHandler(int entered);
 
-    void mouseMoveHandler(float x, float y) {
-        mouseMoved_ = true;
-        mousePosition_ = {x, y};
-    }
+    void mouseMoveHandler(float x, float y);
 
-    void mouseScrollHandler(float dx, float dy) {
-        mouseScrolled_ = true;
-        mouseScroll_ = {dx, dy};
-    }
+    void mouseScrollHandler(float dx, float dy);
 
-    void windowSizeHandler(int xpos, int ypos) {
-        windowSizeChanged_ = true;
-        windowSize_ = {xpos, ypos};
-    }
+    void windowSizeHandler(int xpos, int ypos);
 
-    void windowPositionHandler(int x, int y) {
-        windowPositionChanged_ = true;
-        windowPosition_ = {x, y};
-    }
+    void windowPositionHandler(int x, int y);
 
-    void keyboardHandler(int key, int action, int mods) {
-        if (action == GLFW_PRESS) {
-            activeKeys_[key] = true;
-        } else if (action == GLFW_RELEASE) {
-            activeKeys_[key] = false;
-        }
-        stateKeys_[key] = action;
-    }
+    void keyboardHandler(int key, int action, int mods);
 
-    [[nodiscard]] bool keyDown(int key) const {
-        return activeKeys_[key];
-    }
+    [[nodiscard]] bool keyDown(int key) const;
 
-    [[nodiscard]] bool keyPressed(int key) const {
-        return stateKeys_[key] == GLFW_PRESS;
-    }
+    [[nodiscard]] bool keyPressed(int key) const;
 
-    [[nodiscard]] bool keyReleased(int key) const {
-        return stateKeys_[key] == GLFW_RELEASE;
-    }
+    [[nodiscard]] bool keyReleased(int key) const;
 
-    [[nodiscard]] bool mouseButtonDown(int button) const {
-        return activeMouseKeys_[button];
-    }
+    [[nodiscard]] bool mouseButtonDown(int button) const;
 
-    [[nodiscard]] bool mouseButtonPressed(int button) const {
-        return stateMouseKeys_[button] == GLFW_PRESS;
-    }
+    [[nodiscard]] bool mouseButtonPressed(int button) const;
 
-    [[nodiscard]] bool mouseButtonReleased(int button) const {
-        return stateMouseKeys_[button] == GLFW_RELEASE;
-    }
+    [[nodiscard]] bool mouseButtonReleased(int button) const;
 
-    [[nodiscard]] const glm::vec2 &getMousePosition() const {
-        return mousePosition_;
-    }
+    [[nodiscard]] const glm::vec2 &getMousePosition() const;
 
-    [[nodiscard]] const glm::vec2 &getMouseScroll() const {
-        return mouseScroll_;
-    }
+    [[nodiscard]] const glm::vec2 &getMouseScroll() const;
 
-    [[nodiscard]] const glm::vec2 &getWindowSize() const {
-        return windowSize_;
-    }
+    [[nodiscard]] const glm::vec2 &getWindowSize() const;
 
-    [[nodiscard]] const glm::vec2 &getWindowPosition() const {
-        return windowPosition_;
-    }
+    [[nodiscard]] const glm::vec2 &getWindowPosition() const;
 
-    [[nodiscard]] bool isMouseMoved() const {
-        return mouseMoved_;
-    }
+    [[nodiscard]] bool isMouseMoved() const;
 
-    [[nodiscard]] bool isMouseScrolled() const {
-        return mouseScrolled_;
-    }
+    [[nodiscard]] bool isMouseScrolled() const;
 
-    [[nodiscard]] bool isWindowSizeChanged() const {
-        return windowSizeChanged_;
-    }
+    [[nodiscard]] bool isWindowSizeChanged() const;
 
-    [[nodiscard]] bool isWindowPositionChanged() const {
-        return windowPositionChanged_;
-    }
+    [[nodiscard]] bool isWindowPositionChanged() const;
 
-    [[nodiscard]] bool isMouseInWindow() const {
-        return isMouseInWindow_;
-    }
+    [[nodiscard]] bool isMouseInWindow() const;
 
-    void setCallback(CallBackType const &callback) {
-        callback_ = callback;
-    }
+    void setCallback(CallBackType const &callback);
 
 private:
     const int KEYBOARD_SIZE{GLFW_KEY_LAST};

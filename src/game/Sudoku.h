@@ -5,49 +5,11 @@
 
 class Sudoku {
 public:
-    Sudoku() {
-        srand(0);
-    }
+    Sudoku();
 
     void setupSudoku(std::vector<std::vector<int>> const &, Board &);
 
-    bool loadSudoku(std::string const &path) {
-        std::ifstream file;
-        file.open(path);
-
-
-        if (file.is_open()) {
-            // reset board
-            for (auto &i: board_) {
-                for (auto &j: i) {
-                    j.value = 0;
-                    j.solution = 0;
-                    j.isReadOnly = false;
-                    j.tile->hints = 0;
-                    j.tile->isHintsEnabled = false;
-                    j.tile->cube.color = CUBE_COLOR_ASSIGNED;
-                }
-            }
-
-            for (int i = 0; i < 9 && !file.eof(); ++i) {
-                for (int j = 0; j < 9 && !file.eof(); ++j) {
-                    int number = 0;
-                    file >> number;
-                    auto &b = board_[i][j];
-                    b.value = number;
-                    b.tile->numericalValue = number;
-                    b.tile->cube.color = number == 0 ? CUBE_COLOR_DEFAULT : CUBE_COLOR_ASSIGNED;
-                    b.tile->isHintsEnabled = number == 0;
-                    b.isReadOnly = number != 0;
-                }
-            }
-            updateSolutions();
-        } else {
-            LOG_WARN("Cannot open {}",path);
-            return false;
-        }
-        return true;
-    }
+    bool loadSudoku(std::string const &path);
 
     bool setNumber(int row, int col, int j);
 
