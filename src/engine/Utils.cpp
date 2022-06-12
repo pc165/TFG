@@ -309,7 +309,7 @@ void tfg::setClearColor(glm::vec4 const &color) {
     GlobalOptions.clearColor = color;
 }
 
-unsigned int tfg::colorToTexture(glm::vec3 color, const int size) {
+unsigned int tfg::colorToTexture(glm::vec3 color, int size) {
     // Create id for texture
     unsigned int tex;
     // generate and bind texture
@@ -335,4 +335,17 @@ unsigned int tfg::colorToTexture(glm::vec3 color, const int size) {
     // free image memory
     delete[] data;
     return tex;
+}
+
+void tfg::setFullScreen(bool enabled) {
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    if (enabled)
+        glfwSetWindowMonitor(Injector::window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    else
+        glfwSetWindowMonitor(Injector::window, nullptr, 0, 0, 1080, 720, mode->refreshRate);
 }

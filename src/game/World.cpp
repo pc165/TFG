@@ -106,7 +106,10 @@ void World::guiWindow() {
         }
         ImGui::SameLine();
         ImGui::SliderInt("Difficulty", &difficulty, 0, 2);
-        ImGui::Checkbox("Enable sound", &GlobalOptions.isSoundEnabled);
+        if (ImGui::Checkbox("Fullscreen", &GlobalOptions.isFullScreen)) {
+            tfg::setFullScreen(GlobalOptions.isFullScreen);
+        }
+        ImGui::Checkbox("Sound", &GlobalOptions.isSoundEnabled);
 
 
         if (ImGui::Checkbox("Lock cursor (F1)", &GlobalOptions.isFreeCamera)) {
@@ -120,6 +123,7 @@ void World::guiWindow() {
             camera_.yaw_ = 270.0f;
         }
         ImGui::Checkbox("Show game status", &GlobalOptions.gameStatus);
+        ImGui::Checkbox("Show overlay", &GlobalOptions.enableOverlay);
         ImGui::Checkbox("Draw Picking object", &GlobalOptions.drawPickingObject);
         ImGui::Checkbox("Show Controls", &GlobalOptions.controls);
     }
@@ -154,7 +158,7 @@ void World::guiWindow() {
         ImGui::SliderFloat3("Up", &camera_.up_.x, -1, 1);
         ImGui::SliderFloat("zNear", &camera_.zNear_, 0.001f, 200);
         ImGui::SliderFloat("zFar", &camera_.zFar_, 0.001f, 200);
-        ImGui::InputFloat("FoV", &camera_.fov_);
+        ImGui::SliderFloat("FoV", &camera_.fov_, 1, 90);
         camera_.updateCameraVectors();
 
         ImGui::Text("Draw Normals");

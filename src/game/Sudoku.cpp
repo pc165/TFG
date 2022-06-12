@@ -43,9 +43,8 @@ bool Sudoku::isDone() const {
         }
     }
 
-    if (sum != 405) // sum of a 9 x 9 sudoku (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9)* 9= 117
-        return false;
-    return true;
+    // sum of a 9 x 9 sudoku (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9) * 9 = 405
+    return sum == 405;
 }
 
 

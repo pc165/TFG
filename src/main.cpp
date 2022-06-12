@@ -13,7 +13,7 @@ int main() {
     }
 
     tfg::InitAudio();
-    tfg::InitWindow("TFG");
+    tfg::InitWindow("TFG", 1080, 720, false);
     tfg::ConfigureEvents();
     {
         World game;

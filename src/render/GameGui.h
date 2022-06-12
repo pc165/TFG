@@ -69,7 +69,8 @@ public:
         ImGui::NewFrame();
 
         GameGui::drawDockSpace();
-        GameGui::drawOverlay(overlay);
+        if (GlobalOptions.enableOverlay)
+            GameGui::drawOverlay(overlay);
         window();
 
         ImGui::Render();

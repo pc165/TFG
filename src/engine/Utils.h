@@ -30,6 +30,8 @@ namespace tfg {
         bool controls{false};
         bool gameStatus{false};
         bool isSoundEnabled{true};
+        bool isFullScreen{false};
+        bool enableOverlay{true};
         Light light;
     };
 
@@ -43,10 +45,11 @@ namespace tfg {
         static struct Globals globals;
     };
 
+    void setFullScreen(bool enabled);
 
     void InitLogger();
 
-    void InitWindow(const char *title, int width = 1080, int height = 720, bool fullscreen = true);
+    void InitWindow(const char *title, int width = 1080, int height = 720, bool fullscreen = false);
 
     void ConfigureEvents();
 
@@ -66,7 +69,7 @@ namespace tfg {
 
     void setFreeCamera(bool isEnabled);
 
-    unsigned int colorToTexture(glm::vec3 color, const int size);
+    unsigned int colorToTexture(glm::vec3 color, int size);
 
     void glfw_error_callback(int error, const char *description);
 
