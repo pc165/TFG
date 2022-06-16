@@ -97,22 +97,23 @@ parcialment emplenada de 9 $\times$ 9 caselles dividida en subgraelles de 3 $\ti
 El sudoku modern va ser popularitzat en el 2004 quan Wayne Gould va desenvolupar un programa informàtic per produir trencaclosques únics ràpidament.
 
 Per una altra banda, el braille és un sistema d'escriptura i lectura tàctil basat en 6 punts
-disposats en una graella de 3 $\times$ 3 utilitzat per a persones cegues o amb visió reduïda.
+disposats en una graella de 3 $\times$ 3, es utilitzat molt per a persones cegues o amb visió
+reduïda.
 
 \section{Estat de l'art}\label{sec:stateOftheArt}
 
-En l'actualitat, podem trobar sudokus en moltes parts: en els diaris, en llibres que recopilen
-sudokus per resoldre, en aplicacions per al mòbil o ordinador i fins sudokus amb peces en braille.
-Tot i això, no s'ha pogut trobar un sudoku 3D en braille per a ordinador que permeti aprendre els
-números en braille. És per això que s'ha proposat a realitzar aquest TFG. A més a més, estic
-interessat en el funcionament dels gràfics 3D.
+En l'actualitat, podem trobar sudokus en moltes parts: en els diaris, en llibres de pasatemps, en
+aplicacions per al mòbil o ordinador. Tot i això, no s'ha pogut trobar un sudoku en braille per a
+ordinador que permeti aprendre els números en braille o qualsevol joc semblant. És per això que
+s'ha proposat a dur a terme aquest projecte. A més a més, estic interessat en el funcionament dels
+gràfics 3D i de la programació dels jocs.
 
 \section{Objectiu}\label{sec:objective}
-L'objectiu principal del projecte consisteix en desenvolupar un sudoku en 3D des de zero. El joc
-tracta d'una graella de 9 $\times$ 9 fitxes on es visualitzarà el valor numèric amb l'alfabet
-braille. Per una altra banda, mitjançant el teclat i el ratolí, el jugador podrà interactuar amb
-les caselles i les fitxes per veure el valor numèric de la fitxa. Concretament, es volen aconseguir
-els següents objectius:
+L'objectiu principal del projecte consisteix a desenvolupar un joc en 3D des de zero, concretament
+un sudoku. El joc tracta d'una graella de 9 $\times$ 9 fitxes on es visualitzarà el valor numèric
+amb l'alfabet braille. Per una altra banda, mitjançant el teclat i el ratolí, el jugador podrà
+interactuar amb les caselles i les fitxes per veure el valor numèric de la fitxa. Es volen
+aconseguir els següents objectius:
 \begin{itemize}
     \item Desenvolupar un model en 3D del sudoku.
     \item Incorporar ajudes per aprendre els números o l'alfabet en braille.
@@ -155,24 +156,28 @@ El joc haurà d'implementar les següents funcionalitats:
 \subsection{Requisits de software}\label{subsec:requisits-de-software}
 Pel que fa a les llibreries, s'ha utilitzat les següents dependències:
 \begin{itemize}
-    \item \textit{ImGUI} Per generar la interfície d'usuari, s'ha utilitzat la versió amb viewports (branca anomenada \textit{docking}).\@
-    \item \textit{GLFW} Per gestionar la inicialització de la finestra i obtenir els estats dels perifèrics.\@
-    \item \textit{OpenGL} API interactuar amb la GPU.\@
-    \item \textit{glbinding} Per carregar les funcions d'OpenGL.\@
-    \item \textit{GLM} Una llibreria matemàtica adaptada per OpenGL.\@
+    \item ImGUI\cite{ImGUI} És una llibreria que permet dibuixar interfícies d'usuari amb el pipeline
+          d'OpenGL, s'ha utilitzat la versió amb viewports (branca anomenada docking).\@
+    \item GLFW\cite{GLFW} Per gestionar la inicialització de la finestra i obtenir els estats dels
+          perifèrics.\@
+    \item OpenGL\cite{OpenGL} API interactuar amb la GPU.\@
+    \item glbinding\cite{glbinding} És una llibreria que permet carregar les funcions d'OpenGL.\@ La
+          llibreria utilitza característiques pròpies del llenguatge C++ que faciliten la detecció
+          d'errors.\@
+    \item GLM\cite{GLM} És llibreria matemàtica especialment desenvolupada per OpenGL.\@
 \end{itemize}
 
 Els sistemes operatius amb els quals s'ha compilat i executat el joc són Windows 10 i Fedora 35.
 
 \subsection{Requisits de hardware}\label{subsec:requisits-de-hardware}
-Per a executar el joc el sistema ha de comptar amb una GPU (pot ser integrada) que suporti OpenGL
-v3.3 o major.
+Per a executar el joc, el sistema ha de comptar amb una GPU, pot set tant una GPU integrada com
+dedicada, que suporti OpenGL v3.3 o una versió més recent.
 
 \subsection{Eines}\label{subsec:eines}
-Respecte a les eines i llibreries de desenvolupament, s'ha utilitzat principalment, l'entorn de
-desenvolupament multiplataforma \textit{CLion} per C/C++ per poder desenvolupar el joc tant en
-Windows com en Linux, \textit{RenderDoc} per a diagnosticar problemes de renderització i
-\textit{CMAKE} per al sistema de compilació multiplataforma.
+Respecte a les eines de desenvolupament, s'ha utilitzat principalment, l'entorn de desenvolupament
+multiplataforma CLion\cite{CLion} per C/C++ per poder desenvolupar el joc tant en Windows com en
+Linux, RenderDoc\cite{RenderDoc} per a diagnosticar problemes de renderització i CMake\cite{CMake}
+per al sistema de compilació multiplataforma.
 
 \section{Metodologia}\label{sec:methodology}
 A continuació s'expliquen la metodologia seguida i les eines utilitzades al llarg d'aquest
@@ -184,10 +189,10 @@ celebrant revisions periòdiques generals en finalitzar cada sprint on es van ve
 la fase anterior, es van valorar els avenços i es va planificar el següent sprint, concretament,
 s'ha utilitzat una tècnica anomenada Kanban, es van dividir les tasques en diferents subtasques i
 es van col·locar cada tasca segons el progrés (to do, in progress, done). En particular, s'ha fet
-servir KanbanFlow per gestionar les subtasques.
+servir KanbanFlow\cite{KanbanFlow} per gestionar les subtasques.
 
-Finalment, per a gestionar el codi font, s'ha creat un repositori a GitHub on s'ha anat pujant a
-ells els avenços fets.
+Finalment, per a gestionar el codi font, s'ha creat un repositori a GitHub\cite{GitHub} on s'ha
+anat pujant a ells els avenços fets utilitzant git\cite{git}.
 
 \begin{figure}[!h]
     \centering
@@ -196,60 +201,21 @@ ells els avenços fets.
 \end{figure}
 
 \subsection{Planificació}\label{subsec:planificacio}
-La planificació del projecte s'ha dividit en 7 tasques llistades a la taula.\pref{tab:tableplan}
+La planificació del projecte té una durada aproximada de tres mesos i consta de dues parts el
+disseny i la implementació de les classes que serviran per implementar el joc.
 
-\begin{table}
-    \centering
-    \caption{Tasques amb la descripció}
-    \begin{tabular}{|c|c|}
-        \hline
-        \begin{tabular}[c]{@{}c@{}}
-            Disseny de les \\classes principals
-        \end{tabular}                            & \begin{tabular}[c]{@{}c@{}}
-                                                       Dissenyar les classes de \\renderització i els altres\\components del joc.
-                                                   \end{tabular}               \\
-        \hline
-        \begin{tabular}[c]{@{}c@{}}
-            Disseny de la \\interfície del sudoku
-        \end{tabular}                          & \begin{tabular}[c]{@{}c@{}}
-                                                     Dissenyar les diferents \\pantalles del joc: la pantalla\\d'inici, els controls del\\sudoku\ldots
-                                                 \end{tabular}              \\
-        \hline
-        \begin{tabular}[c]{@{}c@{}}
-            Desenvolupament de \\les classes principals\\del joc
-        \end{tabular} & \begin{tabular}[c]{@{}c@{}}
-                            Implementar en la classe de \\renderització amb OpenGL,\\implementar les rutines de\\tractament de les accions\\dels perifèrics.
-                        \end{tabular}                                        \\
-        \hline
-        \begin{tabular}[c]{@{}c@{}}
-            Desenvolupament del \\joc
-        \end{tabular}                                    & \begin{tabular}[c]{@{}c@{}}
-                                                               Implementar la lògica i les \\funcionalitats principals del\\joc.
-                                                           \end{tabular} \\
-        \hline
-        \begin{tabular}[c]{@{}c@{}}
-            Tests
-        \end{tabular}                                    & \begin{tabular}[c]{@{}c@{}}
-                                                               Tests per a cada component \\implementat.
-                                                           \end{tabular}
-        \hrulefill
-    \end{tabular}\label{tab:tableplan}
-\end{table}
+\begin{itemize}
+    \item \textbf{Disseny de les classes} En aquesta part s'haurà de dissenyar les classes de renderització i els altres components del joc. També es dissenya les diferents pantalles del joc: la pantalla d'inici, els controls del sudoku\ldots
+    \item \textbf{Implementació} Implementar les classes de renderització amb OpenGL (cub, esfera, pla), implementar les rutines de tractament de les accions dels perifèrics. A més d'implementar les funcionalitats principals del joc.
+\end{itemize}
 
 \section{Desenvolupament}\label{sec:development}
 
-\begin{figure*}[!h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/uml}
-    \includegraphics[width=0.9\textwidth]{img/uml2}
-    \caption{Diagrama UML del projecte.}
-\end{figure*}
-
 Per desenvolupar un joc, normalment, s'utilitza un motor de joc que prové les eines necessàries per
-al ràpid desenvolupament del videojoc com per exemple \textit{Unreal Engine (UE)} o \textit{Godot}.
-La funcionalitat bàsica que normalment proporciona un motor de joc pot incloure entre altres: un
-motor de renderització per a gràfics en 2D o 3D, un motor físic per a la detecció de col·lisions i
-la simulació de físiques i un sistema de gestió d'entitats. En el nostre cas, com que no hem
+al ràpid desenvolupament d'aquest, com per exemple Unreal Engine (UE) o Godot. La funcionalitat
+bàsica que normalment proporciona un motor de joc pot incloure entre altres: un motor de
+renderització per a gràfics en 2D o 3D, un motor físic per a la detecció de col·lisions i la
+simulació de físiques i un sistema de gestió d'entitats. En el nostre cas, com que no hem
 implementat un joc molt complex, no ha fet falta desenvolupar un motor de renderització ni un motor
 de física; només s'ha implementat certes funcionalitats claus per al desenvolupament del nostre
 joc. És a dir un sistema per renderitzar objectes, un sistema d'esdeveniments per gestionar la E/S
@@ -258,7 +224,7 @@ de l'usuari i diverses estructures de dades per a la gestió de l'estat.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.5\textwidth]{img/godot}
-    \caption{L'entorn de desenvolupament del motor de joc \textit{Godot}.}\label{fig:godot}
+    \caption{L'entorn de desenvolupament del motor de joc Godot.}\label{fig:godot}
 \end{figure}
 
 \subsection{Inicialització}\label{subsec:inicialitzacio}
@@ -269,7 +235,7 @@ OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per
 \begin{itemize}
     \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textbf{width $\times$ height} amb el títol \textbf{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
     \item \textbf{ConfigureEvents()}: Insta-la els \textit{callback} a la finestra creada i configura la classe \textit{EventState.}
-    \item \textbf{DestroyWindow()}: Destrueix la finestra i allibera la memòria assignada per \textit{InitWindow.}
+    \item \textbf{DestroyWindow()}: Destrueix la finestra i allibera la memòria assignada per \textit{InitWindow().}
 \end{itemize}
 
 \subsection{Sistema de renderització}\label{subsec:sistema-de-renderitzacio}
@@ -298,10 +264,10 @@ El sistema de renderització està compost per dues classes:
 \end{itemize}
 
 \subsubsection{Cub}
-La renderització d'un cub es fa partir de triangles, primer es defineix la posició dels vèrtexs
-dels triangles que el conformen, a més de les normals i de les coordenades de la textura i
-s'utilitza el mètode \textbf{setupVao} de la classe base per enviar les dades dels vèrtex a la
-GPU.\@
+La renderització d'un cub (o de qualsevol objecte) es fa partir de triangles, primer es defineix la
+posició dels vèrtexs dels triangles que el conformen, a més de les normals i de les coordenades de
+la textura i s'utilitza el mètode \textbf{setupVao} de la classe base per enviar les dades dels
+vèrtexs a la GPU.\@
 
 \begin{figure}[!h]
     \centering
@@ -311,20 +277,45 @@ GPU.\@
 \end{figure}
 
 \subsubsection{Esfera}
+De la mateixa manera que el cub, és necessari les posicions dels vèrtexs i les normals per a
+construir l'esfera, però pel fet que una esfera té una superfície llisa i té infinits punts,
+necessitem dividir la superfície en diferents sectors i estacs més petits de manera que quan fem
+infinites particions, obtenim una esfera perfecta.
 
-De la mateixa manera que el cub, és necessari les posicions dels vèrtexs i les normals, però en
-aquest cas per construir una esfera amb triangles primer s'ha de particionar la superfície en
-diferents sectors i estacs, ja que no podem dibuixar tots els punts de l'esfera en pantalla.
+La primera opció per generar els punts i les normals és utilitzar Blender o qualsevol altre
+programari per modelar objectes 3D per modelar una esfera llisa i exportar el model com a fitxer
+\textit{wavefront} per més tard carregar el model al joc.
+
+La segona opció és generar les els vertex i normals de forma algorítmica utilitzant les equacions
+de l'esfera \cite{glSphere}.
+
+El primer mètode comporta desenvolupar un carregador de fitxers \textit{obj} si es vol implementar
+a mà o utilitzar una llibreria com ara Assimp\cite{Assimp} que podria ser útil si es vol crear
+objectes més complexos per al joc (per exemple: un model d'una mà per agafar les fitxes). Però en
+aquest cas s'ha optat en utilitzar el mètode algorítmic.
 
 \subsubsection{Fitxa del sudoku}
-Amb un cub i una esfera es pot renderitzar l'entitat principal del joc, és necessari un cub i sis
-esferes (encara que només s'utilitza 4 esferes pels números del 0 al 9). El dibuixat de les esferes
-es fa amb un mapajat entre els valors numèrics i les posicions de les esferes en la fitxa.
+Una vegada tenim implementat l'esfera i cub, es pot començar el modelatge de l'entitat del joc, és
+necessari un cub i sis esferes tot i que el braille només s'utilitza les quatre primeres esferes
+per representar els números del 0 al 9. El cos de la fitxa és un cub amb 1 unitat d'amplada i
+alçada i 0,375 unitats de profunditat, les esferes tenen un radi de 0,1 unitats.
+
+Un problema que s'ha trobat en implementar aquesta classe és el renderitzat de les esferes en
+funció del valor de la fitxa. La primera opció és escriure el codi amb declaracions condicionals de
+manera que si el valor numèric de la fitxa és 1, dibuixar la primera esfera, si el valor és 2
+dibuixar la primera i la tercera i així amb els altres valors.
+
+Com es pot veure, si s'escriu d'aquesta manera, el codi serà molt difícil de mantenir o, si es vol
+més tard, implementar noves funcions com ara ampliar la classe perquè incorpori tot l'alfabet. És
+per això que s'ha optat per utilitzar una estructura anomenada \textit{look up table} que és
+bàsicament un vector o una \textit{hash table} que mapeja el valor de la fitxa i l'índex de les
+esferes a dibuixar.
 
 \begin{figure}[!h]
     \centering
+    \includegraphics[width=0.4\textwidth]{img/num2braille}
     \includegraphics[width=0.4\textwidth]{img/tile}
-    \caption{El numero 7 i 2 en braille.}\label{fig:tile}
+    \caption{\textit{Look up table} indexat pel valor numèric de la fitxa i la fitxa amb el 7 i el 2 en braille.}\label{fig:tile}
 \end{figure}
 
 \subsubsection{Pla}
@@ -334,8 +325,10 @@ convertir la posició del ratolí en la finestra a coordenades món. Si no s'uti
 posició del món que s'obtindria seria la del pla \textit{zFar}.
 
 \subsubsection{Mira}
-La mira, a diferència dels objectes anteriors, és una figura 2D per això la classe té un mètode per
-renderitzar especial que fa l'ús de la projecció ortogràfica i desactiva la il·luminació.
+A diferència dels objectes anteriors, la mira és un objecte 2D i per això la classe té un mètode
+per renderitzar especial que desactiva la il·luminació i fa l'ús de la projecció ortogràfica per
+col·locar l'objecte en coordenades de la finestra a més d'un shader no té implementat la matriu
+\textit{lookAt} per la camera.
 
 \begin{figure}[!h]
     \centering
@@ -344,10 +337,12 @@ renderitzar especial que fa l'ús de la projecció ortogràfica i desactiva la i
 \end{figure}
 
 \subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
-La classe \textit{EventState} gestiona l'estat dels perifèrics, aquesta classe és necessari perquè
-utilitzem la llibreria \textit{ImGUI} i necessitem diferenciar entre els esdeveniments dirigits al
-joc dels esdeveniments dirigits als a la llibreria.\\ Aquesta classe té mètodes per obtenir l'estat
-de qualsevol botó i tecla, concretament s'han implementat els següents mètodes:
+La classe \textit{EventState} gestiona l'estat dels perifèrics, aquesta classe és necessària pel
+fet que utilitzem la llibreria ImGUI i necessitem diferenciar entre els esdeveniments dirigits al
+joc dels esdeveniments dirigits als a la llibreria.
+
+Aquesta classe té mètodes per obtenir l'estat de qualsevol botó i tecla, concretament s'han
+implementat els següents mètodes:
 
 \begin{itemize}
     \item \textbf{keyPressed(key)}: Retorna 1 si la tecla ha sigut pressionada 0 en cas contrari.
@@ -382,9 +377,11 @@ mètodes que s'utilitzen per actualitzar l'estat.
 \subsection{Càmera}\label{subsec:classe-camera}
 La classe \textit{Camera} conté les matrius que s'utilitzen per posicionar i transformar els
 objectes al món, més concretament, proveeix dues matrius dependentment si es vol una projecció
-ortogràfica o una projecció perspectiva. Si l'objecte que es vol dibuixar en pantalla és una figura
-3D, com ara l'esfera o el cub, s'utilitza la projecció perspectiva i si no, s'utilitza la projecció
-ortogràfica per dibuixar els objectes a pantalla.
+ortogràfica o una projecció perspectiva.
+
+Si l'objecte que es vol dibuixar en pantalla és una figura 3D, com ara l'esfera o el cub,
+s'utilitza la projecció perspectiva i si no, s'utilitza la projecció ortogràfica per dibuixar els
+objectes a pantalla.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.5\textwidth]{img/transforms}
@@ -393,15 +390,24 @@ ortogràfica per dibuixar els objectes a pantalla.
 \end{figure}
 
 \subsection{Selecció d'objectes}\label{subsec:picking-object}
-Una de les funcions més importants de qualsevol joc és la selecció d'objectes, una manera
-d'implementar la selecció és utilitzant una tècnica anomenada \textit{Picking Object}. La idea
-principal és codificar l'identificador de l'objecte en un color únic i pintar els objectes amb
-aquest color, després, es recupera el color que està sota el ratolí i obtenim l'identificador a
-partir del color. Una de l'avantatge d'aquest mètode és la seva simplicitat comparada amb altres
-tècniques que utilitzen un motor físic per projectar una recta en la posició ratolí i buscar
-col·lisions amb els objectes. Però l'inconvenient que té aquesta tècnica és que disminueix molt els
-fotogrames per segon pel fet que s'ha de dibuixar l'escena dues vegades (una pel \textit{picking
-    object} i una per l'escena normal).
+Una de les funcions fonamentals de qualsevol joc és la selecció d'objectes, hi existeixen diverses
+tècniques. Per aquest projecte s'ha considerat dues tècniques:
+
+La primera és implementar una tècnica anomenada \textit{Ray Casting} que consisteix a projectar un
+raig des de la posició del ratolí amb la direcció de la càmera i buscar col·lisions entre totes les
+entitats del joc. Aquest és un mètode que no penalitza molt el rendiment del joc si utilitzem les
+estructures presents en un motor físic (\textit{bounding box} i arbres binaris) com ara
+Bullet3\cite{Bullet3}.
+
+La segona manera d'implementar la selecció és utilitzant una tècnica anomenada \textit{Picking
+    Object}. La idea principal és codificar l'identificador de l'objecte en un color únic i pintar els
+objectes amb aquest color, després, es recupera el color que està sota el ratolí i obtenim
+l'identificador a partir del color. Una de l'avantatge d'aquest mètode és la seva simplicitat
+comparada amb altres tècniques que utilitzen un motor físic. Però en canvi, el principal
+desavantatge que té aquesta tècnica és que disminueix el rendiment del joc pel fet que s'ha de
+dibuixar l'escena dues vegades (una per obtenir l'objecte i una altra per l'escena normal). Un
+altre desavantatge és el fet que estem obligats a utilitzar un nombre finit de colors i per tant
+només podrem seleccionar un nombre finit d'objectes.
 
 \begin{figure}[!h]
     \centering
@@ -409,7 +415,11 @@ fotogrames per segon pel fet que s'ha de dibuixar l'escena dues vegades (una pel
     \caption{Visualització dels colors assignats als objectes.}\label{fig:pick}
 \end{figure}
 
-\subsubsection{Implementacó}\label{subsec:implementacio}
+Per desenvolupament del projecte s'ha optat per utilitzar el segon mètode. S'ha implementat
+transformació que associa cada identificador amb un color RGB amb l'algoritme de la figura
+\pref{fig:genColor}. Aquest algoritme té l'avantatge que codifica l'identificador en base 10 perquè
+es pugui obtenir fàcilment a mà. Per exemple si l'identificador és $123$, obtenim que $R = 0.1, G =
+    0.2, B = 0.3$.
 
 \begin{figure}[!h]
     \centering
@@ -417,23 +427,18 @@ fotogrames per segon pel fet que s'ha de dibuixar l'escena dues vegades (una pel
     \caption{Funció de generació del color.}\label{fig:genColor}
 \end{figure}
 
-Com s'ha explicat en l'apartat anterior, per utilitzar la tècnica del \textit{picking object} es
-necessari un transformar un identificar a un color únic. Per desenvolupament del projecte s'ha
-optat per utilitzar una transformació que associa cada identificador amb un color RGB amb
-l'algoritme de la figura \pref{fig:genColor}.
-
-La funció \textbf{colorToId(color)} \pref{fig:getColor} obté l'identificador a partir del color.
+La funció \textbf{colorToId(color)} obté de manera trivial l'identificador a partir del color si el
+color no coincideix amb el color de fons.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/getColor}
     \caption{Funció de obtenció del identificador.}\label{fig:getColor}
 \end{figure}
 
-A més a més de les transformacions, s'utilitza la funció \textbf{glReadPixels(x, y, type, dataType,
-    out)} per obtenir el color en la posició del ratolí. Amb aquesta funció es pot obtenir, a més del
-color, la posició de la coordenada Z que s'utilitza per saber a quin pla s'ha de col·locar
-l'objecte seleccionat.
-
+A més a més de les funcions de conversió, s'utilitza la funció \textbf{glReadPixels(x, y, type,
+    dataType, out)} que permet obtenir el color (entre altres variables canviant l'argument
+\textit{type}) del buffer de la GPU en un punt (x, y), en aquest cas la posició del ratolí dintre
+de la finestra.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/glRead}
@@ -442,26 +447,46 @@ l'objecte seleccionat.
 
 \subsection{Sudoku}\label{subsec:sudoku}
 Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'estat del joc és
-vàlid, generar i carregar sudokus. La inicialització col·loca les fitxes en la posició correcta i
-inicialitza l'estructura de dades \textit{Tile} que conté Informació relativa a la posició i el
-valor de la fitxa. Per comprovar que el joc s'ha completat correctament, sumem totes les cel·les i
-es comprova que igual a 405 ($(1+2+...+9) * 9$). La classe permet generar sudokus amb tres nivells
-de dificultat (3, 5 i 7 caselles buides); per generar un sudoku, primer, emplenem les subgraelles
-de la diagonal que són independents entre si, després, utilitzem un algoritme de backtracking per
-arribar a una solució i trèiem valors d'una fila i columna aleatòria fins a arribar a la dificultat
-desitjada.
+vàlid, generar i carregar sudokus.
+
+La inicialització col·loca les fitxes en la posició correcta i inicialitza l'estructura de dades
+\textit{Tile} que conté informació relativa a la posició i el valor de la fitxa.
+
+Per comprovar que el joc s'ha completat correctament, sumem totes les cel·les i es comprova que
+igual a 405 ($(1+2+...+9) * 9$).
+
+La classe permet generar sudokus amb tres nivells de dificultat (3, 5 i 7 caselles buides); per
+generar un sudoku, primer, emplenem les subgraelles de la diagonal que són independents entre si,
+després, utilitzem un algoritme de backtracking per arribar a una solució i trèiem valors d'una
+fila i columna aleatòria fins a arribar a la dificultat desitjada.
 
 \subsection{Classe Món}\label{subsec:world}
-És la classe que conté el bucle del joc i les accions permeses del jugador. La classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem implementar totes les accions requerides pel jugador.
-\\
-La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix per ometre fitxes que compleixin una certa condició (com ara ometre la fitxa seleccionada, ja que és sempre la més propera).
-\\
-La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la posició del ratolí i representa la fitxa que se seleccionarà si es fa clic.
-\\
-Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa pel pla del si es manté el botó del ratolí polsat. Amb la fitxa seleccionada deixar-la anar en la fitxa indicada per la variable nearesTile que es permetrà assignar números (si és correcte)  als llocs buits.
-\\
-Les fitxes permeten donar pistes en fer un clic (mostra la solució parcial en braille fins a un màxim de 3 esferes) i reprodueix el número en anglès. L'àudio és reprodueix fent servir un thread a part del main, només s'ha implementat en Linux utilitzant l'API de baix nivell de Pipewire. La funció \textbf{LoadAudioFile(path)} pot carregar fitxers WAV amb dos canals a 44,1 kHz a causa de la implementació de la reproducció d'àudio.
-\\
+
+És la classe que conté el bucle del joc i les accions permeses del jugador.
+
+La classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més
+pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem
+implementar totes les accions requerides pel jugador.
+
+La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame
+utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix
+per ometre fitxes que compleixin una certa condició (com ara ometre la fitxa seleccionada, ja que
+és sempre la més propera).
+
+La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la
+posició del ratolí i representa la fitxa que se seleccionarà si es fa clic.
+
+Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa
+pel pla del si es manté el botó del ratolí polsat. Amb la fitxa seleccionada deixar-la anar en la
+fitxa indicada per la variable nearesTile que es permetrà assignar números (si és correcte) als
+llocs buits.
+
+Les fitxes permeten donar pistes en fer un clic (mostra la solució parcial en braille fins a un
+màxim de 3 esferes) i reprodueix el número en anglès. L'àudio és reprodueix fent servir un thread a
+part del main, només s'ha implementat en Linux utilitzant l'API de baix nivell de
+Pipewire\cite{Pipewire}. La funció \textbf{LoadAudioFile(path)} pot carregar fitxers WAV amb dos
+canals a 44,1 kHz a causa de la implementació de la reproducció d'àudio.
+
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/tauler}
@@ -469,9 +494,9 @@ Les fitxes permeten donar pistes en fer un clic (mostra la solució parcial en b
 \end{figure}
 
 La interfície està implemetada amb ImGUI, una llibreria que permet crear GUI de forma declarativa
-de la mateixa manera que el framework Flutter o Android Compose. La llibreria té varis widgets com
-ara: checkboxes, sliders per a scalars i vectors, modal popups \ldots que permeten la creació
-d'interfície fàcilment.
+de la mateixa manera que el framework Flutter\cite{Flutter} o Jetpack Compose\cite{Jetpack
+    Compose}. La llibreria té varis widgets com ara: checkboxes, sliders per a scalars i vectors, modal
+popups \ldots que permeten la creació d'interfície fàcilment.
 
 El menú principal conté botons per a carregar sudokus i generar sudokus de diferents dificultats i
 diversos checkboxes per a activar i desactivar opcions i finestres de control (control de la
@@ -488,7 +513,7 @@ càmera, de la il·luminació \ldots) del joc.
 
 Com a resultats d'aquest projecte, s'ha completat exitosament el desenvolupament del sudoku 3D i
 dels objectius proposats inicialment. El joc pot ser compilat utilitzant CMake en les dues
-plataformes proposades i el joc arriba als 60 fps mínims per a jugar.
+plataformes proposades i el joc arriba als 60 FPS mínims per a jugar.
 
 \section{Conclusions}\label{sec:conclusion}
 Aquest projecte ha sigut una primera experiència al desenvolupament de jocs amb OpenGL amb la
@@ -498,19 +523,68 @@ desenvolupament de programes en diferents plataformes.
 \section*{Agraïments}
 
 \begin{thebibliography}{11}
-    \bibitem{latex}
-    http://en.wikibooks.org/wiki/LaTeX
+    \bibitem{ImGUI}
+    https://github.com/ocornut/imgui/tree/docking
 
-    \bibitem{2}
-    Referència 2
+    \bibitem{GLFW}
+    https://www.glfw.org/
 
-    \bibitem{3}
-    Etc.
+    \bibitem{glbinding}
+    https://glbinding.org/
+
+    \bibitem{OpenGL}
+    https://www.opengl.org/
+
+    \bibitem{GLM}
+    https://www.opengl.org/sdk/libs/GLM/
+
+    \bibitem{CLion}
+    https://www.jetbrains.com/clion/
+
+    \bibitem{RenderDoc}
+    https://renderdoc.org/
+
+    \bibitem{CMake}
+    https://cmake.org/
+
+    \bibitem{KanbanFlow}
+    https://kanbanflow.com/
+
+    \bibitem{GitHub}
+    https://github.com/
+
+    \bibitem{git}
+    https://git-scm.com/
+
+    \bibitem{Assimp}
+    https://github.com/assimp/assimp
+
+    \bibitem{glSphere}
+    http://www.songho.ca/opengl/gl\_sphere.html
+
+    \bibitem{Bullet3}
+    https://github.com/bulletphysics/bullet3
+
+    \bibitem{Flutter}
+    https://flutter.dev/
+
+    \bibitem{Jetpack Compose}
+    https://developer.android.com/jetpack/compose
+
+    \bibitem{Pipewire}
+    https://docs.pipewire.org/page\_api.html
 
 \end{thebibliography}
 
-% \appendix
-% \setcounter{section}{1}
-% \section*{Apèndix}
+\appendix
+\setcounter{section}{1}
+\section*{Apèndix}
+
+\begin{figure*}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/uml}
+    \includegraphics[width=0.9\textwidth]{img/uml2}
+    \caption{Diagrama UML del projecte.}
+\end{figure*}
 
 \end{document}
