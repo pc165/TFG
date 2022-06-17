@@ -96,6 +96,7 @@ FILE(GLOB LIBRARY_SOURCES
 if(UNIX)
         Include(FindPipewire.txt)
         include_directories(
+                ${Spa_INCLUDE_DIRS}
                 ${PipeWire_INCLUDE_DIRS}
         )
         target_link_libraries(TFG PRIVATE
@@ -106,7 +107,6 @@ endif()
 include_directories(
         ${glfw_INCLUDE_DIRS}
         ${glbinding_INCLUDE_DIRS}
-        ${Spa_INCLUDE_DIRS}
         ${glm_SOURCE_DIR}
         ${imgui_SOURCE_DIR}
         ${stb_SOURCE_DIR}
