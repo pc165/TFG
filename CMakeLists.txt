@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
 Include(FetchContent)
-Include(FindPipewire.txt)
 project(TFG)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -93,11 +92,20 @@ FILE(GLOB LIBRARY_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
 
+# LINUX AUDIO
+if(UNIX)
+        Include(FindPipewire.txt)
+        include_directories(
+                ${PipeWire_INCLUDE_DIRS}
+        )
+        target_link_libraries(TFG PRIVATE
+                ${PipeWire_LIBRARIES}
+        )
+endif()
+
 include_directories(
         ${glfw_INCLUDE_DIRS}
         ${glbinding_INCLUDE_DIRS}
-        # LINUX AUDIO
-        ${PipeWire_INCLUDE_DIRS}
         ${Spa_INCLUDE_DIRS}
         ${glm_SOURCE_DIR}
         ${imgui_SOURCE_DIR}
@@ -116,16 +124,16 @@ file(GLOB_RECURSE SRC_FILES
         src/game/*.h
         src/render/*.cpp
         src/render/*.h
-        )
+)
 
 
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
+
 
 target_link_libraries(TFG PRIVATE
         spdlog::spdlog glfw
         glbinding::glbinding
         glbinding::glbinding-aux
-        ${PipeWire_LIBRARIES}
         ${OPENGL_gl_LIBRARY})
 
 # warnings
