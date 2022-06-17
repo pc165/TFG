@@ -158,16 +158,12 @@ void tfg::PlayNumberAudio(int number) {
         return;
     }
 
-    //XAUDIO2_VOICE_STATE state = {};
+    XAUDIO2_VOICE_STATE state = {};
+    pSourceVoice->GetState(&state);
 
-    //if(FAILED(pSourceVoice->GetState(&state))) {
-    //    LOG_ERROR("Cannot stop audio");
-    //    return;
-    //}
-
-    //if(state.BuffersQueued != 0) {
-    //    return;
-    //}
+    if(state.BuffersQueued != 0) {
+        return;
+    }
 
     if(FAILED(pSourceVoice->SubmitSourceBuffer(&audios[number]))) {
         LOG_ERROR("Cannot play audio");
