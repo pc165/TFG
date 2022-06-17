@@ -4,18 +4,192 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <xaudio2.h>
+#include <winerror.h>
+#include <mmeapi.h>
+#include <winnt.h>
+#include <fileapi.h>
 
-void tfg::LoadAudioFiles(char const *path) {
+#define SAMPLE_RATE 44100
+#define TOTAL_CHANNELS 2
+#define MAX_AUDIOS 10
+
+struct WavFile {
+    // RIFF Header
+    int8_t riff_header[4]; // Contains "RIFF"
+    int32_t wav_size;      // Size of the wav portion of the file, which follows the first 8 bytes. File size - 8
+    int8_t wave_header[4]; // Contains "WAVE"
+
+    // Format Header
+    int8_t fmt_header[4];   // Contains "fmt " (includes trailing space)
+    int32_t fmt_chunk_size; // Should be 16 for PCM
+    int16_t format;         // Should be 1 for PCM. 3 for IEEE Float
+    int16_t num_channels;
+    int32_t sample_rate;
+    int32_t byte_rate;        // Number of bytes per second. sample_rate * num_channels * Bytes Per Sample
+    int16_t sample_alignment; // num_channels * Bytes Per Sample
+    int16_t bit_depth;        // Number of bits per sample
+
+    // Data
+    int8_t data_header[4]; // Contains "data"
+    int32_t data_bytes;    // Number of bytes in data. Number of samples * num_channels * sample byte size
+    void *bytes;           // Remainder of wave file is bytes
+};
+
+typedef XAUDIO2_BUFFER AudioData;
+static AudioData audios[MAX_AUDIOS];
+static int audio_size = 0;
+
+int tfg::LoadAudioFiles(char const *path) {
+    HANDLE hFile = CreateFileA(
+        path,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL);
+
+    if(INVALID_HANDLE_VALUE == hFile) {
+        LOG_ERROR("Cannot load {}", path);
+        return -1;
+    }
+
+    if(INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN)) {
+        LOG_ERROR("Cannot set cursor");
+        return -1;
+    }
+
+    LARGE_INTEGER size{ 0 };
+    if(!GetFileSizeEx(hFile, &size)) {
+        LOG_ERROR("Cannot get file size");
+        return -1;
+    }
+
+    LOG_INFO("File size is {}", size.LowPart);
+
+    void *data = (void *)malloc(size.LowPart);
+    DWORD bytesRead = 0;
+
+    if(!ReadFile(hFile, data, size.LowPart, &bytesRead, 0)) {
+        LOG_ERROR("Cannot read file");
+        return -1;
+    }
+
+    CloseHandle(hFile);
+
+    auto wav_file = static_cast<struct WavFile *>(data);
+    if(wav_file->sample_rate != SAMPLE_RATE ||
+       wav_file->num_channels != TOTAL_CHANNELS ||
+       wav_file->bit_depth != 16 ||
+       wav_file->format != 1)
+        LOG_ERROR("Couldn't load audio file");
+
+    assert(wav_file->sample_rate == SAMPLE_RATE);
+    assert(wav_file->num_channels == TOTAL_CHANNELS);
+    assert(wav_file->bit_depth == 16); // 16
+    assert(wav_file->format == 1);     // PCM
+    assert(wav_file->wave_header[0] == 'W');
+    assert(wav_file->wave_header[1] == 'A');
+    assert(wav_file->wave_header[2] == 'V');
+    assert(wav_file->wave_header[3] == 'E');
+    auto &audio = audios[audio_size++];
+
+    audio.pAudioData = static_cast<BYTE *>(malloc(wav_file->data_bytes));
+    audio.AudioBytes = wav_file->data_bytes;
+    audio.Flags = XAUDIO2_END_OF_STREAM;
+
+    assert(audio.pAudioData != nullptr);
+
+    memcpy((void *)audio.pAudioData, &wav_file->bytes, wav_file->data_bytes);
+
+    LOG_INFO("Created {}", path);
+
+    free(wav_file);
 }
 
-bool tfg::InitAudio() {
-    return false;
+static IXAudio2 *pXAudio2 = nullptr;
+static IXAudio2SourceVoice *pSourceVoice = nullptr;
+
+int tfg::InitAudio() {
+    HRESULT hr;
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if(FAILED(hr))
+        return hr;
+
+
+    if(FAILED(hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_USE_DEFAULT_PROCESSOR)))
+        return hr;
+
+    IXAudio2MasteringVoice *pMasterVoice = nullptr;
+    if(FAILED(hr = pXAudio2->CreateMasteringVoice(&pMasterVoice)))
+        return hr;
+    WAVEFORMATEX wfx;
+
+    wfx.nChannels = TOTAL_CHANNELS;
+    wfx.nSamplesPerSec = SAMPLE_RATE;
+    wfx.wFormatTag = WAVE_FORMAT_PCM;
+    wfx.nAvgBytesPerSec = TOTAL_CHANNELS * SAMPLE_RATE * 2;
+    wfx.cbSize = 0;
+    wfx.nBlockAlign = 4;
+    wfx.wBitsPerSample = 16;
+
+
+    hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx);
+    if(FAILED(hr)) {
+        HRESULT_FROM_WIN32(GetLastError());
+        LOG_ERROR("Cannot create audio source");
+        return -1;
+    }
+
+    return 0;
 }
 
 void tfg::PlayNumberAudio(int number) {
+    LOG_DEBUG("Play {}", number);
+    assert(number < audio_size);
+    if(!(number < audio_size)) {
+        LOG_ERROR("Out of range");
+        return;
+    }
+
+    if(!pSourceVoice) {
+        LOG_ERROR("Source is nullptr");
+        return;
+    }
+
+    //XAUDIO2_VOICE_STATE state = {};
+
+    //if(FAILED(pSourceVoice->GetState(&state))) {
+    //    LOG_ERROR("Cannot stop audio");
+    //    return;
+    //}
+
+    //if(state.BuffersQueued != 0) {
+    //    return;
+    //}
+
+    if(FAILED(pSourceVoice->SubmitSourceBuffer(&audios[number]))) {
+        LOG_ERROR("Cannot play audio");
+        return;
+    }
+
+    if(FAILED(pSourceVoice->Start(0))) {
+        LOG_ERROR("Cannot play audio");
+        return;
+    }
+
 }
 
 void tfg::DestroyAudio() {
+    if(pSourceVoice) {
+        pSourceVoice->DestroyVoice();
+    }
+
+    if(pXAudio2) {
+        pXAudio2->StopEngine();
+        pXAudio2->Release();
+    }
 }
 
 #elif __unix__
@@ -84,7 +258,7 @@ struct ThreadData {
 
 static struct AudioData audios[MAX_AUDIOS];
 static int audio_size = 0;
-static struct UserData user_data = {.loop = nullptr, .stream = nullptr, .audio = nullptr, .finished = true, .quit = false};
+static struct UserData user_data = { .loop = nullptr, .stream = nullptr, .audio = nullptr, .finished = true, .quit = false };
 static struct ThreadData thread_data;
 
 //https://docs.pipewire.org/tutorial4_8c-example.html
@@ -93,20 +267,20 @@ static void on_process(void *dataPtr) {
     auto *data = static_cast<struct UserData *>(dataPtr);
     pthread_mutex_lock(&thread_data.lock);
 
-    if (data->quit) {
+    if(data->quit) {
         LOG_DEBUG("Event audio quit");
         pthread_mutex_unlock(&thread_data.lock);
         pw_main_loop_quit(data->loop);
         return;
     }
 
-    if (data->finished || data->audio == nullptr) {
+    if(data->finished || data->audio == nullptr) {
         pthread_mutex_unlock(&thread_data.lock);
         return;
     }
 
     struct pw_buffer *pw_buffer = pw_stream_dequeue_buffer(data->stream);
-    if (pw_buffer == nullptr) {
+    if(pw_buffer == nullptr) {
         pthread_mutex_unlock(&thread_data.lock);
         LOG_ERROR("Out of buffers");
         return;
@@ -115,7 +289,7 @@ static void on_process(void *dataPtr) {
     struct spa_buffer *spa_buffer = pw_buffer->buffer;
     auto *buffer = static_cast<int16_t *>(spa_buffer->datas[0].data);
 
-    if (buffer == nullptr) {
+    if(buffer == nullptr) {
         pthread_mutex_unlock(&thread_data.lock);
         return;
     }
@@ -128,20 +302,20 @@ static void on_process(void *dataPtr) {
     int n_frames = spa_buffer->datas[0].maxsize / stride;
     int remaining_frames = audio->total_frames - audio->frames_played;
 
-    if (n_frames > remaining_frames)
+    if(n_frames > remaining_frames)
         n_frames = remaining_frames;
 
-    for (int i = 0; i < n_frames * TOTAL_CHANNELS; i++) {
+    for(int i = 0; i < n_frames * TOTAL_CHANNELS; i++) {
         int32_t sample = reinterpret_cast<int16_t *>(audio->buffer)[audio->frames_played * TOTAL_CHANNELS + i];
 
-        if (sample < INT16_MIN) sample = INT16_MIN;
-        if (sample > INT16_MAX) sample = INT16_MAX;
+        if(sample < INT16_MIN) sample = INT16_MIN;
+        if(sample > INT16_MAX) sample = INT16_MAX;
 
         *buffer++ = sample;
     }
 
     audio->frames_played += n_frames;
-    if (audio->frames_played >= audio->total_frames) {
+    if(audio->frames_played >= audio->total_frames) {
         audio->frames_played = 0;
         data->finished = true;
     }
@@ -199,7 +373,7 @@ static void *audio_main_thread(void *) {
     struct spa_audio_info_raw info = {
         .format = SPA_AUDIO_FORMAT_S16_LE,
         .rate = SAMPLE_RATE,
-        .channels = TOTAL_CHANNELS};
+        .channels = TOTAL_CHANNELS };
 
     params[0] = spa_format_audio_raw_build(&b, SPA_PARAM_EnumFormat, &info);
 
@@ -227,30 +401,30 @@ int tfg::LoadAudioFiles(char const *path) {
     int fd = open(path, O_RDONLY);
     LOG_INFO("Load audio {}", path);
 
-    if (audio_size >= MAX_AUDIOS) {
+    if(audio_size >= MAX_AUDIOS) {
         LOG_ERROR("Too manu audios");
         return -1;
     }
 
-    if (fd == -1) {
+    if(fd == -1) {
         LOG_ERROR("Cannot open file {}", path);
         return -1;
     }
 
     int size = lseek(fd, 0, SEEK_END);
 
-    if (size == -1) {
+    if(size == -1) {
         LOG_ERROR("Cannot find file size");
         return -1;
     }
 
-    if (lseek(fd, 0, SEEK_SET) == -1) {
+    if(lseek(fd, 0, SEEK_SET) == -1) {
         LOG_ERROR("Cannot reset cursor");
         return -1;
     }
 
     void *data = (void *)malloc(size);
-    if (read(fd, data, size) == -1) {
+    if(read(fd, data, size) == -1) {
         LOG_ERROR("Cannot read");
         return -1;
     }
@@ -258,10 +432,10 @@ int tfg::LoadAudioFiles(char const *path) {
     close(fd);
 
     auto wav_file = static_cast<struct WavFile *>(data);
-    if (wav_file->sample_rate != SAMPLE_RATE ||
-        wav_file->num_channels != TOTAL_CHANNELS ||
-        wav_file->bit_depth != 16 ||
-        wav_file->format != 1)
+    if(wav_file->sample_rate != SAMPLE_RATE ||
+       wav_file->num_channels != TOTAL_CHANNELS ||
+       wav_file->bit_depth != 16 ||
+       wav_file->format != 1)
         LOG_ERROR("Couldn't load audio file");
 
     assert(wav_file->sample_rate == SAMPLE_RATE);
@@ -291,12 +465,12 @@ int tfg::LoadAudioFiles(char const *path) {
 }
 
 int tfg::InitAudio() {
-    if (pthread_mutex_init(&thread_data.lock, nullptr)) {
+    if(pthread_mutex_init(&thread_data.lock, nullptr)) {
         LOG_ERROR("Cannot create mutex");
         return -1;
     }
 
-    if (pthread_create(&thread_data.handle, nullptr, audio_main_thread, nullptr)) {
+    if(pthread_create(&thread_data.handle, nullptr, audio_main_thread, nullptr)) {
         LOG_ERROR("Cannot create thread");
         return -1;
     }
@@ -322,7 +496,7 @@ void tfg::PlayNumberAudio(int number) {
 void tfg::DestroyAudio() {
     LOG_DEBUG("Destroy audio");
 
-    for (int i = 0; i < audio_size; ++i) {
+    for(int i = 0; i < audio_size; ++i) {
         LOG_INFO("Free audio {}", i);
         free(audios[i].buffer);
     }

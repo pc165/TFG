@@ -153,8 +153,8 @@ void Shader::setLight(const tfg::Light &light) const {
 
 void Shader::setMaterial(const tfg::Material &material) const {
     setFloat("uMaterial.shininess", material.shininess);
-    setInt("uMaterial.diffuse", material.diffuse);
-    setInt("uMaterial.specular", material.specular);
+    //setInt("uMaterial.diffuse", material.diffuse);
+    //setInt("uMaterial.specular", material.specular);
 }
 
 void Shader::bind() const {
