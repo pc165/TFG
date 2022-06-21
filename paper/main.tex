@@ -58,20 +58,14 @@
 
         \thispagestyle{primerapagina}
         \begin{center}
-            \parbox{0.915\textwidth} {\sffamily \textbf{Resum--} Resum del projecte, màxim 10 línies.\\Resum del
-                projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-                línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-                projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-                línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-                projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-                línies.\\ \textbf{Paraules clau-- } Paraules clau del treball, màxim 2 línies\\ \\ \bigskip \\
-                \textbf{Abstract--} Versió en anglès del resum Resum del projecte, màxim 10 línies.\\Resum del
-                projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-                línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del
-                projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10
-                línies.\\Resum del projecte, màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ projecte,
-                màxim 10 línies.\\Resum del projecte, màxim 10 línies.\\ \\ \\ \textbf{Keywords-- } Versió en
-                anglès de les paraules clau. \\}
+            \parbox{0.915\textwidth} {\sffamily
+
+                \textbf{Resum--} En aquest article s'explica el disseny, implementació i test d'una primera versió d'un videojoc 3D utilitzant l'API d'OpenGL modern. El videojoc consisteix en un tauler en 3D on es pot col·locar fitxes amb números en braille respectant les regles d'un sudoku clàssic. El joc té com a finalitat ajudar als nens a aprendre els números en braille i per això s'ha implementat una sèrie de característiques que ajuden a la memorització del braille: visualització de números en braille i en números normals, pistes per a solucionar el trencaclosques, reproducció d'àudio en fer clic\ldots Per a una major disponibilitat, el joc s'ha desenvolupat per a Linux i Windows. \\ \bigskip \\
+                \textbf{Paraules clau-- } Sudoku, braille, joc, OpenGL, gràfics 3D, multiplataforma.\\ \bigskip \\
+
+                \textbf{Abstract--} This article explains the design, implementation, and testing of an early version of a 3D video game using the modern OpenGL API. The video game consists of a 3D board where you can place tiles with numbers in braille respecting the rules of a classic sudoku. The aim of the game is to help children learn numbers in braille, which is why a series of features have been implemented that help them to memorize braille: visualization of numbers in braille and normal numbers, clues to solve the puzzle, audio playback on click \ldots For greater availability, the game has been developed for Linux and Windows. \ \bigskip \\
+
+                \textbf{Keywords-- } Sudoku, braille, game, OpenGL, 3D graphics, multiplatform. \\}
 
             \bigskip
 
@@ -97,12 +91,12 @@ parcialment emplenada de 9 $\times$ 9 caselles dividida en subgraelles de 3 $\ti
 El sudoku modern va ser popularitzat en el 2004 quan Wayne Gould va desenvolupar un programa informàtic per produir trencaclosques únics ràpidament.
 
 Per una altra banda, el braille és un sistema d'escriptura i lectura tàctil basat en 6 punts
-disposats en una graella de 3 $\times$ 3, es utilitzat molt per a persones cegues o amb visió
+disposats en una graella de 3 $\times$ 3, és utilitzat molt per a persones cegues o amb visió
 reduïda.
 
 \section{Estat de l'art}\label{sec:stateOftheArt}
 
-En l'actualitat, podem trobar sudokus en moltes parts: en els diaris, en llibres de pasatemps, en
+En l'actualitat, podem trobar sudokus en moltes parts: en els diaris, en llibres de passatemps, en
 aplicacions per al mòbil o ordinador. Tot i això, no s'ha pogut trobar un sudoku en braille per a
 ordinador que permeti aprendre els números en braille o qualsevol joc semblant. És per això que
 s'ha proposat a dur a terme aquest projecte. A més a més, estic interessat en el funcionament dels
@@ -445,6 +439,27 @@ de la finestra.
     \caption{Utilització de la funció glReadPixels.}\label{fig:glRead}
 \end{figure}
 
+\subsection{Àudio}\label{subsec:audio}
+En el fitxer Audio.cpp està implementat dues funcions que permeten la càrrega de fitxers d'àudio i
+la reproducció d'aquests en les diferents plataformes.
+
+En Linux s'ha implementat utilitzant Pipewire\cite{Pipewire} que és un framework de baix nivell per
+la reproducció de vídeo i àudio amb una latència mínima. Pipewire te un daemon que serveix com a
+servidor pel streaming de fitxers multimèdia i un client que dona ordres al servidor utilitzant el
+mòdul Core API\cite{Pipewire: Core API}. El procés per la reproducció consta de quatre passos: la
+creació d'un objecte stream i d'un loop, la connexió del stream del client amb el servidor,
+l'enviament de dades per a reproduir en el bucle i la destrucció dels objectes
+inicialitzats\cite{Pipewire: Playing A Tone}.
+
+En Windows la reproducció d'àudio té els mateixos passos (inicialitzar, configurar i destruir els
+components de xAudio2\cite{xAudio2}) només canvia en l'enviament de dades: en Linux s'ha d'enviar
+paquets 5000 Bytes d'àudio i per això és necessari crear un nou fil d'execució, en canvi en
+Windows, l'API de xAudio2 accepta buffers complets.
+
+Els fitxers d'àudio procedeixen de FreeSound\cite{FreeSound}.Per carregar els fitxers multimèdia és
+necessari que tinguin format WAV, PCM, una freqüència de mostreig de 44,10 kHz, dos canals i per
+això s'han editat amb Audacity\cite{Audacity},
+
 \subsection{Sudoku}\label{subsec:sudoku}
 Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'estat del joc és
 vàlid, generar i carregar sudokus.
@@ -482,10 +497,7 @@ fitxa indicada per la variable nearesTile que es permetrà assignar números (si
 llocs buits.
 
 Les fitxes permeten donar pistes en fer un clic (mostra la solució parcial en braille fins a un
-màxim de 3 esferes) i reprodueix el número en anglès. L'àudio és reprodueix fent servir un thread a
-part del main, només s'ha implementat en Linux utilitzant l'API de baix nivell de
-Pipewire\cite{Pipewire}. La funció \textbf{LoadAudioFile(path)} pot carregar fitxers WAV amb dos
-canals a 44,1 kHz a causa de la implementació de la reproducció d'àudio.
+màxim de 3 esferes) i reprodueix el número en anglès.
 
 \begin{figure}[!h]
     \centering
@@ -523,56 +535,71 @@ desenvolupament de programes en diferents plataformes.
 \section*{Agraïments}
 
 \begin{thebibliography}{11}
-    \bibitem{ImGUI}
-    https://github.com/ocornut/imgui/tree/docking
-
     \bibitem{GLFW}
-    https://www.glfw.org/
-
-    \bibitem{glbinding}
-    https://glbinding.org/
-
-    \bibitem{OpenGL}
-    https://www.opengl.org/
-
-    \bibitem{GLM}
-    https://www.opengl.org/sdk/libs/GLM/
-
-    \bibitem{CLion}
-    https://www.jetbrains.com/clion/
-
-    \bibitem{RenderDoc}
-    https://renderdoc.org/
-
-    \bibitem{CMake}
-    https://cmake.org/
-
-    \bibitem{KanbanFlow}
-    https://kanbanflow.com/
+    «An OpenGL library», GLFW. https://www.glfw.org/
 
     \bibitem{GitHub}
-    https://github.com/
-
-    \bibitem{git}
-    https://git-scm.com/
-
-    \bibitem{Assimp}
-    https://github.com/assimp/assimp
-
-    \bibitem{glSphere}
-    http://www.songho.ca/opengl/gl\_sphere.html
+    «Build software better, together», GitHub. https://github.com
 
     \bibitem{Bullet3}
-    https://github.com/bulletphysics/bullet3
+    Bullet Physics SDK. Bullet Physics SDK, 2022. Consulta: 21 juny 2022. [En línia]. Disponible a: https://github.com/bulletphysics/bullet3
+
+    \bibitem{CLion}
+    «CLion: A Cross-Platform IDE for C and C++ by JetBrains». https://www.jetbrains.com/clion/
+
+    \bibitem{CMake}
+    «CMake». https://cmake.org/
 
     \bibitem{Flutter}
-    https://flutter.dev/
+    «Flutter - Build apps for any screen». https://flutter.dev/
+
+    \bibitem{FreeSound}
+    «Freesound - “Counting Numbers Normal Voice 0-12” by dersuperanton». https://freesound.org/people/dersuperanton/sounds/434733/
+
+    \bibitem{git}
+    «Git». https://git-scm.com/
+
+    \bibitem{glbinding}
+    «glbinding». https://glbinding.org/
+
+    \bibitem{GLM}
+    «GLM SDK contribution». https://www.opengl.org/sdk/libs/GLM/
+
+    \bibitem{Audacity}
+    «Home», Audacity ®. https://www.audacityteam.org
 
     \bibitem{Jetpack Compose}
-    https://developer.android.com/jetpack/compose
+    «Jetpack Compose  |  Android Developers». https://developer.android.com/jetpack/compose
+
+    \bibitem{KanbanFlow}
+    «KanbanFlow - Lean project management. Simplified.» https://kanbanflow.com/
+
+    \bibitem{ImGUI}
+    «ocornut/imgui at docking», GitHub. https://github.com/ocornut/imgui
+
+    \bibitem{Assimp}
+    Open Asset Import Library (assimp). Open Asset Import Library, 2022. Consulta: 21 juny 2022. [En línia]. Disponible a: https://github.com/assimp/assimp
+
+    \bibitem{OpenGL}
+    «OpenGL - The Industry Standard for High Performance Graphics». https://www.opengl.org/
+
+    \bibitem{glSphere}
+    «OpenGL Sphere». http://www.songho.ca/opengl/gl\_sphere.html
+
+    \bibitem{RenderDoc}
+    «RenderDoc». https://renderdoc.org/
+
+    \bibitem{Pipewire: Core API}
+    «PipeWire: Core API». https://docs.pipewire.org/group\_\_api\_\_pw\_\_core.html
 
     \bibitem{Pipewire}
-    https://docs.pipewire.org/page\_api.html
+    «PipeWire: PipeWire API». https://docs.pipewire.org/page\_api.html
+
+    \bibitem{Pipewire: Playing A Tone}
+    «PipeWire: Tutorial - Part 4: Playing A Tone». https://docs.pipewire.org/page\_tutorial4.html
+
+    \bibitem{xAudio2}
+    drewbatgit, «XAudio2 programming guide - Win32 apps». https://docs.microsoft.com/en-us/windows/win32/xaudio2/programming-guide
 
 \end{thebibliography}
 
