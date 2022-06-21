@@ -60,10 +60,10 @@
         \begin{center}
             \parbox{0.915\textwidth} {\sffamily
 
-                \textbf{Resum--} En aquest article s'explica el disseny, implementació i test d'una primera versió d'un videojoc 3D utilitzant l'API d'OpenGL modern. El videojoc consisteix en un tauler en 3D on es pot col·locar fitxes amb números en braille respectant les regles d'un sudoku clàssic. El joc té com a finalitat ajudar als nens a aprendre els números en braille i per això s'ha implementat una sèrie de característiques que ajuden a la memorització del braille: visualització de números en braille i en números normals, pistes per a solucionar el trencaclosques, reproducció d'àudio en fer clic\ldots Per a una major disponibilitat, el joc s'ha desenvolupat per a Linux i Windows. \\ \bigskip \\
+                \textbf{Resum--} En aquest article s'explica el disseny, implementació i test d'una primera versió d'un videojoc 3D utilitzant l'API d'OpenGL modern. El videojoc consisteix en un tauler en 3D on es pot col·locar fitxes amb números en braille respectant les regles d'un sudoku clàssic. El joc té com a finalitat ajudar als nens a aprendre els números en braille i per això s'ha implementat una sèrie de característiques que ajuden a la memorització del braille: visualització de números en braille i en números normals, pistes per a solucionar el trencaclosques, reproducció d'àudio en fer clic, entre d'altres. Per a una major disponibilitat, el joc s'ha desenvolupat per a Linux i Windows. \\ \bigskip \\
                 \textbf{Paraules clau-- } Sudoku, braille, joc, OpenGL, gràfics 3D, multiplataforma.\\ \bigskip \\
 
-                \textbf{Abstract--} This article explains the design, implementation, and testing of an early version of a 3D video game using the modern OpenGL API. The video game consists of a 3D board where you can place tiles with numbers in braille respecting the rules of a classic sudoku. The aim of the game is to help children learn numbers in braille, which is why a series of features have been implemented that help them to memorize braille: visualization of numbers in braille and normal numbers, clues to solve the puzzle, audio playback on click \ldots For greater availability, the game has been developed for Linux and Windows. \ \bigskip \\
+                \textbf{Abstract--} This article explains the design, implementation, and testing of an early version of a 3D video game using the modern OpenGL API. The video game consists of a 3D board where you can place tiles with numbers in braille respecting the rules of a classic sudoku. The aim of the game is to help children learn numbers in braille, which is why a series of features have been implemented that help them to memorize braille: visualization of numbers in braille and normal numbers, clues to solve the puzzle, audio playback on click, among others. For greater availability, the game has been developed for Linux and Windows. \ \bigskip \\
 
                 \textbf{Keywords-- } Sudoku, braille, game, OpenGL, 3D graphics, multiplatform. \\}
 
@@ -333,7 +333,8 @@ col·locar l'objecte en coordenades de la finestra a més d'un shader no té imp
 \subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
 La classe \textit{EventState} gestiona l'estat dels perifèrics, aquesta classe és necessària pel
 fet que utilitzem la llibreria ImGUI i necessitem diferenciar entre els esdeveniments dirigits al
-joc dels esdeveniments dirigits als a la llibreria.
+joc dels esdeveniments dirigits als a la llibreria. La classe gestiona els esdeveniments quan el
+jugador interacciona amb determinats objectes de l'entorn.
 
 Aquesta classe té mètodes per obtenir l'estat de qualsevol botó i tecla, concretament s'han
 implementat els següents mètodes:
@@ -382,6 +383,14 @@ objectes a pantalla.
     \includegraphics[width=0.4\textwidth]{img/pers}
     \caption{Per a una geometria 3D és necessari 3 matrius que transformen les coordenades locals a coordenades món, si fos un element del HUD (com és el cas de la mira) només seria necessari la matriu \textit{uModel} (per transformar els vèrtexs) i la \textit{uProjection}.}\label{fig:pers}
 \end{figure}
+
+La càmera és controlable utilitzant el ratolí i el teclat. En la implementació s'ha utilitzat els
+angles d'Euler, concretament el \textit{pitch} i el \textit{yaw} per a canviar l'orientació de la
+càmera. A més a més, existeixen dos modes de control, un mode que permet moure la càmera sense fer
+clic a un lloc buit i un altre que és necessari fer clic per a moure la càmera. Les opcions es
+poden activar i desactivar amb la interfície d'usuari o utilitzant els accessos directes, en aquest
+cas la tecla F1. Amb el teclat es pot moure la posició de la càmera i es pot restablir la posició
+amb la tecla F2.
 
 \subsection{Selecció d'objectes}\label{subsec:picking-object}
 Una de les funcions fonamentals de qualsevol joc és la selecció d'objectes, hi existeixen diverses
@@ -460,6 +469,11 @@ Els fitxers d'àudio procedeixen de FreeSound\cite{FreeSound}.Per carregar els f
 necessari que tinguin format WAV, PCM, una freqüència de mostreig de 44,10 kHz, dos canals i per
 això s'han editat amb Audacity\cite{Audacity},
 
+\subsection{Il·luminació}
+Per millorar l'estètica del joc, per això s'ha implementat una llum direccional, bàsicament una
+llanterna posicionada en el centre de la càmera i es mou amb aquesta. Si es vol, es pot desacoblar
+de la càmera amb el boto \textit{lock light} del menú.
+
 \subsection{Sudoku}\label{subsec:sudoku}
 Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'estat del joc és
 vàlid, generar i carregar sudokus.
@@ -527,12 +541,18 @@ Com a resultats d'aquest projecte, s'ha completat exitosament el desenvolupament
 dels objectius proposats inicialment. El joc pot ser compilat utilitzant CMake en les dues
 plataformes proposades i el joc arriba als 60 FPS mínims per a jugar.
 
-\section{Conclusions}\label{sec:conclusion}
+Amb l'objectiu de garantir el funcionament correcte del projecte s'han inserit en funcions clau del
+codi clàusules \textit{asserts} que permeten afirmar supòsits per la correcta execució del
+programa, a més a més, s'ha utilitzat la llibreria spdlog\cite{spdlog} per a fer un registre de les
+accions i els errors o alertes que ocorren en el programa.
+
+\section{Conclusions i millores}\label{sec:conclusion}
 Aquest projecte ha sigut una primera experiència al desenvolupament de jocs amb OpenGL amb la
 utilització de shaders, s'ha pogut expandir el coneixement sobre els gràfics 3D i al
 desenvolupament de programes en diferents plataformes.
 
 \section*{Agraïments}
+Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia que m'ha estat ajudant des de l'inici del projecte, també gràcies a la meva família i amics que han mostrat el seu suport i han estat testejant l'aplicació.
 
 \begin{thebibliography}{11}
     \bibitem{GLFW}
@@ -542,7 +562,7 @@ desenvolupament de programes en diferents plataformes.
     «Build software better, together», GitHub. https://github.com
 
     \bibitem{Bullet3}
-    Bullet Physics SDK. Bullet Physics SDK, 2022. Consulta: 21 juny 2022. [En línia]. Disponible a: https://github.com/bulletphysics/bullet3
+    Bullet Physics SDK. Bullet Physics SDK, 2022. [En línia]. Disponible a: https://github.com/bulletphysics/bullet3
 
     \bibitem{CLion}
     «CLion: A Cross-Platform IDE for C and C++ by JetBrains». https://www.jetbrains.com/clion/
@@ -578,7 +598,7 @@ desenvolupament de programes en diferents plataformes.
     «ocornut/imgui at docking», GitHub. https://github.com/ocornut/imgui
 
     \bibitem{Assimp}
-    Open Asset Import Library (assimp). Open Asset Import Library, 2022. Consulta: 21 juny 2022. [En línia]. Disponible a: https://github.com/assimp/assimp
+    Open Asset Import Library (assimp). Open Asset Import Library, 2022. [En línia]. Disponible a: https://github.com/assimp/assimp
 
     \bibitem{OpenGL}
     «OpenGL - The Industry Standard for High Performance Graphics». https://www.opengl.org/
@@ -598,6 +618,9 @@ desenvolupament de programes en diferents plataformes.
     \bibitem{Pipewire: Playing A Tone}
     «PipeWire: Tutorial - Part 4: Playing A Tone». https://docs.pipewire.org/page\_tutorial4.html
 
+    \bibitem{spdlog}
+    G. Melman, spdlog. 2022. [En línia]. Disponible a: https://github.com/gabime/spdlog
+
     \bibitem{xAudio2}
     drewbatgit, «XAudio2 programming guide - Win32 apps». https://docs.microsoft.com/en-us/windows/win32/xaudio2/programming-guide
 
@@ -606,12 +629,13 @@ desenvolupament de programes en diferents plataformes.
 \appendix
 \setcounter{section}{1}
 \section*{Apèndix}
+La figura \pref{figure:uml} mostra el diagrama UML (no exhaustiu) del projecte.
 
 \begin{figure*}[!h]
     \centering
     \includegraphics[width=0.9\textwidth]{img/uml}
     \includegraphics[width=0.9\textwidth]{img/uml2}
-    \caption{Diagrama UML del projecte.}
+    \caption{Diagrama UML del projecte.}\label{figure:uml}
 \end{figure*}
 
 \end{document}
