@@ -93,16 +93,13 @@ FILE(GLOB LIBRARY_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
 
 # LINUX AUDIO
-if(UNIX)
-        Include(FindPipewire.txt)
-        include_directories(
-                ${Spa_INCLUDE_DIRS}
-                ${PipeWire_INCLUDE_DIRS}
-        )
-        target_link_libraries(TFG PRIVATE
-                ${PipeWire_LIBRARIES}
-        )
-endif()
+if (UNIX)
+    Include(FindPipewire.txt)
+    include_directories(
+            ${Spa_INCLUDE_DIRS}
+            ${PipeWire_INCLUDE_DIRS}
+    )
+endif ()
 
 include_directories(
         ${glfw_INCLUDE_DIRS}
@@ -124,7 +121,7 @@ file(GLOB_RECURSE SRC_FILES
         src/game/*.h
         src/render/*.cpp
         src/render/*.h
-)
+        )
 
 
 add_executable(TFG src/main.cpp ${SRC_FILES} ${LIBRARY_SOURCES})
@@ -135,6 +132,13 @@ target_link_libraries(TFG PRIVATE
         glbinding::glbinding
         glbinding::glbinding-aux
         ${OPENGL_gl_LIBRARY})
+
+
+if (UNIX)
+    target_link_libraries(TFG PRIVATE
+            ${PipeWire_LIBRARIES}
+            )
+endif ()
 
 # warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
