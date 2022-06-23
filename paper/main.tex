@@ -358,9 +358,10 @@ missatge per esdeveniment, és a dir si es pressiona una tecla i es deixa premud
 enviarà un missatge que serà vàlid per a un \textit{frame}, això vol dir que si es deixa
 pressionada, no s'enviaran els missatges que toquen. Aquest problema es pot solucionar guardant el
 missatge que s'ha rebut de manera local en cada mòdul, però això significa introduir un nou camp en
-cada mòdul cosa que incrementa la complexitat molt. El segon problema és que és assignar i
-alliberar memòria en el \textit{heap} constantment pels missatges, cosa que disminueix el rendiment
-del sistema, a més a més comporta la necessitat de convertir el missatge al tipus d'esdeveniment.
+cada mòdul cosa que incrementa la complexitat molt. El segon problema radica en el assignar i
+alliberar memòria dinàmica (per poder utilitzar el polimorfisme) constantment pels missatges, cosa
+que disminueix el rendiment del sistema i afegeix fuges de memòria si no s'utilitza amb compte, a
+més a més, és necessari convertir el missatge al tipus d'esdeveniment.
 
 \begin{figure}[!h]
     \centering
