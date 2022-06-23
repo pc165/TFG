@@ -191,7 +191,7 @@ anat pujant a ells els avenços fets utilitzant git\cite{git}.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/kanban}
+    \includegraphics[width=0.5\textwidth]{img/kanban}
     \caption{Un tauler Kanban.}\label{fig:kanban}
 \end{figure}
 
@@ -207,20 +207,20 @@ disseny i la implementació de les classes que serviran per implementar el joc.
 \section{Desenvolupament}\label{sec:development}
 
 Per desenvolupar un joc, normalment, s'utilitza un motor de joc que prové les eines necessàries per
-al ràpid desenvolupament d'aquest, com per exemple Unreal Engine (UE) o Godot. La funcionalitat
-bàsica que normalment proporciona un motor de joc pot incloure entre altres: un motor de
-renderització per a gràfics en 2D o 3D, un motor físic per a la detecció de col·lisions i la
+al ràpid desenvolupament d'aquest, com per exemple Unity\cite{Unity} o Godot\cite{Godot}. La
+funcionalitat bàsica que normalment proporciona un motor de joc pot incloure entre altres: un motor
+de renderització per a gràfics en 2D o 3D, un motor físic per a la detecció de col·lisions i la
 simulació de físiques i un sistema de gestió d'entitats. En el nostre cas, com que no hem
 implementat un joc molt complex, no ha fet falta desenvolupar un motor de renderització ni un motor
 de física; només s'ha implementat certes funcionalitats claus per al desenvolupament del nostre
 joc. És a dir un sistema per renderitzar objectes, un sistema d'esdeveniments per gestionar la E/S
 de l'usuari i diverses estructures de dades per a la gestió de l'estat.
 
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{img/godot}
-    \caption{L'entorn de desenvolupament del motor de joc Godot.}\label{fig:godot}
-\end{figure}
+% \begin{figure}[!h]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{img/godot}
+%     \caption{L'entorn de desenvolupament del motor de joc Godot.}\label{fig:godot}
+% \end{figure}
 
 \subsection{Inicialització}\label{subsec:inicialitzacio}
 Abans de res, necessitem una finestra i un context OpenGL per a poder renderitzar els objectes a la
@@ -228,8 +228,8 @@ pantalla. Hi ha diverses funcions que s'encarreguen de la creació i de la destr
 OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per als perifèrics.
 
 \begin{itemize}
-    \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textbf{width $\times$ height} amb el títol \textbf{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
-    \item \textbf{ConfigureEvents()}: Insta-la els \textit{callback} a la finestra creada i configura la classe \textit{EventState.}
+    \item \textbf{InitWindow(title, width, height)}: Crea una finestra amb mides \textit{width $\times$ height} amb el títol \textit{title} i carrega les funcions d'OpenGL cridant a \textit{glbinding::Binding::initialize().}
+    \item \textbf{ConfigureEvents()}: Insta-la els \textit{callback} a la finestra creada i configura la classe EventState.
     \item \textbf{DestroyWindow()}: Destrueix la finestra i allibera la memòria assignada per \textit{InitWindow().}
 \end{itemize}
 
@@ -237,18 +237,17 @@ OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per
 El sistema de renderització està compost per dues classes:
 
 \begin{itemize}
-    \item La classe \textit{Object}, és la classe base per a qualsevol objecte que es dibuixa a pantalla
-          (\textit{Cube, Sphere, Plane, Crosshair}). Té dos mètodes principals:
+    \item La classe Object, és la classe base per a qualsevol objecte que es dibuixa a pantalla (Cube,
+          Sphere, Plane, Crosshair). Té dos mètodes principals:
           \begin{itemize}
               \item \textbf{setupVao(position, normals, texture, index)}: Inicialitza les estructura de dades i els \textit{shaders} necessàris per al dibuixat amb \textit{OpenGL}.
               \item \textbf{draw(transform, color, isLightEnabled, drawNormals)}: El mètode amb el qual es dibuixa a la pantalla.
                     El mètode aplica l'escalat, la rotació, la translació i el segons els arguments.
-                    Els arguments \textbf{isLightEnabled} i \textbf{drawNormals} permeten activar la il·luminació i dibuixar les normals de l'objecte.
+                    Els arguments \textit{isLightEnabled} i \textit{drawNormals} permeten activar la il·luminació i dibuixar les normals de l'objecte.
           \end{itemize}
 
-    \item La classe \textit{Shader}, s'encarrega de compilar i generar els programa \textit{shader} a partir
-          d'un codi font i assignar les variables \textit{uniforms} del programa. Entre altres mètodes es
-          troben:
+    \item La classe Shader, s'encarrega de compilar i generar els programa \textit{shader} a partir d'un codi
+          font i assignar les variables \textit{uniforms} del programa. Entre altres mètodes es troben:
           \begin{itemize}
               \item \textbf{loadShader(path)}: Compila els \textit{shaders} indicat per l'argument \textit{path} i crea el programa \textit{shader}, també realitza una comprovació d'errors.
               \item \textbf{setLight(light)}: Si el programa \textit{shader} suporta il·luminació, configurarà la il·luminació amb l'argument.
@@ -261,15 +260,8 @@ El sistema de renderització està compost per dues classes:
 \subsubsection{Cub}
 La renderització d'un cub (o de qualsevol objecte) es fa partir de triangles, primer es defineix la
 posició dels vèrtexs dels triangles que el conformen, a més de les normals i de les coordenades de
-la textura i s'utilitza el mètode \textbf{setupVao} de la classe base per enviar les dades dels
+la textura i s'utilitza el mètode \textit{setupVao} de la classe base per enviar les dades dels
 vèrtexs a la GPU.\@
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.4\textwidth]{img/cube}
-    \includegraphics[width=0.4\textwidth]{img/sphere}
-    \caption{Renderització d'un cub i una esfera amb il·luminació i les seves normals.}\label{fig:cube}
-\end{figure}
 
 \subsubsection{Esfera}
 De la mateixa manera que el cub, és necessari les posicions dels vèrtexs i les normals per a
@@ -287,7 +279,32 @@ de l'esfera \cite{glSphere}.
 El primer mètode comporta desenvolupar un carregador de fitxers \textit{obj} si es vol implementar
 a mà o utilitzar una llibreria com ara Assimp\cite{Assimp} que podria ser útil si es vol crear
 objectes més complexos per al joc (per exemple: un model d'una mà per agafar les fitxes). Però en
-aquest cas s'ha optat en utilitzar el mètode algorítmic.
+aquest cas s'ha optat en utilitzar el mètode algorítmic, ja que és més simple d'implementar.
+
+\subsubsection{Pla}
+
+Aquest objecte l'utilitzem per seleccionar el pla que es vol en la funció \textit{glUnproject} per
+convertir la posició del ratolí en la finestra a coordenades món. Si no s'utilitza un pla, la
+posició del món que s'obtindria seria la del pla \textit{zFar}.
+
+\subsubsection{Mira}
+A diferència dels objectes anteriors, la mira és un objecte 2D i per això la classe té un mètode
+per renderitzar especial que desactiva la il·luminació i fa l'ús de la projecció ortogràfica per
+col·locar l'objecte en coordenades de la finestra a més d'un shader no té implementat la matriu
+\textit{lookAt} per la camera.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/cube}
+    \includegraphics[width=0.4\textwidth]{img/sphere}
+    \includegraphics[width=0.4\textwidth]{img/crosshair}
+    \caption{Renderització dels diferents objecte: un cub amb il·luminació i les seves normals, esferes amb diferents paràmetres i la mira visualitzada amb RenderDoc.}\label{fig:cube}
+\end{figure}
+
+% \begin{figure}[!h]
+%     \centering
+%     \caption{Visualitzats amb RenderDoc dels vèrtexs enviats al \textit{shader}.}\label{fig:crosshair}
+% \end{figure}
 
 \subsubsection{Fitxa del sudoku}
 Una vegada tenim implementat l'esfera i cub, es pot començar el modelatge de l'entitat del joc, és
@@ -308,34 +325,62 @@ esferes a dibuixar.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/num2braille}
-    \includegraphics[width=0.4\textwidth]{img/tile}
+    \includegraphics[width=0.5\textwidth]{img/num2braille}
+    \includegraphics[width=0.5\textwidth]{img/tile}
     \caption{\textit{Look up table} indexat pel valor numèric de la fitxa i la fitxa amb el 7 i el 2 en braille.}\label{fig:tile}
 \end{figure}
 
-\subsubsection{Pla}
+\subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
+En un principi, aquesta classe estava implementat com una cua de missatges amb classes
+polimòrfiques. Els esdeveniments eren classes que heretaven d'una classe principal comú a tots els
+esdeveniments que es produïen. La classe base (BaseEvent) tenia dos camps: un enter que
+identificava el tipus de classe la conversió i entre els diferents esdeveniments, i un booleà per
+marcar si l'esdeveniment ja ha estat gestionat per un mòdul i es vol para la propagació als
+diferents mòduls.
 
-Aquest objecte l'utilitzem per seleccionar el pla que es vol en la funció \textit{glUnproject} per
-convertir la posició del ratolí en la finestra a coordenades món. Si no s'utilitza un pla, la
-posició del món que s'obtindria seria la del pla \textit{zFar}.
+Els esdeveniments eren introduïts a la cua de missatges mitjançant \textit{callbacks} que
+s'instal·laven al sistema d'esdeveniment de GLFW. El \textit{callbacks} creava, de manera dinàmica,
+la classe corresponent al missatge i ho convertia en la classe base per a poder afegir-lo a la cua,
+finalment, els missatges eren propagats mitjançant un bucle que s'executava al final de cada
+\textit{frame}.
 
-\subsubsection{Mira}
-A diferència dels objectes anteriors, la mira és un objecte 2D i per això la classe té un mètode
-per renderitzar especial que desactiva la il·luminació i fa l'ús de la projecció ortogràfica per
-col·locar l'objecte en coordenades de la finestra a més d'un shader no té implementat la matriu
-\textit{lookAt} per la camera.
+Per rebre els missatges, els mòduls havien de subscriure's al sistema d'esdeveniments mitjançant
+\textit{callbacks} i convertir els missatges a esdeveniment.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/crosshair}
-    \caption{Visualitzats amb RenderDoc dels vèrtexs enviats al \textit{shader}.}\label{fig:crosshair}
+    \includegraphics[width=0.5\textwidth]{img/event}
+    \caption{Diagrama UML del sistema d'esdeveniment inicial.}\label{fig:event}
 \end{figure}
 
-\subsection{Classes d'esdeveniments}\label{subsec:classes-d'esdeveniments}
-La classe \textit{EventState} gestiona l'estat dels perifèrics, aquesta classe és necessària pel
-fet que utilitzem la llibreria ImGUI i necessitem diferenciar entre els esdeveniments dirigits al
-joc dels esdeveniments dirigits als a la llibreria. La classe gestiona els esdeveniments quan el
-jugador interacciona amb determinats objectes de l'entorn.
+Aquesta implementació tenia diversos problemes o inconvenients: la llibreria GLFW només enviava un
+missatge per esdeveniment, és a dir si es pressiona una tecla i es deixa premuda, el sistema només
+enviarà un missatge que serà vàlid per a un \textit{frame}, això vol dir que si es deixa
+pressionada, no s'enviaran els missatges que toquen. Aquest problema es pot solucionar guardant el
+missatge que s'ha rebut de manera local en cada mòdul, però això significa introduir un nou camp en
+cada mòdul cosa que incrementa la complexitat molt. El segon problema és que és assignar i
+alliberar memòria en el \textit{heap} constantment pels missatges, cosa que disminueix el rendiment
+del sistema, a més a més comporta la necessitat de convertir el missatge al tipus d'esdeveniment.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/eventProblem}
+    \caption{En el \textit{frame} 1, Event no envia KeyPress tot i que l'usuari segueix pressionant la tecla.}\label{fig:event}
+\end{figure}
+
+Per això s'ha eliminat i creat una nova classe (EventState), que canvia el sistema de missatges per
+a un sistema d'enquesta i guarda l'estat de l'esdeveniment que s'ha produït. La classe inclou tots
+els camps dels esdeveniments (KeyPress, KeyRelease, MouseMove, WindowResize\ldots) i uns
+\textit{callbacks} (molt semblants als \textit{callbacks} anterios) que s'instal·len en el sistema
+d'esdeveniments de GLFW i actualitzen l'estat intern.
+
+En els \textit{callbacks} hi ha lògica que permeten diferenciar si l'esdeveniment està dirigit per
+al joc o a la llibreria ImGUI.
+
+% La classe EventState que gestiona l'estat dels perifèrics, aquesta classe és necessària pel fet que
+% utilitzem la llibreria ImGUI i necessitem diferenciar entre els esdeveniments dirigits al joc dels
+% esdeveniments dirigits als a la llibreria. La classe gestiona els esdeveniments quan el jugador
+% interacciona amb determinats objectes de l'entorn.
 
 Aquesta classe té mètodes per obtenir l'estat de qualsevol botó i tecla, concretament s'han
 implementat els següents mètodes:
@@ -371,9 +416,9 @@ mètodes que s'utilitzen per actualitzar l'estat.
 \end{itemize}
 
 \subsection{Càmera}\label{subsec:classe-camera}
-La classe \textit{Camera} conté les matrius que s'utilitzen per posicionar i transformar els
-objectes al món, més concretament, proveeix dues matrius dependentment si es vol una projecció
-ortogràfica o una projecció perspectiva.
+La classe Camera conté les matrius que s'utilitzen per posicionar i transformar els objectes al
+món, més concretament, proveeix dues matrius dependentment si es vol una projecció ortogràfica o
+una projecció perspectiva.
 
 Si l'objecte que es vol dibuixar en pantalla és una figura 3D, com ara l'esfera o el cub,
 s'utilitza la projecció perspectiva i si no, s'utilitza la projecció ortogràfica per dibuixar els
@@ -381,7 +426,7 @@ objectes a pantalla.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.5\textwidth]{img/transforms}
-    \includegraphics[width=0.4\textwidth]{img/pers}
+    \includegraphics[width=0.5\textwidth]{img/pers}
     \caption{Per a una geometria 3D és necessari 3 matrius que transformen les coordenades locals a coordenades món, si fos un element del HUD (com és el cas de la mira) només seria necessari la matriu \textit{uModel} (per transformar els vèrtexs) i la \textit{uProjection}.}\label{fig:pers}
 \end{figure}
 
@@ -415,7 +460,7 @@ només podrem seleccionar un nombre finit d'objectes.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/drawPick}
+    \includegraphics[width=0.5\textwidth]{img/drawPick}
     \caption{Visualització dels colors assignats als objectes.}\label{fig:pick}
 \end{figure}
 
@@ -427,25 +472,25 @@ es pugui obtenir fàcilment a mà. Per exemple si l'identificador és $123$, obt
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/genColor}
+    \includegraphics[width=0.5\textwidth]{img/genColor}
     \caption{Funció de generació del color.}\label{fig:genColor}
 \end{figure}
 
-La funció \textbf{colorToId(color)} obté de manera trivial l'identificador a partir del color si el
+La funció \textit{colorToId(color)} obté de manera trivial l'identificador a partir del color si el
 color no coincideix amb el color de fons.
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/getColor}
+    \includegraphics[width=0.5\textwidth]{img/getColor}
     \caption{Funció de obtenció del identificador.}\label{fig:getColor}
 \end{figure}
 
-A més a més de les funcions de conversió, s'utilitza la funció \textbf{glReadPixels(x, y, type,
+A més a més de les funcions de conversió, s'utilitza la funció \textit{glReadPixels(x, y, type,
     dataType, out)} que permet obtenir el color (entre altres variables canviant l'argument
 \textit{type}) del buffer de la GPU en un punt (x, y), en aquest cas la posició del ratolí dintre
 de la finestra.
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/glRead}
+    \includegraphics[width=0.5\textwidth]{img/glRead}
     \caption{Utilització de la funció glReadPixels.}\label{fig:glRead}
 \end{figure}
 
@@ -480,7 +525,7 @@ Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'
 vàlid, generar i carregar sudokus.
 
 La inicialització col·loca les fitxes en la posició correcta i inicialitza l'estructura de dades
-\textit{Tile} que conté informació relativa a la posició i el valor de la fitxa.
+Tile que conté informació relativa a la posició i el valor de la fitxa.
 
 Per comprovar que el joc s'ha completat correctament, sumem totes les cel·les i es comprova que
 igual a 405 ($(1+2+...+9) * 9$).
@@ -498,12 +543,12 @@ La classe conté referències a la fitxa seleccionada, la fitxa que sota el rato
 pròxima al ratolí (selectedTile, hoveredTile i nearesTile). Amb aquestes tres variables podem
 implementar totes les accions requerides pel jugador.
 
-La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada frame
-utilitzant la funció \textbf{nearestTile(pos, predicate)}, el argument \textit{predicate} serveix
-per ometre fitxes que compleixin una certa condició (com ara si la fitxa és igual a la
-seleccionada, ja que és sempre la més propera).
+La variable nearesTile conté la fitxa que està mes a prop del ratolí, s'actualitza per cada
+\textit{frame} utilitzant la funció \textit{nearestTile(pos, predicate)}, el argument
+\textit{predicate} serveix per ometre fitxes que compleixin una certa condició (com ara si la fitxa
+és igual a la seleccionada, ja que és sempre la més propera).
 
-La variable hoveredTile s'obté mitjançant la funció \textbf{colorToId(color)} amb el color de la
+La variable hoveredTile s'obté mitjançant la funció \textit{colorToId(color)} amb el color de la
 posició del ratolí i representa la fitxa que se seleccionarà si es fa clic.
 
 Si es fa clic, la variable selectedTile s'assigna amb el valor de hoveredTile, podem moure la fitxa
@@ -516,7 +561,7 @@ màxim de 3 esferes) i reprodueix el número en anglès.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/tauler}
+    \includegraphics[width=0.5\textwidth]{img/tauler}
     \caption{Estat inicial de joc.}\label{fig:tauler}
 \end{figure}
 
@@ -532,7 +577,7 @@ càmera, de la il·luminació \ldots) del joc.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.4\textwidth]{img/menu}
-    \includegraphics[width=0.4\textwidth]{img/overlay}
+    \includegraphics[width=0.3\textwidth]{img/overlay}
     \caption{Menú i overlay del joc.}\label{fig:menu}
 \end{figure}
 
@@ -547,10 +592,30 @@ codi clàusules \textit{asserts} que permeten afirmar supòsits per la correcta 
 programa, a més a més, s'ha utilitzat la llibreria spdlog\cite{spdlog} per a fer un registre de les
 accions i els errors o alertes que ocorren en el programa.
 
+Un dels problemes sorgits al llarg del projecte és la compilació entre diferents plataformes: en
+sistemes Linux les dependències s'instal·len de manera trivial mitjançant la \textit{command line}
+mentrés que en Windows s'ha de descarregar la versió correcta manualment i afegir-lo al
+\textit{path enviroment}. Això s'ha solucionat utilitzant el mòdul
+\textit{FetchContent}\cite{FetchContent} de CMake que permet descarregar de manera automàtica les
+dependències necessàries.
+
 \section{Conclusions i millores}\label{sec:conclusion}
 Aquest projecte ha sigut una primera experiència al desenvolupament de jocs amb OpenGL amb la
 utilització de shaders, s'ha pogut expandir el coneixement sobre els gràfics 3D i al
 desenvolupament de programes en diferents plataformes.
+
+Com que aquest joc és una versió inicial i m'he enfocat molt al funcionament intern dels jocs, hi
+ha molts aspectes que es poden millorar, sobretot en l'estètica: afegir textures a les fitxes,
+afegir una textura pel fons, implementar la càrrega de models 3D i afegir una mà \ldots
+
+Un altre àmbit a millorar és el sistema de renderitzat. En aquest joc, s'utilitza moltes crides a
+\textit{glDraw} que si més no, l'impacte al rendiment no és apreciable en un joc, ja que no hi ha
+molts objectes, es podria veure afectat en afegir més objectes. La solució seria implementar la
+tècnica del \textit{batch rendering}\cite{Batch Rendering}.
+
+Finalment, el títol del projecte menciona un ``dispositius d'interacció gestual'' però en aquest
+projecte no s'ha implementat tot a causa de la falta de temps i recursos i que s'ha deixat perquè
+es pugui implementar fàcilment modificant la classe EventState.
 
 \section*{Agraïments}
 Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia que m'ha estat ajudant des de l'inici del projecte, també gràcies a la meva família i amics que han mostrat el seu suport i han estat testejant l'aplicació.
@@ -574,6 +639,9 @@ Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia 
     \bibitem{CMake}
     «CMake». https://cmake.org/
 
+    \bibitem{CMake}
+    «FetchContent — CMake 3.24.0-rc2 Documentation». https://cmake.org/cmake/help/latest/module/FetchContent.html.
+
     \bibitem{Flutter}
     «Flutter - Build apps for any screen». https://flutter.dev/
 
@@ -588,6 +656,9 @@ Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia 
 
     \bibitem{GLM}
     «GLM SDK contribution». https://www.opengl.org/sdk/libs/GLM/
+
+    \bibitem{Godot}
+    G. Engine, «Godot Engine - Free and open source 2D and 3D game engine», Godot Engine. https://godotengine.org/.
 
     \bibitem{Audacity}
     «Home», Audacity ®. https://www.audacityteam.org
@@ -607,6 +678,9 @@ Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia 
     \bibitem{OpenGL}
     «OpenGL - The Industry Standard for High Performance Graphics». https://www.opengl.org/
 
+    \bibitem{Batch Rendering}
+    «OpenGL Batch Rendering», GameDev.net. https://gamedev.net/tutorials/programming/graphics/opengl-batch-rendering-r3900.
+
     \bibitem{glSphere}
     «OpenGL Sphere». http://www.songho.ca/opengl/gl\_sphere.html
 
@@ -622,6 +696,9 @@ Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia 
     \bibitem{Pipewire: Playing A Tone}
     «PipeWire: Tutorial - Part 4: Playing A Tone». https://docs.pipewire.org/page\_tutorial4.html
 
+    \bibitem{Unity}
+    «Unity Real Time Development Platform 3D, 2D VR and AR Engine». https://unity.com/.
+
     \bibitem{spdlog}
     G. Melman, spdlog. 2022. [En línia]. Disponible a: https://github.com/gabime/spdlog
 
@@ -633,7 +710,7 @@ Voldria expressar el meu agraïment més sincer al meu tutor Enric Martí Godia 
 \appendix
 \setcounter{section}{1}
 \section*{Apèndix}
-La figura \pref{figure:uml} mostra el diagrama UML (no exhaustiu) del projecte.
+La figura \pref{figure:uml} mostra el diagrama UML (no complet) del projecte.
 
 \begin{figure*}[!h]
     \centering
