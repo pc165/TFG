@@ -13,8 +13,8 @@
 #define SAMPLE_RATE 44100
 #define TOTAL_CHANNELS 2
 #define MAX_AUDIOS 10
-
-struct WavFile {
+#define PACK( __Declaration__ ) __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
+PACK(struct WavFile {
     // RIFF Header
     int8_t riff_header[4]; // Contains "RIFF"
     int32_t wav_size;      // Size of the wav portion of the file, which follows the first 8 bytes. File size - 8
@@ -34,7 +34,7 @@ struct WavFile {
     int8_t data_header[4]; // Contains "data"
     int32_t data_bytes;    // Number of bytes in data. Number of samples * num_channels * sample byte size
     void *bytes;           // Remainder of wave file is bytes
-};
+});
 
 typedef XAUDIO2_BUFFER AudioData;
 static AudioData audios[MAX_AUDIOS];
@@ -106,6 +106,7 @@ int tfg::LoadAudioFiles(char const *path) {
     LOG_INFO("Created {}", path);
 
     free(wav_file);
+    return 0;
 }
 
 static IXAudio2 *pXAudio2 = nullptr;
