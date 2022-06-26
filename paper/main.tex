@@ -191,7 +191,13 @@ pantalla. Hi ha diverses funcions que s'encarreguen de la creació i de la destr
 OpenGL a més de la instal·lació dels \textit{callback} dels esdeveniments per als perifèrics.
 
 \subsection{Sistema de renderització}\label{subsec:sistema-de-renderitzacio}
-El sistema de renderització està compost per dues classes:
+El sistema de renderització, com es pot veure en la figura\pref{fig:renderComp}, exposa una
+interfície la qual permet dibuixar la figura que es desitja.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/render}
+    \caption{Diagrama de components del sistema de renderització.}\label{fig:renderComp}
+\end{figure}
 
 \subsubsection{Classe Object}
 El procés de renderitzat té tres fases: la definició dels vèrtexs (o \textit{quads} si inclou
@@ -269,7 +275,7 @@ col·locar l'objecte en coordenades de la finestra a més d'un shader no té imp
     \centering
     \includegraphics[width=0.4\textwidth]{img/cube}
     \includegraphics[width=0.4\textwidth]{img/sphere}
-    \includegraphics[width=0.4\textwidth]{img/crosshair}
+    \includegraphics[width=0.3\textwidth]{img/crosshair}
     \caption{Renderització dels diferents objecte: un cub amb il·luminació i les seves normals, esferes amb diferents paràmetres i la mira visualitzada amb RenderDoc.}\label{fig:cube}
 \end{figure}
 
@@ -452,12 +458,33 @@ Per millorar l'estètica del joc, per això s'ha implementat una llum direcciona
 llanterna posicionada en el centre de la càmera i es mou amb aquesta. Si es vol, es pot desacoblar
 de la càmera amb el boto \textit{lock light} del menú.
 
-\subsection{Sudoku}\label{subsec:sudoku}
+\subsection{Estrutura de dades}
+Abans de pasar a la implementació del sudoku i del \textit{gameplay} s'ha de parlar sobre les
+estructures que s'han utilitzat. En el fitxer DataStructs.h podem trobar totes les estructures que
+s'utilitzen en el projecte, les més importants són les que estan presents en la figura
+\pref{fig:dataStruct}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/dataStruct}
+    \caption{Diagrama de components de les estructures de dades.}\label{fig:dataStruct}
+\end{figure}
+
+Primer tenim PlaneData, aquesta estructura s'utilitza per fer càlculs relacionats amb els plans;
+conté mètodes que permeten calcular el pla a partir de tres punts. Seguidament tenim Transform,
+s'utilitza per guardar les transformacions necessàries per a la renderització d'un objecte en
+l'escena: la posició, l'escala, la rotació i el color. L'estructura Cell guarda informació sobre la
+cel·la d'un sudoku: el valor inicial, si es pot escriure o no i la solució. L'estructura Entitat
+conté l'identificador i el color generat per l'algoritme explicat en la secció
+\pref{subsec:picking-object}. Finalment, Tile guarda les dades de l'entitat del joc (si es pot
+moure, el número\ldots).
+
+\subsection{Sudoku}
 Aquesta classe té les següents funcions: inicialitzar el joc, comprovar que l'estat del joc és
 vàlid, generar i carregar sudokus.
 
 La inicialització col·loca les fitxes en la posició correcta i inicialitza l'estructura de dades
-Tile que conté informació relativa a la posició i el valor de la fitxa.
+Tile.
 
 Per comprovar que el joc s'ha completat correctament, sumem totes les cel·les i es comprova que
 igual a 405 ($(1+2+...+9) * 9$).
@@ -470,6 +497,12 @@ d'una fila i columna aleatòria fins a arribar a la dificultat desitjada.
 \subsection{Classe Món}\label{subsec:world}
 
 És la classe que conté el bucle del joc i controla les accions permeses del jugador o sigui el \textit{gameplay} del joc.
+La classe Món depén de totes les classes anteriors, com es pot veure en la figura \pref{fig:game}, exposa dues interfícies: el bucle principal (startGame) i la funció d'inicialització. El bucle principal renderitza tots els objectes de la pantalla i actualitza el sistema d'esdeveniments de GLFW que la vegada actualitza el nostre sistema d'esdeveniments.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/game}
+    \caption{Paquet game.}\label{fig:game}
+\end{figure}
 
 La classe conté referències a la fitxa seleccionada, la fitxa que sota el ratolí i la fitxa més
 pròxima al ratolí (\textit{selectedTile, hoveredTile i nearesTile}). Amb aquestes tres variables
@@ -666,6 +699,18 @@ La figura \pref{figure:uml} mostra el diagrama UML (no complet) del projecte.
     \centering
     \includegraphics[width=0.9\textwidth]{img/uml}
     \includegraphics[width=0.9\textwidth]{img/uml2}
+    \caption{Diagrama UML del projecte.}\label{figure:uml}
+\end{figure*}
+
+La figura \pref{figure:uml} mostra el diagrama de components del projecte.
+
+\begin{figure*}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/render}
+    \includegraphics[width=0.5\textwidth]{img/dataStruct}
+    \includegraphics[width=0.5\textwidth]{img/utils}
+    \includegraphics[width=0.5\textwidth]{img/game}
+    \includegraphics[width=0.1\textwidth]{img/logger}
     \caption{Diagrama UML del projecte.}\label{figure:uml}
 \end{figure*}
 
